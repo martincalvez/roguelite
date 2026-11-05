@@ -206,7 +206,7 @@ Détaillée par Sonnet puis **mise à jour après revue** (inscriptions fermées
 - **Suppression :** « Supprimer ma sauvegarde cloud » supprime la ligne de la table, pas le compte. C'est suffisant.
 - **Données personnelles :** seule l'adresse e-mail est stockée (chez Supabase, pour l'authentification). La sauvegarde ne contient aucune donnée personnelle.
 
-### [ ] 4.0 Réglages à faire par Martin sur Supabase (guidé pas à pas)
+### [x] 4.0 Réglages à faire par Martin sur Supabase (guidé pas à pas)
 
 ```
 Tâche 4.0 (Martin, avec l'aide de Claude pour chaque écran). 1) Créer un compte sur supabase.com avec un mot de passe unique (gestionnaire de mots de passe) et activer la double authentification. 2) Créer un projet « roguelite », région Europe (Frankfurt ou Paris) ; le mot de passe de la base va dans ton gestionnaire, jamais dans le dépôt. 3) Authentication → URL Configuration : Site URL = https://martincalvez.github.io/roguelite/ et ajouter http://localhost:5173 dans les Redirect URLs. 4) Authentication → Sign In / Providers : ne garder que « Email » et DÉCOCHER « Allow new users to sign up ». 5) Authentication → Users → « Add user » : créer ton compte à la main avec ton adresse (« Auto Confirm User » coché). 6) Authentication → Email Templates : ajouter le code {{ .Token }} dans le modèle « Magic Link » pour recevoir le code à 6 chiffres. 7) Settings → API : noter l'URL du projet et la clé « anon public » (PAS la clé « service_role ») et les mettre dans .env.local (jamais dans un message ni un fichier commité). 8) Dans les Variables du dépôt GitHub (Settings → Secrets and variables → Actions → Variables), créer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY avec les mêmes valeurs.
