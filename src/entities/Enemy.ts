@@ -10,6 +10,7 @@ const FREEZE_TINT = 0x66ccff;
 
 /** Visuels Gemini déjà détourés ; les autres ennemis gardent leurs textures de secours. */
 const ENEMY_ART: Record<string, string> = {
+  gobelin: 'enemy-art-crystal-green',
   archer_squelette: 'enemy-art-turret',
   shaman: 'enemy-art-crystal-green',
   ogre: 'enemy-art-crystal-pink',
