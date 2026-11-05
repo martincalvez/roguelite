@@ -77,9 +77,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.moveVector.lengthSq() > 0;
   }
 
-  /** Tourne le héros vers un point (le repère visuel de la texture pointe vers la droite). */
+  /** Tourne le héros vers un point en tenant compte de l'orientation native de chaque sprite. */
   faceTowards(x: number, y: number): void {
-    this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, x, y));
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, x, y);
+    const spriteOffset = GameState.data.selectedHero === 'aldric' ? -Math.PI / 2 : 0;
+    this.setRotation(angle + spriteOffset);
   }
 
   /**

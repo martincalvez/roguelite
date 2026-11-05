@@ -97,7 +97,8 @@ export class HeroScene extends Phaser.Scene {
     this.add.rectangle(cx, 382, 640, 430, 0x218bd0, 0.84);
     this.add.text(cx, 190, 'HÉROS ACTIF', { fontSize: '27px', color: '#ffffff', fontStyle: 'bold', stroke: '#102d4c', strokeThickness: 6 }).setOrigin(0.5);
 
-    this.add.image(cx - 86, 337, `hero-${hero.id}`).setDisplaySize(210, 262);
+    const customSprite = hero.id === 'aldric';
+    this.add.image(cx - 86, customSprite ? 352 : 337, `hero-${hero.id}`).setDisplaySize(customSprite ? 220 : 210, customSprite ? 220 : 262);
     const pet = GameState.equippedPet();
     if (pet?.def.petAppearance && this.textures.exists(`pet-${pet.def.id}`)) {
       this.add.image(cx + 177, 370, `pet-${pet.def.id}`).setDisplaySize(114, 114);
@@ -122,7 +123,8 @@ export class HeroScene extends Phaser.Scene {
       const affordable = canUnlockHero(hero, data.unlockedHeroes, data.gems);
       const border = active ? 0xffcf45 : unlocked ? 0x70dcff : 0x9b75d1;
       this.content.add(this.add.rectangle(cx, y, 650, CARD_HEIGHT, unlocked ? 0x145283 : 0x283c69, 0.97).setStrokeStyle(6, border));
-      this.content.add(this.add.image(cx - 250, y, `hero-${hero.id}`).setDisplaySize(100, 126));
+      const customSprite = hero.id === 'aldric';
+      this.content.add(this.add.image(cx - 250, y, `hero-${hero.id}`).setDisplaySize(customSprite ? 112 : 100, customSprite ? 112 : 126));
 
       const name = this.add.text(cx - 176, y - 56, hero.name, {
         fontSize: '32px', color: hero.appearance.accentColor, fontStyle: 'bold', stroke: '#111f3b', strokeThickness: 6,

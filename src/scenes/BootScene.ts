@@ -12,11 +12,14 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     this.load.image('item-amulette-braise', 'assets/twin-core.png');
     this.load.image('pet-familier_chouette', 'assets/characters/amber_owl_idle.png');
+    this.load.image('hero-aldric', 'assets/characters/aldric_idle.png');
   }
 
   create(): void {
     this.makeCircle('player', 22, 0x3fa4ff, true);
-    for (const hero of HEROES) this.makeHeroTexture(hero);
+    for (const hero of HEROES) {
+      if (!this.textures.exists(`hero-${hero.id}`)) this.makeHeroTexture(hero);
+    }
     this.makeCircle('projectile', 7, 0xffe14a);
     this.makeCircle('projectile-bolt', 11, 0xff9d2e);
     this.makeCircle('projectile-shuriken', 5, 0xd9e6ff);
