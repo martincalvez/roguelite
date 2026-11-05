@@ -6,10 +6,10 @@ Lis ce fichier en entier avant chaque tâche. Il fait autorité sur tes habitude
 
 Roguelite d'action 2D vu de dessus, façon Archero, univers **fantasy classique**. Jeu personnel, joué par Martin et ses proches : pas de store, pas de pub, pas d'achat.
 
-- Le héros se déplace pour esquiver ; **il tire automatiquement sur l'ennemi le plus proche quand il est immobile** (réglage `settings.alwaysShoot` = tir permanent).
+- Dans la campagne actuelle, le héros esquive et tire automatiquement sur l'ennemi le plus proche quand il est immobile (réglage `settings.alwaysShoot` = tir permanent). Le mode Survie à venir devra suivre la nouvelle référence vidéo : déplacement et tirs continus, choix de capacités, pièges et progression affichée sur 50 étapes (la suite après 50 reste à préciser).
 - Un run = des salles enchaînées (chapitre de 20 salles : combat, ange, mini-boss salle 10, boss salle 20). Chaque niveau gagné → choix d'1 compétence parmi 3. À la mort ou à la victoire : écran de butin.
 - Entre les runs : équipement par slots, rareté + fusion, talents, héros, familiers.
-- Plus tard : mode Survie (vagues infinies dans une arène) et synchro PC ↔ téléphone.
+- Plus tard : mode Survie distinct de la campagne. La vidéo de référence affiche 5/50 étapes ; le comportement après 50 reste à confirmer. Synchro PC ↔ téléphone déjà en place.
 - Plateformes : navigateur PC (clavier ZQSD / flèches) et téléphone (joystick virtuel flottant), écran **portrait**.
 
 Plan complet et roadmap : `docs/TACHES.md` (une tâche = une demande).
@@ -23,9 +23,9 @@ Le style visé est celui d'**Archero** : cartoon, très coloré, vif, lisible, "
 - Les formes générées dans `BootScene` doivent déjà suivre ce style (couleurs vives, contour net).
 - La palette actuelle de `config.ts` (`COLORS`) est sombre : à rafraîchir quand Martin le demande, pas avant.
 
-### Référence visuelle de la phase 5
+### Références visuelles de la phase 5
 
-Les captures fournies par Martin le 5 novembre 2026 définissent le rendu souhaité pour menus, équipement et combat : fonds bleus/turquoise texturés, vert prairie lumineux, accents magenta et violet, or jaune, cartes encadrées selon la rareté, contours sombres épais, reliefs et ombres, boutons jaune-or ou vert vif, fenêtres crème avec sections nettes, illustrations centrales généreuses et effets lumineux. Garder une lecture immédiate sur téléphone. Les familiers doivent être visibles près du héros dans l'écran de gestion comme en combat. Voir `docs/CIBLE-UI.md` pour les détails et les nouvelles captures de référence.
+Les captures fournies par Martin le 5 novembre 2026 définissent le rendu des menus, de l'équipement, des familiers et des fenêtres : fonds bleus/turquoise texturés, vert prairie lumineux, accents magenta et violet, or jaune, cartes bordées par rareté, contours sombres, reliefs et ombres, boutons jaune-or ou vert vif, fenêtres crème et illustrations centrales généreuses. La vidéo de jeu fournie ensuite devient la référence prioritaire pour le combat et le futur mode Survie : vue de dessus, salles et couloirs, herbe et pierre, pièges, combat en mouvement, récompenses animées et progression 5/50 visible. Garder une lecture immédiate sur téléphone. Voir `docs/CIBLE-UI.md` pour le relevé détaillé et les assets à produire.
 
 ## Stack
 

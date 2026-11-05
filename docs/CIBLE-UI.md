@@ -41,9 +41,38 @@ Les captures fournies par Martin (IMG_3929 à IMG_3934, puis IMG_3936 à IMG_394
 
 Les captures servent de référence de direction et de composition. Martin a confirmé qu'il peut utiliser les visuels concernés ; les ressources qu'il fournit ou choisit pourront donc être intégrées au projet.
 
-## Application progressive
+## Référence prioritaire pour le combat et le mode Survie
 
-- **5.1 Familiers** : gestion dans cette direction, familier visible auprès du héros et fiche/carte lisible.
-- **5.2 Héros** : même mise en scène centrale et langage de cartes.
-- **5.3–5.4** : décors plus vivants, boss lisibles, effets lumineux et choix de compétences au format carte.
-- **5.5** : enrichir les sprites, décors, icônes et sons pour atteindre le rendu montré dans les références.
+La vidéo de gameplay envoyée par Martin le 5 novembre 2026 devient la référence principale pour les scènes de combat et le futur mode Survie. Les captures fixes IMG_3929–IMG_3942 restent la référence pour les menus, l'équipement, les familiers et les fenêtres. Le relevé ci-dessous suit la chronologie détaillée fournie par Martin ; le fichier MOV (environ 33 secondes, HEVC) n'a pas pu être extrait image par image dans l'environnement de développement. Ne pas présenter les détails non visibles dans le clip comme confirmés.
+
+### Déroulé observé (00:00–00:33)
+
+- **Départ (00:00)** : choix d'une capacité parmi trois grandes cartes crème à bordure dorée, avec icône et nom court ; le choix met le jeu en pause.
+- **Mise en route (00:01–00:05)** : écran de combat de niveau 1, joystick flottant en bas, compteur de pièces en haut. Une roue de la fortune propose « Commencer », tourne, puis verse des pièces avec une animation de jaillissement.
+- **Salles et pièges (00:05–00:22)** : déplacement rapide au travers de salles ouvertes et de passages de pierre, sol d'herbe quadrillé, blocs, eau et végétation. Des tourelles tirent horizontalement ; des pièges de feu et des projectiles obligent à changer de trajectoire. Monstres roses et tireurs verts sont combattus en mouvement.
+- **Combat et butin** : attaques répétées pendant les déplacements, projectiles, chiffres de dégâts très visibles, ennemis qui disparaissent à leur mort, pièces et objets au sol, notifications courtes comme « Snack pour familier x1 » et « Saphir x2 ».
+- **Montée de niveau (00:22–00:26)** : retour à trois cartes de compétences, pause puis reprise après sélection. Le relevé fourni comporte des noms d'options divergents ; seuls le format des cartes et le principe de choix sont certains.
+- **Ennemi majeur (00:26–fin)** : grand chevalier bleu, barre de vie dédiée, attaques à esquiver en tournant autour des obstacles. La vidéo s'arrête pendant ce combat ; son issue et le contenu après l'étape 50 ne sont pas montrés.
+
+### Règles de rendu à reprendre
+
+- Vue de dessus en portrait, avec personnage volontairement petit par rapport à l'arène dans cette vidéo. Cette proportion devient prioritaire pour le combat, même si une ancienne capture montrait un héros plus grand.
+- Sols en tuiles lisibles ; alternance herbe vive, pierre claire, couloirs et canaux d'eau. Murs de pierre épais et obstacles qui dessinent des trajectoires.
+- Couleurs franches pour distinguer le héros, les ennemis, les projectiles, les pièges et les récompenses. Les effets doivent être visibles sans masquer la navigation.
+- Barre du niveau/progression en haut, pièces à droite, joystick en bas. Cartes de compétence en pause, textes très courts, grandes icônes.
+- Rythme vif : changements de direction fréquents, tirs sans immobiliser le héros, récompenses brèves et immédiatement lisibles.
+
+### Assets à obtenir en priorité
+
+1. **Kit de décor vu de dessus** : tuiles d'herbe, pierre, eau, murs et blocs, couleurs coordonnées et raccords propres.
+2. **Ennemis isolés en PNG transparent** : tourelle rouge, monstre rose, tireur vert et chevalier bleu de grande taille.
+3. **Planches d'animation cohérentes** : Aldric en déplacement/attaque et chouette en vol ; toutes les cases gardent la même échelle et le même angle de vue.
+4. **Effets et butin** : flèches, poison, éclair, gemme d'XP, pièces, saphir et snack de familier.
+
+Pour le tout premier lot, le décor et les quatre ennemis auront le plus grand effet visuel. Générer les éléments séparément, sans texte ni interface incrustée, afin de pouvoir les animer et les placer librement.
+
+## Ordre prévu
+
+- **5.5 d'abord** : finaliser le langage visuel, les polices et les assets de combat prioritaires, puis vérifier sur téléphone.
+- **5.4 ensuite** : créer le mode Survie en réutilisant les salles, compétences, combats et sauvegarde existants.
+- **5.1–5.3** : les fonctionnalités sont codées/publiées ; les validations manuelles restantes sont consignées dans `docs/ETAT-DU-PROJET.md`.

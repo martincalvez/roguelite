@@ -271,5 +271,22 @@ Tâche 5.3. Ajoute deux chapitres de 20 salles dans chapters.json, avec une iden
 ```
 Validation : terminer le chapitre 1 pour ouvrir le chapitre 2, puis le chapitre 2 pour ouvrir le chapitre 3 ; jouer au moins une salle de chaque nouveau chapitre et confirmer le décor, les nouveaux ennemis et le comportement des boss.
 
-- [ ] 5.4 Mode Survie (vagues infinies, bestWave)
-- [ ] 5.5 Graphismes fantasy (sprites, décors) et sons
+- [ ] 5.5 Graphismes fantasy, référence vidéo et sons
+
+```
+Tâche 5.5. Priorité avant le mode Survie. Applique les références visuelles des menus et de l'équipement décrites dans docs/CIBLE-UI.md, et utilise la vidéo de Martin comme référence prioritaire pour les scènes de combat : vue de dessus portrait, petites salles et couloirs de pierre/herbe/eau, blocs, tourelles et pièges, attaques en mouvement, barre de progression, récompenses très lisibles. Intègre les assets générés/fournis par Martin (tuiles de terrain, Aldric et chouette animés, ennemis, pièges, projectiles, XP, pièces et butin) dans les scènes existantes. Garde les textes courts, des icônes grandes et expressives, une palette saturée, contours/ombres nets et effets rapides. La police Lilita One est déjà intégrée localement (7030092). Ne remplace pas la campagne par une capture de fond ; les éléments du jeu restent animés et interactifs. Pas de nouvelle dépendance sans accord.
+```
+Validation : sur téléphone, comparer accueil/équipement aux captures et une salle de combat à la vidéo ; confirmer lisibilité, échelle du héros, animation du familier, pièges, projectiles et ramassage des récompenses.
+
+- [ ] 5.4 Mode Survie (progression 50 étapes à confirmer)
+
+```
+Tâche 5.4. Après 5.5, ajoute un mode Survie distinct de la campagne de 20 salles. Prends pour référence la vidéo : run portrait, progression affichée comme 5/50, salles ouvertes et couloirs, obstacles et pièges (tourelles, tirs horizontaux, feu), ennemis de mêlée et à distance, attaques automatiques pendant le déplacement, XP qui déclenche un choix d'une capacité parmi trois, pièces et objets ramassables, mini-boss/boss avec barre de vie, record de progression sauvegardé. Réutilise Player, RoomFlow, SkillFlow, les pools, les données et la sauvegarde existants dès que possible ; ne casse ni la campagne ni la synchro. Le clip s'arrête à 5/50 et ne montre pas la fin : Martin doit confirmer si le mode s'arrête à 50 ou continue ensuite avant de figer cette règle. Aucun équilibrage chiffré en dur dans le code ; pas de nouvelle dépendance.
+```
+Validation : lancer une partie sur téléphone, choisir une capacité, esquiver plusieurs types de tirs et pièges, ramasser XP/butin, vérifier les transitions et la progression/record, puis confirmer le comportement à l'étape 50.
+
+## Pistes après la phase 5 (à arbitrer, pas encore planifiées)
+
+- Validation complète sur téléphone et équilibrage des chapitres 1–3, y compris la tâche 3.6 encore à confirmer.
+- Nouveaux chapitres, ennemis, pièges et boss, en fonction des assets disponibles.
+- Amélioration de la boucle de progression (défis, objectifs ou récompenses), seulement si Martin la souhaite après avoir testé la Survie.
