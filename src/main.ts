@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import './register-sw';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from './config';
 import { BootScene } from './scenes/BootScene';
 import { Sync } from './cloud/syncManager';

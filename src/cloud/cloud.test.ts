@@ -1,6 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { explainAuthError, isOfflineError, isRateLimited, MAX_CODE_ATTEMPTS, NEUTRAL_SENT } from './errors';
-import { isValidCode, isValidEmail, normalizeCode, normalizeEmail } from './validation';
+import {
+  isValidCode,
+  isValidEmail,
+  isValidSupabaseUrl,
+  normalizeCode,
+  normalizeEmail,
+  normalizeEnvironmentValue,
+} from './validation';
+
+describe('configuration Supabase', () => {
+  it('retire les espaces et retours de ligne finaux des variables de build', () => {
+    expect(normalizeEnvironmentValue('  https://projet.supabase.co\r\n')).toBe('https://projet.supabase.co');
+    expect(normalizeEnvironmentValue('  sb_publishable_demo\n')).toBe('sb_publishable_demo');
+    expect(normalizeEnvironmentValue('\r\n')).toBeUndefined();
+  });
+
+  it('valide l’URL Supabase après nettoyage et rejette les domaines non autorisés', () => {
+    expect(isValidSupabaseUrl('https://projet.supabase.co\r')).toBe(true);
+    expect(isValidSupabaseUrl(' https://projet.supabase.co/ \n')).toBe(true);
+    expect(isValidSupabaseUrl('https://projet.supabase.co.evil.example')).toBe(false);
+    expect(isValidSupabaseUrl(undefined)).toBe(false);
+  });
+});
 
 describe('validation des saisies', () => {
   it('accepte une adresse plausible, refuse le reste', () => {
