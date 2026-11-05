@@ -181,4 +181,23 @@ export interface ProgressionConfig {
   /** XP nécessaire pour passer du niveau n+1 au suivant (index 0 : niveau 1 → 2). Au-delà : dernière valeur. */
   xpPerLevel: number[];
   orbMagnetSpeed: number; // px/s : vitesse des orbes d'XP aspirés vers le héros
+  accountXpPerRoom: number; // XP de compte gagnée par salle terminée
+  accountXpVictoryBonus: number; // bonus d'XP de compte si le chapitre est terminé
+  /** XP de compte pour passer du niveau n+1 au suivant (index 0 : niveau 1 → 2). Au-delà : dernière valeur. */
+  accountXpPerLevel: number[];
+}
+
+/** Butin de fin de run. */
+export interface LootConfig {
+  itemCountWeights: number[]; // poids du nombre d'objets lâchés (index = nombre : 0, 1, 2…)
+  victoryMinItems: number; // nombre minimal d'objets en cas de victoire
+  rarityWeights: Record<Rarity, number>;
+}
+
+/** Récompenses d'un run, ajoutées à la sauvegarde en une fois. */
+export interface RunRewards {
+  gold: number;
+  accountXp: number;
+  items: ItemInstance[];
+  clearedChapter: number | null; // numéro du chapitre terminé (1 = ch1), null si défaite
 }

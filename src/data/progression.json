@@ -1,4 +1,29 @@
 {
-  "xpPerLevel": [30, 45, 65, 90, 120, 160, 210, 270, 340, 420],
-  "orbMagnetSpeed": 900
+  "xpPerLevel": [
+    30,
+    45,
+    65,
+    90,
+    120,
+    160,
+    210,
+    270,
+    340,
+    420
+  ],
+  "orbMagnetSpeed": 900,
+  "accountXpPerRoom": 10,
+  "accountXpVictoryBonus": 100,
+  "accountXpPerLevel": [
+    100,
+    150,
+    220,
+    300,
+    400,
+    520,
+    660,
+    820,
+    1000,
+    1200
+  ]
 }

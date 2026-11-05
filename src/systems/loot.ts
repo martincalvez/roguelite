@@ -1,0 +1,40 @@
+// Tirage du butin de fin de run (pur, sans Phaser). Le hasard est injecté pour pouvoir tester.
+import type { ItemDef, ItemInstance, LootConfig, Rarity } from '../types';
+
+/** Choisit un index selon des poids. */
+function weightedIndex(weights: number[], rng: () => number): number {
+  const total = weights.reduce((sum, w) => sum + w, 0);
+  let roll = rng() * total;
+  for (let i = 0; i < weights.length; i++) {
+    roll -= weights[i];
+    if (roll < 0) return i;
+  }
+  return weights.length - 1;
+}
+
+let uidCounter = 0;
+function defaultUid(): string {
+  uidCounter++;
+  return `${Date.now().toString(36)}-${uidCounter}-${Math.floor(Math.random() * 1e6).toString(36)}`;
+}
+
+/** Objets lâchés à la fin d'un run : nombre, objet et rareté tirés au sort. */
+export function rollLoot(
+  config: LootConfig,
+  items: ItemDef[],
+  victory: boolean,
+  rng: () => number = Math.random,
+  makeUid: () => string = defaultUid,
+): ItemInstance[] {
+  let count = weightedIndex(config.itemCountWeights, rng);
+  if (victory) count = Math.max(count, config.victoryMinItems);
+
+  const rarities = Object.keys(config.rarityWeights) as Rarity[];
+  const rarityWeights = rarities.map((r) => config.rarityWeights[r]);
+  const drops: ItemInstance[] = [];
+  for (let i = 0; i < count; i++) {
+    const def = items[Math.floor(rng() * items.length)];
+    drops.push({ uid: makeUid(), defId: def.id, rarity: rarities[weightedIndex(rarityWeights, rng)], level: 1 });
+  }
+  return drops;
+}

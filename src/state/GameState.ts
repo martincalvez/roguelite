@@ -1,8 +1,9 @@
 // État permanent du joueur (entre les runs). Seul ce module modifie la sauvegarde.
-import type { SaveData, StatModifier, Stats } from '../types';
+import type { RunRewards, SaveData, StatModifier, Stats } from '../types';
 import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
 import { getHero, getItem } from '../data';
+import { accountXpToNext } from '../systems/progression';
 import { computeStats, itemModifiers, talentModifiers } from '../systems/stats';
 
 class GameStateImpl {
@@ -15,6 +16,22 @@ class GameStateImpl {
   addGold(amount: number): void {
     this.data.gold += Math.round(amount);
     this.persist();
+  }
+
+  /** Ajoute les récompenses d'un run (or, XP de compte, objets, meilleur chapitre) et sauvegarde. */
+  applyRunRewards(rewards: RunRewards): { levelBefore: number; levelAfter: number } {
+    const d = this.data;
+    const levelBefore = d.accountLevel;
+    d.gold += Math.round(rewards.gold);
+    d.accountXp += rewards.accountXp;
+    while (d.accountXp >= accountXpToNext(d.accountLevel)) {
+      d.accountXp -= accountXpToNext(d.accountLevel);
+      d.accountLevel++;
+    }
+    d.inventory.push(...rewards.items);
+    if (rewards.clearedChapter !== null) d.bestChapter = Math.max(d.bestChapter, rewards.clearedChapter);
+    this.persist();
+    return { levelBefore, levelAfter: d.accountLevel };
   }
 
   /** Passifs actifs au début d'un run : celui du héros, et ceux des objets équipés dont la rareté est atteinte. */

@@ -1,0 +1,15 @@
+{
+  "itemCountWeights": [
+    50,
+    40,
+    10
+  ],
+  "victoryMinItems": 1,
+  "rarityWeights": {
+    "common": 70,
+    "rare": 22,
+    "epic": 6,
+    "legendary": 1.8,
+    "mythic": 0.2
+  }
+}

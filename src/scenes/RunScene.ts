@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, FLOOR_TILE, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, SCENES } from '../config';
-import { COMBAT, getChapter, getEnemy, getSkill, PROGRESSION, SKILLS } from '../data';
+import { CHAPTERS, COMBAT, getChapter, getEnemy, getSkill, ITEMS, LOOT, PROGRESSION, SKILLS } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Player } from '../entities/Player';
@@ -10,8 +10,11 @@ import { XpOrb } from '../entities/XpOrb';
 import { GameState } from '../state/GameState';
 import { RunState } from '../state/RunState';
 import { damageAmount, rollCrit } from '../systems/combat';
+import { rollLoot } from '../systems/loot';
+import { accountXpForRun } from '../systems/progression';
 import { computeShotEffects, drawSkills, skillStatModifiers, type ShotEffects } from '../systems/skills';
-import type { EnemyDef, SkillDef } from '../types';
+import type { EnemyDef, RunRewards, SkillDef } from '../types';
+import type { LootData } from './LootScene';
 import type { SkillPickData } from './SkillPickScene';
 import { Fx } from '../ui/Fx';
 import { Hud } from '../ui/Hud';
@@ -330,31 +333,43 @@ export class RunScene extends Phaser.Scene {
   }
 
   private onPlayerDied(): void {
-    if (!this.ended) this.endRun('Défaite', '#d94b4b');
+    if (!this.ended) this.endRun(false);
   }
 
-  /** Écran de fin (défaite ou salle terminée) : fige le jeu et propose de revenir au menu. */
-  private endRun(title: string, color: string): void {
+  /**
+   * Fin du run (mort ou victoire) : fige le jeu, ajoute les récompenses à la sauvegarde (une seule fois),
+   * puis passe à l'écran de butin.
+   */
+  private endRun(victory: boolean): void {
     this.ended = true;
     this.physics.pause();
     this.joystick.setEnabled(false);
     this.player.setVelocity(0, 0);
     this.player.setAlpha(1);
 
-    const cx = GAME_WIDTH / 2;
-    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.65).setDepth(2000);
-    this.add.text(cx, GAME_HEIGHT / 2 - 100, title, { fontSize: '72px', color, fontStyle: 'bold' }).setOrigin(0.5).setDepth(2001);
-    this.add
-      .text(cx, GAME_HEIGHT / 2 + 80, '  MENU  ', {
-        fontSize: '48px',
-        color: '#14111a',
-        backgroundColor: COLORS.gold,
-        padding: { x: 24, y: 20 },
-      })
-      .setOrigin(0.5)
-      .setDepth(2001)
-      .setInteractive({ useHandCursor: true })
-      .on('pointerup', () => this.scene.start(SCENES.menu));
+    const chapter = getChapter(this.chapterId);
+    const roomCount = chapter.rooms.length;
+    const roomsCleared = victory ? roomCount : this.runState.room;
+    const rewards: RunRewards = {
+      gold: this.runState.gold,
+      accountXp: accountXpForRun(roomsCleared, victory),
+      items: rollLoot(LOOT, ITEMS, victory),
+      clearedChapter: victory ? CHAPTERS.findIndex((c) => c.id === chapter.id) + 1 : null,
+    };
+    const { levelBefore, levelAfter } = GameState.applyRunRewards(rewards);
+    const data: LootData = {
+      victory,
+      roomReached: this.runState.room + 1,
+      roomCount,
+      gold: rewards.gold,
+      accountXp: rewards.accountXp,
+      levelBefore,
+      levelAfter,
+      items: rewards.items,
+    };
+
+    this.cameras.main.fadeOut(450);
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENES.loot, data));
   }
 
   private onEnemyShoot(x: number, y: number, angle: number, speed: number, damage: number): void {
@@ -393,7 +408,7 @@ export class RunScene extends Phaser.Scene {
   /** Salle vidée (ennemis morts, orbes ramassés, choix faits) : porte ouverte, ou victoire s'il n'y a plus de salle. */
   private finishRoom(): void {
     const roomCount = getChapter(this.chapterId).rooms.length;
-    if (this.runState.room >= roomCount - 1) this.endRun('Victoire !', '#ffc83d');
+    if (this.runState.room >= roomCount - 1) this.endRun(true);
     else this.openDoor();
   }
 
