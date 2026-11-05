@@ -1,6 +1,6 @@
 # Cible visuelle et d'interface
 
-Les captures fournies par Martin (IMG_3929 à IMG_3934, 5 novembre 2026) sont la référence visuelle de la phase 5. Elles montrent le niveau de couleur, de relief, de densité et de lisibilité souhaité. Cette direction complète le style Archero déjà défini dans `CLAUDE.md`.
+Les captures fournies par Martin (IMG_3929 à IMG_3934, puis IMG_3936 à IMG_3942, 5 novembre 2026) sont les références visuelles de la phase 5. Elles montrent le niveau de couleur, de relief, de densité et de lisibilité souhaité pour les menus, l'équipement, les familiers et le combat. Cette direction complète le style Archero déjà défini dans `CLAUDE.md`.
 
 ## Langage visuel
 
@@ -11,6 +11,16 @@ Les captures fournies par Martin (IMG_3929 à IMG_3934, 5 novembre 2026) sont la
 - Décors de jeu vivants, avec profondeur, eau, végétation et arènes aux couleurs franches ; boss signalé par une barre de vie dédiée en haut.
 - Choix de compétences dans de grandes cartes verticales, avec icône expressive, titre court et description lisible au téléphone.
 - Les familiers apparaissent près du héros, dans l'écran de gestion et pendant le combat ; leur onglet et leur emplacement d'équipement doivent être faciles à trouver.
+
+### Couleurs, matières et finitions des nouvelles références
+
+- Fonds bleus profonds ou turquoise, souvent texturés avec motifs géométriques ; grandes zones vert prairie ou cyan clair pour les arènes.
+- Panneaux et fenêtres très contrastés : magenta lumineux pour les bandeaux d'événement, violet pour les objets rares, bleu/cyan pour les panneaux et jaune-orangé pour les titres, cadres et commandes principales.
+- Boutons larges jaune-or ou vert vif, avec bordure sombre, relief marqué et ombre portée. Les états doivent se distinguer immédiatement.
+- Cartes d'équipement à cadres épais dont la couleur code la rareté, icône centrale ample, niveau en évidence et petits badges de catégorie.
+- Fenêtres de détail sur fond crème/parchemin, bandeau supérieur jaune, sections de statistiques bien séparées et boutons d'action colorés.
+- Menus illustrés avec personnages, familiers, coffres et objets mis en scène en grand ; l'arrière-plan peut être plus détaillé, mais le texte et les actions restent très lisibles.
+- Effets lumineux, reflets, dégradés et petites particules pour donner une sensation de récompense et de matière, sans réduire le contraste du texte.
 
 ## Écran de gestion visé
 
@@ -28,7 +38,7 @@ Les captures fournies par Martin (IMG_3929 à IMG_3934, 5 novembre 2026) sont la
 - **Combat** : arène lumineuse, héros et familier bien détachés du sol, effets de tir colorés, PV du boss en haut et commandes tactiles dégagées.
 - **Choix de compétence** : panneau central contrasté et trois cartes verticales avec de grandes zones tactiles.
 
-Les captures servent de référence de direction et de composition, elles ne sont pas copiées dans le dépôt. Martin a confirmé qu'il peut utiliser les visuels concernés. Les ressources qu'il fournit ou choisit pourront donc être intégrées au projet ; les captures ne sont pas nécessaires dans le dépôt.
+Les captures servent de référence de direction et de composition. Martin a confirmé qu'il peut utiliser les visuels concernés ; les ressources qu'il fournit ou choisit pourront donc être intégrées au projet.
 
 ## Application progressive
 

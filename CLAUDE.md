@@ -25,7 +25,7 @@ Le style visé est celui d'**Archero** : cartoon, très coloré, vif, lisible, "
 
 ### Référence visuelle de la phase 5
 
-Les captures fournies par Martin le 5 novembre 2026 définissent le rendu souhaité : interface portrait riche en couleurs, héros mis en scène au centre, équipement en cartes de rareté, boutons épais avec contours et relief, navigation claire, talents en médaillons, arènes lumineuses, boss bar et choix de compétences en grandes cartes. Les familiers doivent être visibles près du héros dans l'écran de gestion comme en combat. Voir `docs/CIBLE-UI.md`.
+Les captures fournies par Martin le 5 novembre 2026 définissent le rendu souhaité pour menus, équipement et combat : fonds bleus/turquoise texturés, vert prairie lumineux, accents magenta et violet, or jaune, cartes encadrées selon la rareté, contours sombres épais, reliefs et ombres, boutons jaune-or ou vert vif, fenêtres crème avec sections nettes, illustrations centrales généreuses et effets lumineux. Garder une lecture immédiate sur téléphone. Les familiers doivent être visibles près du héros dans l'écran de gestion comme en combat. Voir `docs/CIBLE-UI.md` pour les détails et les nouvelles captures de référence.
 
 ## Stack
 
