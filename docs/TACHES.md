@@ -48,7 +48,7 @@ Tâche 1.5. Le joueur subit des dégâts au contact des ennemis et des projectil
 ```
 Validation : on peut perdre et gagner une salle, et revenir au menu.
 
-### [ ] 1.6 Sensations (game feel)
+### [x] 1.6 Sensations (game feel)
 
 ```
 Tâche 1.6. Ajoute du retour visuel, sans toucher à l'équilibrage : flash blanc 80 ms sur un ennemi touché, léger recul (knockback) des ennemis touchés, chiffres de dégâts flottants (jaunes et plus gros pour les critiques), petit tremblement d'écran quand le joueur est touché, petite explosion de particules à la mort d'un ennemi. Tout doit rester fluide avec 15 ennemis à l'écran. Regroupe ces effets dans src/ui/Fx.ts (Phaser autorisé ici, pas dans systems/).

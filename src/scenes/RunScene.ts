@@ -7,6 +7,7 @@ import { Player } from '../entities/Player';
 import { Projectile } from '../entities/Projectile';
 import { GameState } from '../state/GameState';
 import { damageAmount, rollCrit } from '../systems/combat';
+import { Fx } from '../ui/Fx';
 import { Hud } from '../ui/Hud';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
 
@@ -25,6 +26,7 @@ export class RunScene extends Phaser.Scene {
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   private playerProjectiles!: Phaser.Physics.Arcade.Group;
   private joystick!: VirtualJoystick;
+  private fx!: Fx;
   private nextShotAt = 0;
   private enemiesAlive = 0;
   private ended = false;
@@ -50,6 +52,7 @@ export class RunScene extends Phaser.Scene {
     this.joystick = new VirtualJoystick(this);
     this.player.setJoystick(this.joystick);
     new Hud(this, this.player.hp, this.player.maxHp);
+    this.fx = new Fx(this);
 
     this.enemies = this.physics.add.group({ classType: Enemy, maxSize: POOLS.enemies });
     this.enemyProjectiles = this.physics.add.group({ classType: EnemyProjectile, maxSize: POOLS.enemyProjectiles });
@@ -73,12 +76,10 @@ export class RunScene extends Phaser.Scene {
     });
     this.events.on('enemy-shoot', this.onEnemyShoot, this);
     this.events.on('enemy-died', this.onEnemyDied, this);
-    this.events.on('player-dodged', this.showDodge, this);
     this.events.on('player-died', this.onPlayerDied, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.events.off('enemy-shoot', this.onEnemyShoot, this);
       this.events.off('enemy-died', this.onEnemyDied, this);
-      this.events.off('player-dodged', this.showDodge, this);
       this.events.off('player-died', this.onPlayerDied, this);
     });
 
@@ -97,6 +98,7 @@ export class RunScene extends Phaser.Scene {
   }
 
   update(time: number): void {
+    this.fx.update(time);
     if (this.ended) return;
     this.player.updateMovement(time);
     const list = this.enemies.getChildren() as Enemy[];
@@ -147,8 +149,14 @@ export class RunScene extends Phaser.Scene {
 
   private onProjectileHit(projectile: Projectile, enemy: Enemy): void {
     if (!projectile.active || !enemy.active) return;
+    // Direction du coup, lue avant kill() qui remet la vitesse à zéro.
+    const v = (projectile.body as Phaser.Physics.Arcade.Body).velocity;
+    const len = Math.hypot(v.x, v.y) || 1;
+    const dirX = v.x / len;
+    const dirY = v.y / len;
+    const { damage, isCrit } = projectile;
     projectile.kill();
-    enemy.takeDamage(projectile.damage);
+    enemy.takeDamage(damage, isCrit, dirX, dirY, this.time.now);
   }
 
   private onEnemyDied(): void {
@@ -158,15 +166,6 @@ export class RunScene extends Phaser.Scene {
 
   private onPlayerDied(): void {
     if (!this.ended) this.endRun('Défaite', '#d94b4b');
-  }
-
-  /** Texte « Esquive » qui monte et s'efface au-dessus du héros. */
-  private showDodge(x: number, y: number): void {
-    const text = this.add
-      .text(x, y - 40, 'Esquive', { fontSize: '28px', color: '#ffffff', fontStyle: 'bold' })
-      .setOrigin(0.5)
-      .setDepth(500);
-    this.tweens.add({ targets: text, y: y - 100, alpha: 0, duration: 700, onComplete: () => text.destroy() });
   }
 
   /** Écran de fin (défaite ou salle terminée) : fige le jeu et propose de revenir au menu. */

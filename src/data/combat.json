@@ -1,1 +1,9 @@
-{ "invulnerabilityMs": 600 }
+{
+  "invulnerabilityMs": 600,
+  "flashMs": 80,
+  "knockbackSpeed": 220,
+  "knockbackMs": 120,
+  "shakeMs": 150,
+  "shakeIntensity": 0.01,
+  "deathParticles": 10
+}

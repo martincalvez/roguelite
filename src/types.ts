@@ -150,4 +150,10 @@ export interface SaveData {
 /** Réglages de combat communs (modifiables sans toucher au code). */
 export interface CombatConfig {
   invulnerabilityMs: number; // durée d'invulnérabilité du joueur après un coup ou une esquive
+  flashMs: number; // flash blanc d'un ennemi touché
+  knockbackSpeed: number; // px/s : recul d'un ennemi touché
+  knockbackMs: number; // durée du recul (l'ennemi ne se déplace pas pendant ce temps)
+  shakeMs: number; // tremblement d'écran quand le joueur est touché
+  shakeIntensity: number;
+  deathParticles: number; // particules à la mort d'un ennemi
 }
