@@ -11,6 +11,7 @@ export class BootScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('item-amulette-braise', 'assets/twin-core.png');
+    this.load.image('pet-familier_chouette', 'assets/characters/amber_owl_idle.png');
   }
 
   create(): void {
@@ -28,7 +29,7 @@ export class BootScene extends Phaser.Scene {
       this.makeCircle(`enemy-${def.id}`, def.radius, Phaser.Display.Color.HexStringToColor(def.color).color);
     }
     for (const item of ITEMS) {
-      if (item.slot === 'pet' && item.petAppearance) this.makePetTexture(item);
+      if (item.slot === 'pet' && item.petAppearance && !this.textures.exists(`pet-${item.id}`)) this.makePetTexture(item);
     }
     this.scene.start(SCENES.menu);
   }
