@@ -124,14 +124,63 @@ Validation : le jeu s'ouvre depuis une icône sur le téléphone, en plein écra
 
 ---
 
-## Phase 3 — Méta-progression (à détailler par Opus avant de commencer)
+## Phase 3 — Méta-progression (porte : on a envie de relancer un run pour progresser)
 
-- [ ] 3.1 Écran équipement : 6 slots, inventaire, infobulle avec différence de stats en vert/rouge
-- [ ] 3.2 Amélioration d'objet : or + parchemins du type de slot
-- [ ] 3.3 Fusion : 3 objets identiques → rareté supérieure, passif de rareté
-- [ ] 3.4 Coffres : gemmes, raretés pondérées, animation d'ouverture
-- [ ] 3.5 Talents (talents.json) et niveau de compte
-- [ ] 3.6 Équilibrage du chapitre 1 (Opus)
+Détaillée en fin de phase 2 (par Sonnet ; Opus recommandé pour la 3.6). Chaque tâche suit le même format que les phases 1 et 2.
+
+### Décisions de conception (valeurs par défaut, modifiables avant de commencer)
+
+- **Gemmes** : gagnées en fin de run (bonus de victoire, boss tués). Elles ouvrent les coffres dorés (3.4) et débloqueront les héros (5.2).
+- **Parchemins** : un type par slot (arme, armure, anneau, amulette, familier), lâchés en fin de run comme le reste du butin (3.2).
+- **Niveau de compte** : il débloque les talents (chacun a un niveau de compte requis, 3.5). Pas de bonus de stats direct.
+- **Sauvegarde** : tout nouveau champ de `SaveData` = `SAVE_VERSION + 1` et une étape dans `migrate()`. La 3.2 passe à la version 2.
+- **Dépôt public** : aucune donnée personnelle ni clé dans les fichiers (voir CLAUDE.md).
+
+### [ ] 3.1 Écran équipement
+
+```
+Tâche 3.1. Crée src/scenes/EquipmentScene.ts, accessible par un bouton « ÉQUIPEMENT » du menu (hauteur ≥ 88 px ; réorganise le menu en liste verticale de gros boutons : JOUER, ÉQUIPEMENT). Retire le sélecteur d'arme provisoire du menu (il est remplacé par cet écran). En haut : 6 cases de slot (weapon, armor, ring1, ring2, amulet, pet) avec l'objet équipé (nom, couleur de rareté, niveau) ou vide. Dessous : l'inventaire en grille de cartes (4 par ligne, défilement vertical au doigt si besoin), triée par rareté puis nom. Toucher une carte ouvre un panneau de détail : nom, rareté, niveau, description, stats de l'objet (modifiers avec rareté et niveau via itemModifiers), passif de rareté éventuel, et la DIFFÉRENCE de stats du héros si on l'équipait (vert si mieux, rouge si moins bien, pour chaque stat qui change). Bouton « Équiper » (un anneau va dans ring1 ou ring2, le premier libre sinon ring1) et « Retirer » pour un objet équipé. Logique pure dans src/systems/equipment.ts : slotAccepts(slot, itemSlotType), statDiff(before, after). GameState gagne equipItem(uid, slot), unequip(slot) et heroStatsWith(equipped) pour simuler un équipement sans le sauvegarder. Bouton « Retour » en haut. Rien d'important dans les 60 px du bord bas.
+```
+Validation : on équipe et retire des objets, la différence de stats est juste (vert/rouge), et le menu affiche les nouveaux PV et ATQ.
+
+### [ ] 3.2 Amélioration d'objet
+
+```
+Tâche 3.2. Passe SAVE_VERSION à 2 : SaveData gagne scrolls: Record<ItemSlotType, number> (migrate() l'initialise à 0 pour une ancienne sauvegarde). Crée src/data/upgrade.json (typé dans types.ts) : niveau max par rareté, et le coût de chaque niveau en or et en parchemins. Logique pure dans src/systems/upgrade.ts : upgradeCost(level, rarity), canUpgrade(item, gold, scrolls). Les parchemins sont lâchés en fin de run : ajoute-les à loot.json (nombre et type tirés au hasard), à RunRewards, à GameState.applyRunRewards et à l'écran de butin. Dans le panneau de détail de l'écran équipement, bouton « Améliorer » (coût affiché, grisé si impossible) : retire l'or et les parchemins du slot de l'objet, monte son niveau (les stats suivent déjà ITEM_GROWTH_PER_LEVEL) et sauvegarde. Affiche or et parchemins dans l'en-tête de l'écran équipement.
+```
+Validation : un objet monte de niveau, ses stats augmentent, l'or et les parchemins baissent ; une ancienne sauvegarde se charge sans erreur.
+
+### [ ] 3.3 Fusion et passifs de rareté
+
+```
+Tâche 3.3. Passe SAVE_VERSION à 3 si besoin de migrer. D'abord, fais fonctionner les passifs de type 'stat' : startingPassives() renvoie des PassiveDef dont l'effet 'stat' doit entrer dans GameState.heroStats() comme les compétences (via les modificateurs). Ajoute dans items.json et passives.json des passifs de rareté pour chaque objet (en réutilisant les effets existants : multishot, pierce, ricochet, burn, freeze, orb, stat), débloqués à partir d'une rareté croissante. Logique pure dans src/systems/fusion.ts : canFuse(inventory, defId, rarity) (FUSION_COUNT objets identiques, même defId et même rareté, rareté non maximale) et fuse(...) qui retire les objets consommés et renvoie un objet de la rareté supérieure (niveau 1). Un objet équipé ne peut pas être consommé tant qu'il en reste d'autres. Dans l'écran équipement : bouton « Fusionner (3) » dans le détail d'un objet qui peut l'être, avec confirmation, résultat affiché en clair, sauvegarde.
+```
+Validation : trois objets identiques deviennent un objet de rareté supérieure avec son nouveau passif actif au prochain run.
+
+### [ ] 3.4 Coffres et gemmes
+
+```
+Tâche 3.4. Les gemmes sont gagnées en fin de run (ajoute-les à loot.json, RunRewards, applyRunRewards et à l'écran de butin : bonus de victoire, bonus par boss tué). Crée src/data/chests.json (typé dans types.ts) : coffre de bois (coût en or) et coffre doré (coût en gemmes), chacun avec ses poids de rareté (le doré garantit au moins « rare »). Logique pure dans src/systems/chests.ts : openChest(def, items, rng) qui renvoie un ItemInstance. Crée src/scenes/ChestScene.ts, accessible par un bouton « COFFRES » du menu : deux gros coffres à toucher ; ouvrir un coffre débite le coût, joue une animation (le coffre tremble, flash, puis la carte de l'objet apparaît avec sa couleur de rareté, façon récompense Archero), ajoute l'objet à l'inventaire et sauvegarde. Refuse proprement (message) si le joueur n'a pas assez d'or ou de gemmes.
+```
+Validation : ouvrir un coffre débite le bon montant et ajoute l'objet ; l'animation est fluide sur téléphone.
+
+### [ ] 3.5 Talents et niveau de compte
+
+```
+Tâche 3.5. Ajoute requiredAccountLevel à TalentDef (types.ts) et dans talents.json. Crée src/scenes/TalentScene.ts, accessible par un bouton « TALENTS » du menu : liste verticale de gros boutons (nom, niveau actuel/max, effet par niveau, coût en or du prochain niveau, ou « Niveau de compte N requis »). Acheter un niveau débite l'or, incrémente GameState.data.talents[id] et sauvegarde ; les stats suivent déjà par talentModifiers(). Affiche le niveau de compte et la barre d'XP de compte (accountXpToNext) dans le menu et dans cet écran.
+```
+Validation : un talent acheté se voit dans les PV ou l'ATQ du menu et pendant un run.
+
+### [ ] 3.6 Équilibrage du chapitre 1 (Opus)
+
+```
+Tâche 3.6. Équilibre le chapitre 1 avec des chiffres, pas au feeling. Objectifs : un run complet de 20 salles dure 10 à 15 minutes ; un héros neuf (sans talents ni objets) atteint la salle 8 à 12 en moyenne ; un héros bien équipé finit le chapitre. Propose un tableau (courbe de PV et de dégâts des ennemis par salle, XP par niveau, or par salle, taux de butin, coût des améliorations et des talents), applique-le uniquement dans les JSON (enemies.json, chapters.json, progression.json, loot.json, upgrade.json, talents.json, combat.json) et justifie chaque changement. Ne touche pas au code.
+```
+Validation : Martin joue 5 runs et dit si c'est trop dur, trop facile ou trop long.
+
+**Porte de phase 3 → revue Opus.**
+
+---
 
 ## Phase 4 — Compte et synchro (à détailler par Opus : sécurité)
 
