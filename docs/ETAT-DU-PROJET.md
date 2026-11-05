@@ -7,7 +7,7 @@ Roguelite d'action 2D façon Archero, jouable sur navigateur PC et téléphone (
 
 ## Avancement (voir docs/TACHES.md pour le détail)
 - **Phases 1 à 3 terminées** : combat, run complet de 20 salles (boss, ange, choix de compétences), butin, équipement, amélioration, fusion, coffres, talents, niveau de compte. 3.6 (équilibrage, `docs/EQUILIBRAGE-CH1.md`) **reste à valider par Martin en jouant 5 runs**.
-- **Phase 4 (compte et synchro Supabase)** : 4.0 et 4.1 faites et vérifiées ; 4.2 (connexion par code e-mail) marche sur PC, **à valider sur téléphone** ; 4.3 (synchro) codée et testée avec un faux cloud (138 tests), **à valider avec deux appareils** ; 4.4 (revue de sécurité) **en cours** (voir `docs/SECURITE.md`).
+- **Phase 4 (compte et synchro Supabase)** : 4.0 et 4.1 faites et vérifiées ; 4.2 (connexion par code e-mail) marche sur PC, **à valider sur téléphone**. La capture la plus récente montre bien les variables Actions `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` séparées. Le dernier déploiement GitHub Actions a réussi à 17 h 36 (heure de Paris), avant cette capture à 17 h 40 ; relancer le workflow après la configuration correcte, puis vérifier la connexion sur téléphone. 4.3 (synchro) codée et testée avec un faux cloud (138 tests), **à valider avec deux appareils** ; 4.4 (revue de sécurité) **en cours** (voir `docs/SECURITE.md`).
 - **Phase 5 (contenu)** non commencée : familiers, héros, chapitres 2 et 3, mode Survie, graphismes et sons.
 - Martin n'a pas encore tout joué : les cases ne se cochent qu'après sa confirmation.
 
