@@ -258,6 +258,12 @@ Tâche 5.1. Ajoute trois familiers équipables avec des bonus de stats distincts
 ```
 Validation : un familier est visible sur l'écran FAMILIERS et suit le héros en combat ; en changer met à jour l'apparence et les stats ; une ancienne sauvegarde garde sa progression et reçoit le familier de départ.
 - [ ] 5.2 Écran des héros et déblocage (gemmes)
+
+```
+Tâche 5.2. Crée un écran HÉROS accessible depuis le menu, dans la direction visuelle de docs/CIBLE-UI.md : portrait illustré généré depuis une palette déclarée dans heroes.json, héros actif mis en scène avec son familier, statistiques calculées avec l'équipement/talents/passif, et cartes tactiles pour tous les héros. L'écran distingue héros sélectionné, héros débloqué et héros verrouillé ; choisir un héros débloqué ne coûte rien. Débloquer un héros débite une seule fois son unlockCostGems et le sélectionne immédiatement ; si le solde est insuffisant, afficher le manque et ne rien changer. Les achats et la sélection passent par GameState et persistent/synchronisent avec la sauvegarde existante. Le héros sélectionné apparaît aussi avec son sprite propre en combat, sans changer son collider. Ajoute la logique testée dans src/systems/heroes.ts et valide les références/palettes dans data.test.ts. Pas de nouvelle dépendance.
+```
+Validation : sélectionner Aldric, débloquer Seren au prix indiqué, vérifier le nouveau solde et la sélection après rechargement/synchro ; tenter avec un solde insuffisant ; confirmer l'apparence du héros choisi en combat.
+
 - [ ] 5.3 Chapitres 2 et 3, nouveaux ennemis
 - [ ] 5.4 Mode Survie (vagues infinies, bestWave)
 - [ ] 5.5 Graphismes fantasy (sprites, décors) et sons

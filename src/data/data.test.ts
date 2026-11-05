@@ -70,6 +70,17 @@ describe('références entre fichiers', () => {
   it('un héros de départ débloqué gratuitement existe', () => {
     expect(HEROES.some((h) => h.unlockCostGems === 0)).toBe(true);
   });
+
+  it('chaque héros a une apparence et un coût de déblocage valide', () => {
+    for (const hero of HEROES) {
+      expect(hero.unlockCostGems, hero.id).toBeGreaterThanOrEqual(0);
+      expect(['ranger', 'mage'], hero.id).toContain(hero.appearance.form);
+      expect(hero.appearance.outfitColor, hero.id).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(hero.appearance.accentColor, hero.id).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(hero.appearance.hairColor, hero.id).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(hero.appearance.eyeColor, hero.id).toMatch(/^#[0-9a-f]{6}$/i);
+    }
+  });
 });
 
 describe('cohérence des valeurs', () => {

@@ -21,14 +21,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private invulnerableUntil = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'player');
+    super(scene, x, y, `hero-${GameState.data.selectedHero}`);
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
+    this.setDisplaySize(48, 48);
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.setCollideWorldBounds(true);
-    this.setCircle(this.width / 2);
+    this.setCircle(20, 4, 4);
 
     const keyboard = scene.input.keyboard!;
     this.cursors = keyboard.createCursorKeys();

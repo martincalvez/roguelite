@@ -32,6 +32,14 @@ export interface PetAppearance {
   eyeColor: string;
 }
 
+export interface HeroAppearance {
+  form: 'ranger' | 'mage';
+  outfitColor: string;
+  accentColor: string;
+  hairColor: string;
+  eyeColor: string;
+}
+
 export interface ItemDef {
   id: string;
   name: string;
@@ -132,6 +140,7 @@ export interface HeroDef {
   base: Stats;
   passive?: string; // id de PassiveDef
   unlockCostGems: number;
+  appearance: HeroAppearance;
 }
 
 export interface PassiveDef {

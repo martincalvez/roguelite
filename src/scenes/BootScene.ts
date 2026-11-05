@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { SCENES } from '../config';
-import { ENEMIES, ITEMS } from '../data';
+import { ENEMIES, HEROES, ITEMS } from '../data';
 import type { ItemDef } from '../types';
 
 /** Charge les assets. Tant qu'il n'y a pas de sprites, génère des formes simples. */
@@ -11,6 +11,7 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     this.makeCircle('player', 22, 0x3fa4ff, true);
+    for (const hero of HEROES) this.makeHeroTexture(hero);
     this.makeCircle('projectile', 7, 0xffe14a);
     this.makeCircle('projectile-bolt', 11, 0xff9d2e);
     this.makeCircle('projectile-shuriken', 5, 0xd9e6ff);
@@ -74,6 +75,48 @@ export class BootScene extends Phaser.Scene {
 
     g.fillStyle(0xffffff, 0.32).fillCircle(47, 43, 10);
     g.generateTexture(`pet-${item.id}`, 128, 128);
+    g.destroy();
+  }
+
+  private makeHeroTexture(hero: (typeof HEROES)[number]): void {
+    const look = hero.appearance;
+    const outfit = Phaser.Display.Color.HexStringToColor(look.outfitColor).color;
+    const accent = Phaser.Display.Color.HexStringToColor(look.accentColor).color;
+    const hair = Phaser.Display.Color.HexStringToColor(look.hairColor).color;
+    const eyes = Phaser.Display.Color.HexStringToColor(look.eyeColor).color;
+    const g = this.add.graphics();
+
+    g.fillStyle(0x152546, 0.28).fillEllipse(64, 148, 76, 18);
+    // Cape and tunic with thick dark edges, designed to read both as a portrait and in combat.
+    g.lineStyle(8, 0x18213b, 1);
+    g.fillStyle(outfit, 1).fillTriangle(27, 82, 101, 82, 119, 143).strokeTriangle(27, 82, 101, 82, 119, 143);
+    g.fillStyle(accent, 1).fillTriangle(27, 82, 7, 137, 39, 128).strokeTriangle(27, 82, 7, 137, 39, 128);
+    g.fillStyle(outfit, 1).fillRoundedRect(37, 73, 54, 62, 16).strokeRoundedRect(37, 73, 54, 62, 16);
+    g.fillStyle(0xffd29a, 1).fillEllipse(64, 60, 54, 62).lineStyle(6, 0x18213b, 1).strokeEllipse(64, 60, 54, 62);
+
+    if (look.form === 'ranger') {
+      g.fillStyle(hair, 1).fillEllipse(64, 35, 65, 33);
+      g.fillStyle(outfit, 1).fillTriangle(24, 48, 42, 4, 61, 43).fillTriangle(68, 43, 91, 4, 104, 49);
+      g.lineStyle(7, 0x18213b, 1).strokeTriangle(24, 48, 42, 4, 61, 43).strokeTriangle(68, 43, 91, 4, 104, 49);
+      g.fillStyle(accent, 1).fillRoundedRect(36, 72, 56, 13, 5);
+      // Tiny bow mark on the shoulder.
+      g.lineStyle(6, accent, 1).lineBetween(93, 93, 112, 117).lineBetween(110, 94, 96, 119);
+    } else {
+      g.fillStyle(hair, 1).fillEllipse(64, 34, 69, 38);
+      g.fillStyle(hair, 1).fillTriangle(30, 45, 18, 10, 54, 35).fillTriangle(64, 39, 71, 0, 87, 36).fillTriangle(78, 39, 110, 15, 97, 57);
+      g.lineStyle(6, 0x18213b, 1).strokeEllipse(64, 34, 69, 38);
+      g.fillStyle(accent, 1).fillTriangle(42, 101, 64, 127, 86, 101);
+      // Bright magical gem on the chest.
+      g.fillStyle(0x60f3ff, 1).fillTriangle(64, 91, 73, 101, 64, 111).fillTriangle(64, 91, 55, 101, 64, 111);
+      g.lineStyle(5, accent, 1).lineBetween(103, 83, 116, 131);
+      g.fillStyle(0x60f3ff, 1).fillCircle(116, 130, 8);
+    }
+
+    g.fillStyle(0xffffff, 1).fillEllipse(51, 60, 12, 16).fillEllipse(77, 60, 12, 16);
+    g.fillStyle(eyes, 1).fillCircle(52, 61, 5).fillCircle(78, 61, 5);
+    g.fillStyle(0x172139, 1).fillEllipse(64, 77, 8, 4);
+    g.fillStyle(0xffffff, 0.38).fillCircle(44, 49, 9);
+    g.generateTexture(`hero-${hero.id}`, 128, 160);
     g.destroy();
   }
 

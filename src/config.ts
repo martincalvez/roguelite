@@ -99,6 +99,7 @@ export const SCENES = {
   skillPick: 'SkillPick',
   loot: 'Loot',
   equipment: 'Equipment',
+  heroes: 'Heroes',
   pets: 'Pets',
   chests: 'Chests',
   talents: 'Talents',

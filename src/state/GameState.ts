@@ -2,7 +2,7 @@
 import type { EquipSlot, ItemDef, ItemInstance, Rarity, RunRewards, SaveData, StatModifier, Stats } from '../types';
 import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
-import { getChest, getHero, getItem, getTalent, ITEMS } from '../data';
+import { getChest, getHero, getItem, getTalent, HEROES, ITEMS } from '../data';
 import { slotAccepts } from '../systems/equipment';
 import { fusionResult, pickFusionInputs } from '../systems/fusion';
 import { canAffordChest, openChest } from '../systems/chests';
@@ -12,6 +12,7 @@ import { passiveStatModifiers } from '../systems/skills';
 import { canUpgrade, upgradeCost } from '../systems/upgrade';
 import { accountXpToNext } from '../systems/progression';
 import { computeStats, itemModifiers, talentModifiers } from '../systems/stats';
+import { canUnlockHero } from '../systems/heroes';
 
 class GameStateImpl {
   data: SaveData = SaveManager.load();
@@ -29,6 +30,25 @@ class GameStateImpl {
   addGold(amount: number): void {
     this.data.gold += Math.round(amount);
     this.persist();
+  }
+
+  /** Débloque un héros contre ses gemmes et le sélectionne immédiatement. */
+  unlockHero(heroId: string): boolean {
+    const hero = HEROES.find((entry) => entry.id === heroId);
+    if (!hero || !canUnlockHero(hero, this.data.unlockedHeroes, this.data.gems)) return false;
+    this.data.gems -= hero.unlockCostGems;
+    this.data.unlockedHeroes.push(hero.id);
+    this.data.selectedHero = hero.id;
+    this.persist();
+    return true;
+  }
+
+  /** Sélectionne uniquement un héros connu et déjà débloqué. */
+  selectHero(heroId: string): boolean {
+    if (!HEROES.some((hero) => hero.id === heroId) || !this.data.unlockedHeroes.includes(heroId)) return false;
+    this.data.selectedHero = heroId;
+    this.persist();
+    return true;
   }
 
   /** Arme actuellement équipée, avec sa définition. */
@@ -122,9 +142,9 @@ class GameStateImpl {
   }
 
   /** Passifs du héros, et ceux des objets d'un équipement (hypothétique ou réel) dont la rareté est atteinte. */
-  private passiveIdsFor(equipped: Partial<Record<EquipSlot, string>>): string[] {
+  private passiveIdsFor(equipped: Partial<Record<EquipSlot, string>>, heroId = this.data.selectedHero): string[] {
     const ids: string[] = [];
-    const hero = getHero(this.data.selectedHero);
+    const hero = getHero(heroId);
     if (hero.passive) ids.push(hero.passive);
     const equippedUids = new Set(Object.values(equipped));
     for (const item of this.data.inventory) {
@@ -167,6 +187,19 @@ class GameStateImpl {
    */
   heroStats(extra: StatModifier[] = []): Stats {
     return this.heroStatsWith(this.data.equipped, extra);
+  }
+
+  /** Stats d'un héros de la galerie avec l'équipement et les talents actuels, sans le sélectionner. */
+  heroStatsFor(heroId: string): Stats {
+    const hero = getHero(heroId);
+    const equippedUids = new Set(Object.values(this.data.equipped));
+    const items = this.data.inventory.filter((i) => equippedUids.has(i.uid));
+    const mods = [
+      ...items.flatMap(itemModifiers),
+      ...talentModifiers(this.data.talents),
+      ...passiveStatModifiers(this.passiveIdsFor(this.data.equipped, heroId)),
+    ];
+    return computeStats(hero.base, mods);
   }
 
   /** Comme heroStats(), mais pour un équipement hypothétique (aperçu avant d'équiper, sans sauvegarder). */
