@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { explainAuthError, isOfflineError, isRateLimited, NEUTRAL_SENT } from './errors';
+import { explainAuthError, isOfflineError, isRateLimited, MAX_CODE_ATTEMPTS, NEUTRAL_SENT } from './errors';
 import { isValidCode, isValidEmail, normalizeCode, normalizeEmail } from './validation';
 
 describe('validation des saisies', () => {
@@ -53,7 +53,11 @@ describe('explainAuthError', () => {
 
   it('code faux ou expiré à la vérification', () => {
     const out = explainAuthError({ status: 403, code: 'otp_expired', message: 'Token has expired or is invalid' }, 'verify');
-    expect(out).toEqual({ message: 'Code faux ou expiré. Redemande un code si besoin.', proceed: false });
+    expect(out).toEqual({ message: 'Code faux ou expiré. Redemande un code si besoin.', proceed: false, wrongCode: true });
+    // une panne réseau ou une limitation ne comptent pas comme un essai de code
+    expect(explainAuthError({ status: 429 }, 'verify').wrongCode).toBeUndefined();
+    expect(explainAuthError({ message: 'Failed to fetch' }, 'verify').wrongCode).toBeUndefined();
+    expect(MAX_CODE_ATTEMPTS).toBe(5);
   });
 
   it('détecte hors ligne et limitation', () => {

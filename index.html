@@ -18,11 +18,6 @@
   <body>
     <div id="game"></div>
     <script type="module" src="/src/main.ts"></script>
-    <script>
-      // Service worker : seulement en ligne sur HTTPS (GitHub Pages), pas pendant le développement local.
-      if ('serviceWorker' in navigator && location.protocol === 'https:') {
-        window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
-      }
-    </script>
+    <script src="register-sw.js" defer></script>
   </body>
 </html>

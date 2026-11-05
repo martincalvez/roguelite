@@ -3,6 +3,7 @@ import { COLORS, GAME_HEIGHT, GAME_WIDTH, SCENES } from '../config';
 import { currentUserEmail, confirmCode, requestCode, signOut } from '../cloud/auth';
 import { cloudEnabled } from '../cloud/client';
 import { Sync } from '../cloud/syncManager';
+import { MAX_CODE_ATTEMPTS } from '../cloud/errors';
 import { isValidCode, isValidEmail } from '../cloud/validation';
 import { clearScene } from '../ui/clearScene';
 import { syncLabel } from '../ui/syncLabel';
@@ -28,6 +29,7 @@ export class AccountScene extends Phaser.Scene {
   private emailInput?: HTMLInputElement;
   private codeInput?: HTMLInputElement;
   private confirmingDelete = false;
+  private wrongAttempts = 0;
 
   constructor() {
     super(SCENES.account);
@@ -169,6 +171,7 @@ export class AccountScene extends Phaser.Scene {
     this.busy = false;
     if (outcome.proceed) {
       this.resendAt = Date.now() + RESEND_DELAY_MS;
+      this.wrongAttempts = 0;
       this.view = 'code';
     }
     this.say(outcome.message, outcome.proceed);
@@ -185,7 +188,10 @@ export class AccountScene extends Phaser.Scene {
     this.busy = true;
     const outcome = await requestCode(email);
     this.busy = false;
-    if (outcome.proceed) this.resendAt = Date.now() + RESEND_DELAY_MS;
+    if (outcome.proceed) {
+      this.resendAt = Date.now() + RESEND_DELAY_MS;
+      this.wrongAttempts = 0;
+    }
     this.say(outcome.message, outcome.proceed);
   }
 
@@ -203,6 +209,13 @@ export class AccountScene extends Phaser.Scene {
       void Sync.syncNow(true).then((status) => {
         if (status === 'conflict') this.scene.start(SCENES.conflict);
       });
+      return;
+    }
+    // Trop de codes faux : on invalide cette série d'essais et on demande à repartir d'un nouveau code.
+    if (outcome.wrongCode && ++this.wrongAttempts >= MAX_CODE_ATTEMPTS) {
+      this.wrongAttempts = 0;
+      this.view = 'email';
+      this.say(`Trop d'essais. Demande un nouveau code.`);
       return;
     }
     this.say(outcome.message, false);

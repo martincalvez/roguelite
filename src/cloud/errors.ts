@@ -14,7 +14,12 @@ export interface AuthOutcome {
   message: string;
   /** Vrai si l'on peut passer à l'étape suivante (saisie du code). */
   proceed: boolean;
+  /** Vrai quand le code saisi a été refusé (faux ou expiré) : sert à limiter les essais. */
+  wrongCode?: boolean;
 }
+
+/** Nombre d'essais de code permis avant de devoir en redemander un (protège contre le tâtonnement). */
+export const MAX_CODE_ATTEMPTS = 5;
 
 const RATE_LIMIT_CODES = ['over_email_send_rate_limit', 'over_request_rate_limit', 'over_sms_send_rate_limit'];
 
@@ -43,5 +48,5 @@ export function explainAuthError(error: AuthErrorLike | null, step: AuthStep): A
     return { message: 'Le service est momentanément indisponible. Réessaie plus tard.', proceed: false };
   }
   if (step === 'send') return { message: NEUTRAL_SENT, proceed: true };
-  return { message: 'Code faux ou expiré. Redemande un code si besoin.', proceed: false };
+  return { message: 'Code faux ou expiré. Redemande un code si besoin.', proceed: false, wrongCode: true };
 }
