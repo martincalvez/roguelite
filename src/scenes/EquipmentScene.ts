@@ -90,13 +90,13 @@ export class EquipmentScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2;
 
     this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.background);
-    this.add.text(cx, 60, 'ÉQUIPEMENT', { fontSize: '44px', color: COLORS.gold, fontStyle: 'bold', ...STROKE, strokeThickness: 8 }).setOrigin(0.5);
+    this.add.text(330, 60, 'ÉQUIPEMENT', { fontSize: '34px', color: COLORS.gold, fontStyle: 'bold', ...STROKE, strokeThickness: 7 }).setOrigin(0.5);
     this.add
       .text(24, 60, '← Retour', { fontSize: '26px', color: COLORS.text, padding: { x: 14, y: 28 } })
       .setOrigin(0, 0.5)
       .setInteractive({ useHandCursor: true })
       .on('pointerup', () => this.scene.start(SCENES.menu));
-    this.add.text(GAME_WIDTH - 24, 60, `${d.gold} or · ${d.gems} gemmes`, { fontSize: '26px', color: COLORS.gold, fontStyle: 'bold' }).setOrigin(1, 0.5);
+    this.add.text(GAME_WIDTH - 24, 60, `${d.gold} or · ${d.gems} gemmes`, { fontSize: '20px', color: COLORS.gold, fontStyle: 'bold' }).setOrigin(1, 0.5);
     this.buildStats();
     this.buildScrolls();
     this.buildSlots();
