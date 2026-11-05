@@ -14,8 +14,9 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, 'projectile');
   }
 
-  fire(x: number, y: number, angle: number, speed: number, damage: number, isCrit: boolean, pierce: number, ricochet: number): void {
+  fire(x: number, y: number, angle: number, speed: number, damage: number, isCrit: boolean, pierce: number, ricochet: number, texture: string): void {
     this.enableBody(true, x, y, true, true);
+    this.setTexture(texture);
     this.damage = damage;
     this.isCrit = isCrit;
     this.speed = speed;

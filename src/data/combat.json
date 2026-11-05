@@ -12,5 +12,10 @@
   "orbHitCooldownMs": 500,
   "orbRadius": 110,
   "orbSpeedDegPerSec": 220,
-  "angelRareMaxWeight": 5
+  "angelRareMaxWeight": 5,
+  "projectileSpeedMultiplier": {
+    "arrow": 1,
+    "bolt": 0.7,
+    "shuriken": 1.3
+  }
 }

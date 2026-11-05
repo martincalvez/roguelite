@@ -1,5 +1,5 @@
 // État permanent du joueur (entre les runs). Seul ce module modifie la sauvegarde.
-import type { RunRewards, SaveData, StatModifier, Stats } from '../types';
+import type { ItemDef, ItemInstance, RunRewards, SaveData, StatModifier, Stats } from '../types';
 import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
 import { getHero, getItem } from '../data';
@@ -15,6 +15,22 @@ class GameStateImpl {
 
   addGold(amount: number): void {
     this.data.gold += Math.round(amount);
+    this.persist();
+  }
+
+  /** Armes possédées (inventaire). */
+  weapons(): ItemInstance[] {
+    return this.data.inventory.filter((i) => getItem(i.defId).slot === 'weapon');
+  }
+
+  /** Arme actuellement équipée, avec sa définition. */
+  equippedWeapon(): { instance: ItemInstance; def: ItemDef } | undefined {
+    const instance = this.data.inventory.find((i) => i.uid === this.data.equipped.weapon);
+    return instance ? { instance, def: getItem(instance.defId) } : undefined;
+  }
+
+  equipWeapon(uid: string): void {
+    this.data.equipped.weapon = uid;
     this.persist();
   }
 

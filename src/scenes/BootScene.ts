@@ -11,6 +11,8 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     this.makeCircle('player', 22, 0x3fa4ff, true);
     this.makeCircle('projectile', 7, 0xffe14a);
+    this.makeCircle('projectile-bolt', 11, 0xff9d2e);
+    this.makeCircle('projectile-shuriken', 5, 0xd9e6ff);
     this.makeCircle('enemy-projectile', 8, 0xff3b6b);
     this.makeCircle('particle', 5, 0xffffff);
     this.makeCircle('orbit-orb', 14, 0xb35cff);

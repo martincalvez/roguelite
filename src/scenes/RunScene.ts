@@ -38,6 +38,9 @@ export class RunScene extends Phaser.Scene {
   private runState!: RunState;
   private shotEffects!: ShotEffects;
   private orbs!: OrbitOrbs;
+  private projectileTexture = 'projectile';
+  private projectileSpeedFactor = 1;
+  private weaponPierce = 0;
   private door!: Phaser.GameObjects.Rectangle;
   private doorOpen = false;
   private angelPending = false; // salle de l'ange : le choix est en cours
@@ -77,7 +80,8 @@ export class RunScene extends Phaser.Scene {
     this.player.setJoystick(this.joystick);
     this.runState = new RunState();
     this.runState.passives = GameState.startingPassives();
-    this.shotEffects = computeShotEffects(this.runState.skills, this.runState.passives);
+    this.loadWeapon();
+    this.refreshShotEffects();
     new Hud(this, this.player.hp, this.player.maxHp, this.runState.level, this.runState.xp, this.runState.xpNeeded, 1, getChapter(this.chapterId).rooms.length);
     this.fx = new Fx(this);
 
@@ -191,7 +195,7 @@ export class RunScene extends Phaser.Scene {
   /** Enregistre la compétence choisie. Les effets de tir et d'orbe passent par shotEffects ; 'stat' et 'heal' sont appliqués ici. */
   private applySkill(skill: SkillDef): void {
     this.runState.addSkill(skill.id);
-    this.shotEffects = computeShotEffects(this.runState.skills, this.runState.passives);
+    this.refreshShotEffects();
     this.applyOrbEffect();
     if (skill.effect.kind === 'stat') {
       this.player.setStats(GameState.heroStats(skillStatModifiers(this.runState.skills)));
@@ -278,7 +282,32 @@ export class RunScene extends Phaser.Scene {
 
   private shoot(x: number, y: number, angle: number, damage: number, isCrit: boolean): void {
     const projectile = this.playerProjectiles.get(x, y) as Projectile | null;
-    projectile?.fire(x, y, angle, this.player.stats.projectileSpeed, damage, isCrit, this.shotEffects.pierce, this.shotEffects.ricochet);
+    projectile?.fire(
+      x,
+      y,
+      angle,
+      this.player.stats.projectileSpeed * this.projectileSpeedFactor,
+      damage,
+      isCrit,
+      this.shotEffects.pierce,
+      this.shotEffects.ricochet,
+      this.projectileTexture,
+    );
+  }
+
+  /** Recalcule les effets de tir : compétences, passifs de départ, et perforation de l'arme. */
+  private refreshShotEffects(): void {
+    this.shotEffects = computeShotEffects(this.runState.skills, this.runState.passives);
+    this.shotEffects.pierce += this.weaponPierce;
+  }
+
+  /** Lit l'arme équipée : apparence du projectile, vitesse (bolt lent, shuriken rapide) et perforation. */
+  private loadWeapon(): void {
+    const weapon = GameState.equippedWeapon()?.def.weapon;
+    const kind = weapon?.projectile ?? 'arrow';
+    this.projectileTexture = kind === 'arrow' ? 'projectile' : `projectile-${kind}`;
+    this.projectileSpeedFactor = COMBAT.projectileSpeedMultiplier[kind];
+    this.weaponPierce = weapon?.pierce ?? 0;
   }
 
   private applyOrbEffect(): void {

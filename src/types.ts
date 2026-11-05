@@ -23,6 +23,8 @@ export type Rarity = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic';
 export type ItemSlotType = 'weapon' | 'armor' | 'ring' | 'amulet' | 'pet';
 export type EquipSlot = 'weapon' | 'armor' | 'ring1' | 'ring2' | 'amulet' | 'pet';
 
+export type WeaponProjectile = 'arrow' | 'bolt' | 'shuriken';
+
 export interface ItemDef {
   id: string;
   name: string;
@@ -33,7 +35,7 @@ export interface ItemDef {
   /** passif débloqué à partir d'une rareté (id de PassiveDef) */
   rarityPassives?: Partial<Record<Rarity, string>>;
   /** pour les armes : comportement de tir */
-  weapon?: { projectile: 'arrow' | 'bolt' | 'shuriken'; pierce?: number; spread?: number };
+  weapon?: { projectile: WeaponProjectile; pierce?: number; spread?: number };
 }
 
 /** Un objet possédé par le joueur */
@@ -173,6 +175,7 @@ export interface CombatConfig {
   orbHitCooldownMs: number; // délai entre deux coups d'un orbe protecteur sur un même ennemi
   orbRadius: number; // distance des orbes au héros
   orbSpeedDegPerSec: number; // vitesse de rotation des orbes
+  projectileSpeedMultiplier: Record<WeaponProjectile, number>; // vitesse du tir selon l'arme (bolt lent, shuriken rapide)
   angelRareMaxWeight: number; // salle de l'ange : une compétence "rare" a un poids d'apparition ≤ à cette valeur
 }
 
