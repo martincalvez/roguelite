@@ -62,7 +62,8 @@ src/
 
 - **Une tâche à la fois**, celle demandée. Ne pas anticiper les tâches suivantes, ne pas refactorer hors sujet.
 - Avant de coder : lis les fichiers concernés + `types.ts`. Annonce en 3 lignes max ce que tu vas faire.
-- Après avoir codé : `npm run build` doit passer sans erreur ni avertissement TypeScript. Corrige avant de rendre la main.
+- Après avoir codé : `npm run build` doit passer sans erreur ni avertissement TypeScript, et `npm test` sans échec. Corrige avant de rendre la main.
+- Toute logique pure nouvelle ou modifiée dans `src/systems/` s'accompagne de tests (`*.test.ts` à côté du fichier). Toute nouvelle donnée JSON avec des références (ids) est couverte par `src/data/data.test.ts`.
 - Termine par : ce qui a changé (fichiers), comment le tester à la main (2–4 étapes), et ce qui reste éventuellement bancal.
 - Si une tâche contredit ce fichier ou semble mal conçue, **dis-le avant de coder** au lieu d'improviser.
 - Ne coche une tâche dans `docs/TACHES.md` que lorsque Martin a confirmé qu'elle marche.
@@ -88,3 +89,4 @@ Tout ce qui est commité est visible par tout le monde, y compris dans l'histori
 - `npm run dev` → jeu sur http://localhost:5173 (et sur le téléphone via l'IP locale affichée, même Wi-Fi)
 - `npm run build` → vérification TypeScript + build dans `dist/`
 - `npm run typecheck` → vérification seule
+- `npm test` → tests automatiques (Vitest) de la logique pure et de l'intégrité des données ; `npm run test:watch` pour les relancer en continu
