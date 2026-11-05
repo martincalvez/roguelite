@@ -21,6 +21,7 @@ Les captures fournies par Martin (IMG_3929 à IMG_3934, puis IMG_3936 à IMG_394
 - Fenêtres de détail sur fond crème/parchemin, bandeau supérieur jaune, sections de statistiques bien séparées et boutons d'action colorés.
 - Menus illustrés avec personnages, familiers, coffres et objets mis en scène en grand ; l'arrière-plan peut être plus détaillé, mais le texte et les actions restent très lisibles.
 - Effets lumineux, reflets, dégradés et petites particules pour donner une sensation de récompense et de matière, sans réduire le contraste du texte.
+- **Typographie** : caractères ronds, très gras et légèrement condensés, proches des titres des captures ; texte clair avec contour sombre épais et ombre nette. Éviter la police monospace par défaut de Phaser.
 
 ## Écran de gestion visé
 

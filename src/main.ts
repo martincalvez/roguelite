@@ -15,30 +15,42 @@ import { MenuScene } from './scenes/MenuScene';
 import { RunScene } from './scenes/RunScene';
 import { TalentScene } from './scenes/TalentScene';
 import { SkillPickScene } from './scenes/SkillPickScene';
+import { installGameTextTheme, loadGameFont } from './ui/gameTextTheme';
 
-new Phaser.Game({
-  type: Phaser.AUTO,
-  parent: 'game',
-  backgroundColor: COLORS.background,
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: GAME_WIDTH,
-    height: GAME_HEIGHT,
-  },
-  physics: {
-    default: 'arcade',
-    arcade: { debug: false },
-  },
-  input: { activePointers: 3 },
-  // Champs de saisie HTML (adresse e-mail, code) : Phaser n'a pas de champ texte natif.
-  dom: { createContainer: true },
-  scene: [BootScene, MenuScene, RunScene, ChapterScene, SkillPickScene, LootScene, EquipmentScene, HeroScene, PetScene, ChestScene, TalentScene, AccountScene, ConflictScene],
-});
+async function startGame(): Promise<void> {
+  try {
+    await loadGameFont();
+  } catch {
+    // Le jeu démarre quand même si le fichier de police ne peut pas être chargé.
+  }
+  installGameTextTheme();
 
-// Synchro cloud (sans effet si le cloud n'est pas configuré ou si personne n'est connecté) :
-// au lancement, puis chaque fois qu'on revient dans le jeu (avec un délai minimal entre deux essais).
-void Sync.syncNow(true);
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') void Sync.syncNow(false);
-});
+  new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: 'game',
+    backgroundColor: COLORS.background,
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: GAME_WIDTH,
+      height: GAME_HEIGHT,
+    },
+    physics: {
+      default: 'arcade',
+      arcade: { debug: false },
+    },
+    input: { activePointers: 3 },
+    // Champs de saisie HTML (adresse e-mail, code) : Phaser n'a pas de champ texte natif.
+    dom: { createContainer: true },
+    scene: [BootScene, MenuScene, RunScene, ChapterScene, SkillPickScene, LootScene, EquipmentScene, HeroScene, PetScene, ChestScene, TalentScene, AccountScene, ConflictScene],
+  });
+
+  // Synchro cloud (sans effet si le cloud n'est pas configuré ou si personne n'est connecté) :
+  // au lancement, puis chaque fois qu'on revient dans le jeu (avec un délai minimal entre deux essais).
+  void Sync.syncNow(true);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void Sync.syncNow(false);
+  });
+}
+
+void startGame();
