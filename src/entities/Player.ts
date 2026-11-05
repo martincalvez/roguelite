@@ -25,7 +25,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setDisplaySize(48, 48);
+    // Le sprite prend plus de place à l'écran; le cercle de collision reste réglé séparément ci-dessous.
+    this.setDisplaySize(128, 128);
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.setCollideWorldBounds(true);

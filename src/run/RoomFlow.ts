@@ -120,8 +120,16 @@ export class RoomFlow {
     const list = this.xpOrbs.getChildren() as XpOrb[];
     let remaining = 0;
     for (let i = 0; i < list.length; i++) {
-      if (!list[i].active) continue;
-      list[i].pullTowards(player.x, player.y, PROGRESSION.orbMagnetSpeed);
+      const orb = list[i];
+      if (!orb.active) continue;
+      const playerBody = player.body as Phaser.Physics.Arcade.Body;
+      const orbBody = orb.body as Phaser.Physics.Arcade.Body;
+      const pickupRange = playerBody.halfWidth + orbBody.halfWidth;
+      if (Phaser.Math.Distance.Between(player.x, player.y, orb.x, orb.y) <= pickupRange) {
+        this.collectOrb(orb);
+        continue;
+      }
+      orb.pullTowards(player.x, player.y, PROGRESSION.orbMagnetSpeed);
       remaining++;
     }
     if (remaining === 0 && !this.skills.busy) {
