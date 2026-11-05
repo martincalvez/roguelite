@@ -87,4 +87,5 @@ export const SCENES = {
   run: 'Run',
   skillPick: 'SkillPick',
   loot: 'Loot',
+  equipment: 'Equipment',
 } as const;

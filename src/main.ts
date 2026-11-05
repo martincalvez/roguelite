@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from './config';
 import { BootScene } from './scenes/BootScene';
+import { EquipmentScene } from './scenes/EquipmentScene';
 import { LootScene } from './scenes/LootScene';
 import { MenuScene } from './scenes/MenuScene';
 import { RunScene } from './scenes/RunScene';
@@ -21,5 +22,5 @@ new Phaser.Game({
     arcade: { debug: false },
   },
   input: { activePointers: 3 },
-  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene],
+  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene],
 });

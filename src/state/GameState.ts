@@ -1,8 +1,9 @@
 // État permanent du joueur (entre les runs). Seul ce module modifie la sauvegarde.
-import type { ItemDef, ItemInstance, RunRewards, SaveData, StatModifier, Stats } from '../types';
+import type { EquipSlot, ItemDef, ItemInstance, RunRewards, SaveData, StatModifier, Stats } from '../types';
 import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
 import { getHero, getItem } from '../data';
+import { slotAccepts } from '../systems/equipment';
 import { accountXpToNext } from '../systems/progression';
 import { computeStats, itemModifiers, talentModifiers } from '../systems/stats';
 
@@ -18,19 +19,26 @@ class GameStateImpl {
     this.persist();
   }
 
-  /** Armes possédées (inventaire). */
-  weapons(): ItemInstance[] {
-    return this.data.inventory.filter((i) => getItem(i.defId).slot === 'weapon');
-  }
-
   /** Arme actuellement équipée, avec sa définition. */
   equippedWeapon(): { instance: ItemInstance; def: ItemDef } | undefined {
     const instance = this.data.inventory.find((i) => i.uid === this.data.equipped.weapon);
     return instance ? { instance, def: getItem(instance.defId) } : undefined;
   }
 
-  equipWeapon(uid: string): void {
-    this.data.equipped.weapon = uid;
+  /** Équipe un objet dans un slot (il quitte son ancien slot). Renvoie faux si le slot ne l'accepte pas. */
+  equipItem(uid: string, slot: EquipSlot): boolean {
+    const item = this.data.inventory.find((i) => i.uid === uid);
+    if (!item || !slotAccepts(slot, getItem(item.defId).slot)) return false;
+    for (const key of Object.keys(this.data.equipped) as EquipSlot[]) {
+      if (this.data.equipped[key] === uid) delete this.data.equipped[key];
+    }
+    this.data.equipped[slot] = uid;
+    this.persist();
+    return true;
+  }
+
+  unequip(slot: EquipSlot): void {
+    delete this.data.equipped[slot];
     this.persist();
   }
 
@@ -71,8 +79,13 @@ class GameStateImpl {
    * (compétences du run), combinés dans le même calcul en couches.
    */
   heroStats(extra: StatModifier[] = []): Stats {
+    return this.heroStatsWith(this.data.equipped, extra);
+  }
+
+  /** Comme heroStats(), mais pour un équipement hypothétique (aperçu avant d'équiper, sans sauvegarder). */
+  heroStatsWith(equipped: Partial<Record<EquipSlot, string>>, extra: StatModifier[] = []): Stats {
     const hero = getHero(this.data.selectedHero);
-    const equippedUids = new Set(Object.values(this.data.equipped));
+    const equippedUids = new Set(Object.values(equipped));
     const items = this.data.inventory.filter((i) => equippedUids.has(i.uid));
     const mods = [...items.flatMap(itemModifiers), ...talentModifiers(this.data.talents), ...extra];
     return computeStats(hero.base, mods);
