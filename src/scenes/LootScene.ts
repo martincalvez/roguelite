@@ -47,25 +47,40 @@ export class LootScene extends Phaser.Scene {
       .join(' · ');
     if (scrollText) lines.push(`Parchemins : ${scrollText}`);
     if (data.levelAfter > data.levelBefore) lines.push(`Niveau de compte ${data.levelAfter} !`);
-    lines.forEach((line, i) => {
-      this.add
-        .text(cx, 330 + i * 56, line, { fontSize: '36px', color: line.startsWith('Niveau de compte') ? COLORS.gold : COLORS.text, fontStyle: 'bold', ...stroke, strokeThickness: 6 })
-        .setOrigin(0.5);
-    });
-
-    this.add.text(cx, 640, 'Butin', { fontSize: '40px', color: COLORS.gold, fontStyle: 'bold', ...stroke }).setOrigin(0.5);
-    if (data.items.length === 0) {
-      this.add.text(cx, 730, 'Aucun objet cette fois', { fontSize: '30px', color: COLORS.textMuted }).setOrigin(0.5);
+    // Mise en page cumulative : une ligne longue (parchemins) passe à la ligne sans chevaucher la suite.
+    let y = 320;
+    for (const line of lines) {
+      const t = this.add
+        .text(cx, y, line, {
+          fontSize: '30px',
+          color: line.startsWith('Niveau de compte') ? COLORS.gold : COLORS.text,
+          fontStyle: 'bold',
+          align: 'center',
+          wordWrap: { width: 660 },
+          ...stroke,
+          strokeThickness: 6,
+        })
+        .setOrigin(0.5, 0);
+      y += t.height + 10;
     }
+
+    y += 30;
+    this.add.text(cx, y, 'Butin', { fontSize: '40px', color: COLORS.gold, fontStyle: 'bold', ...stroke }).setOrigin(0.5, 0);
+    y += 80;
+    if (data.items.length === 0) {
+      this.add.text(cx, y + 20, 'Aucun objet cette fois', { fontSize: '30px', color: COLORS.textMuted }).setOrigin(0.5, 0);
+    }
+    // Les objets sont côte à côte (2 au maximum) pour tenir au-dessus du bouton MENU.
     data.items.forEach((item, i) => {
       const def = getItem(item.defId);
-      const y = 740 + i * 150;
-      this.add.rectangle(cx, y, 600, 130, 0x000000, 0.35).setStrokeStyle(6, Phaser.Display.Color.HexStringToColor(RARITY_COLOR[item.rarity]).color);
+      const x = data.items.length === 1 ? cx : cx + (i === 0 ? -165 : 165);
+      const cy = y + 65;
+      this.add.rectangle(x, cy, 310, 130, 0x000000, 0.35).setStrokeStyle(6, Phaser.Display.Color.HexStringToColor(RARITY_COLOR[item.rarity]).color);
       this.add
-        .text(cx, y - 30, def.name, { fontSize: '36px', color: RARITY_COLOR[item.rarity], fontStyle: 'bold', ...stroke, strokeThickness: 6 })
+        .text(x, cy - 28, def.name, { fontSize: '28px', color: RARITY_COLOR[item.rarity], fontStyle: 'bold', align: 'center', wordWrap: { width: 290 }, ...stroke, strokeThickness: 5 })
         .setOrigin(0.5);
       this.add
-        .text(cx, y + 22, `${RARITY_LABEL[item.rarity]} · ${SLOT_TYPE_LABEL[def.slot]}`, { fontSize: '26px', color: COLORS.text })
+        .text(x, cy + 32, `${RARITY_LABEL[item.rarity]} · ${SLOT_TYPE_LABEL[def.slot]}`, { fontSize: '20px', color: COLORS.text })
         .setOrigin(0.5);
     });
 
