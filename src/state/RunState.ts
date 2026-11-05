@@ -9,6 +9,8 @@ export class RunState {
   /** Passifs acquis au début du run (héros, raretés des objets équipés). */
   passives: string[] = [];
   gold = 0;
+  /** Vrai quand le run est fini (mort ou victoire) : plus aucune action de jeu. */
+  ended = false;
   /** Index de la salle actuelle dans le chapitre. */
   room = 0;
 
