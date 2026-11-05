@@ -25,8 +25,8 @@ const STROKE = { stroke: '#1a1020', strokeThickness: 5 };
 // Mise en page (720 × 1280, rien d'important dans les 60 px du bas)
 const SLOT_SIZE = 104;
 const SLOT_GAP = 12;
-const SLOT_Y = 215;
-const VIEW_TOP = 310;
+const SLOT_Y = 260;
+const VIEW_TOP = 375;
 const VIEW_BOTTOM = 1200;
 const COLS = 4;
 const CARD_W = 160;
@@ -35,6 +35,13 @@ const CARD_GAP = 14;
 const DRAG_THRESHOLD = 12;
 
 const rarityColor = (r: ItemInstance['rarity']): number => Phaser.Display.Color.HexStringToColor(RARITY_COLOR[r]).color;
+const CARD_TINT: Record<ItemInstance['rarity'], number> = {
+  common: 0x8294b3,
+  rare: 0x287bc2,
+  epic: 0x7d32be,
+  legendary: 0xb87911,
+  mythic: 0xb82c4c,
+};
 
 /** Écran équipement : 6 slots, inventaire défilant, détail d'un objet avec différence de stats. */
 export class EquipmentScene extends Phaser.Scene {
@@ -92,14 +99,24 @@ export class EquipmentScene extends Phaser.Scene {
     const d = GameState.data;
     const cx = GAME_WIDTH / 2;
 
-    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.background);
-    this.add.text(330, 60, 'ÉQUIPEMENT', { fontSize: '34px', color: COLORS.gold, fontStyle: 'bold', ...STROKE, strokeThickness: 7 }).setOrigin(0.5);
+    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x07578e);
+    const motif = this.add.graphics();
+    motif.lineStyle(3, 0x57d7ff, 0.1);
+    for (let y = 250; y < GAME_HEIGHT; y += 145) {
+      motif.lineBetween(0, y, GAME_WIDTH, y + 165);
+      motif.lineBetween(GAME_WIDTH, y, 0, y + 165);
+    }
+    this.add.rectangle(cx, 178, GAME_WIDTH, 260, 0x28a5d2, 0.2);
+    this.add.rectangle(cx, 63, 690, 84, 0x06375f).setStrokeStyle(5, 0x021e3d);
+    this.add.rectangle(cx, 59, 678, 72, 0x1388c0).setStrokeStyle(3, 0x55d6ff);
+    this.add.text(330, 60, 'ÉQUIPEMENT', { fontSize: '38px', color: '#ffe45a', fontStyle: 'bold', ...STROKE, strokeThickness: 8 }).setOrigin(0.5);
     this.add
       .text(24, 60, '← Retour', { fontSize: '26px', color: COLORS.text, padding: { x: 14, y: 28 } })
       .setOrigin(0, 0.5)
       .setInteractive({ useHandCursor: true })
       .on('pointerup', () => this.scene.start(SCENES.menu));
-    this.add.text(GAME_WIDTH - 24, 60, `${d.gold} or · ${d.gems} gemmes`, { fontSize: '20px', color: COLORS.gold, fontStyle: 'bold' }).setOrigin(1, 0.5);
+    this.add.rectangle(cx, 120, 440, 44, 0x062d50, 0.9).setStrokeStyle(3, 0x48c8ff);
+    this.add.text(cx, 120, `✦ ${d.gold} OR     ◆ ${d.gems}`, { fontSize: '22px', color: '#fff4d2', fontStyle: 'bold', ...STROKE, strokeThickness: 4 }).setOrigin(0.5);
     this.buildStats();
     this.buildScrolls();
     this.buildSlots();
@@ -109,10 +126,11 @@ export class EquipmentScene extends Phaser.Scene {
 
   private buildStats(): void {
     const s = GameState.heroStats();
+    this.add.rectangle(GAME_WIDTH / 2, 184, 650, 46, 0x063f70, 0.9).setStrokeStyle(3, 0x39baff);
     this.add
-      .text(GAME_WIDTH / 2, 118, `PV ${Math.round(s.maxHp)}  ·  ATQ ${Math.round(s.attack)}  ·  Vitesse ${Math.round(s.moveSpeed)}`, {
-        fontSize: '26px',
-        color: COLORS.text,
+      .text(GAME_WIDTH / 2, 184, `❤ ${Math.round(s.maxHp)}     ⚔ ${Math.round(s.attack)}     ➤ ${Math.round(s.moveSpeed)}`, {
+        fontSize: '24px',
+        color: '#ffffff', fontStyle: 'bold', ...STROKE, strokeThickness: 4,
       })
       .setOrigin(0.5);
   }
@@ -150,7 +168,8 @@ export class EquipmentScene extends Phaser.Scene {
     const items = [...GameState.data.inventory].sort(
       (a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity) || getItem(a.defId).name.localeCompare(getItem(b.defId).name),
     );
-    this.add.text(GAME_WIDTH / 2, 285, 'INVENTAIRE', { fontSize: '24px', color: COLORS.textMuted, fontStyle: 'bold' }).setOrigin(0.5);
+    this.add.rectangle(GAME_WIDTH / 2, 340, 690, 52, 0x063c67).setStrokeStyle(3, 0x31b9f7);
+    this.add.text(GAME_WIDTH / 2, 340, 'SAC', { fontSize: '27px', color: '#fff4d2', fontStyle: 'bold', ...STROKE, strokeThickness: 5 }).setOrigin(0.5);
 
     const total = COLS * CARD_W + (COLS - 1) * CARD_GAP;
     const startX = (GAME_WIDTH - total) / 2 + CARD_W / 2;
@@ -163,16 +182,21 @@ export class EquipmentScene extends Phaser.Scene {
       const x = startX + col * (CARD_W + CARD_GAP);
       const y = VIEW_TOP + CARD_H / 2 + row * (CARD_H + CARD_GAP);
       const def = getItem(item.defId);
-      const card = this.add.rectangle(x, y, CARD_W, CARD_H, 0x000000, 0.35).setStrokeStyle(5, rarityColor(item.rarity));
+      const card = this.add.rectangle(x + 2, y + 8, CARD_W + 2, CARD_H + 2, 0x051a31, 0.88).setStrokeStyle(7, 0x061a32);
+      const face = this.add.rectangle(x, y, CARD_W, CARD_H, CARD_TINT[item.rarity], 0.98).setStrokeStyle(6, rarityColor(item.rarity));
+      const glint = this.add.graphics().fillStyle(0xffffff, 0.22).fillTriangle(x - CARD_W / 2 + 9, y - CARD_H / 2 + 9, x + CARD_W / 2 - 9, y - CARD_H / 2 + 9, x - CARD_W / 2 + 9, y + 10);
+      const icon = this.drawItemIcon(x, y - 8, item.defId, def.slot, rarityColor(item.rarity));
       const name = this.add
-        .text(x, y - 22, def.name, { fontSize: '20px', color: RARITY_COLOR[item.rarity], fontStyle: 'bold', align: 'center', wordWrap: { width: CARD_W - 16 } })
+        .text(x, y + 37, def.name, { fontSize: '18px', color: '#ffffff', fontStyle: 'bold', align: 'center', wordWrap: { width: CARD_W - 12 }, ...STROKE, strokeThickness: 4 })
         .setOrigin(0.5);
-      const meta = this.add.text(x, y + 38, `${SLOT_TYPE_LABEL[def.slot]} · Niv. ${item.level}`, { fontSize: '16px', color: COLORS.textMuted }).setOrigin(0.5);
-      this.content.add([card, name, meta]);
+      const meta = this.add.text(x, y + 59, `NIV. ${item.level}`, { fontSize: '15px', color: '#fff4d2', fontStyle: 'bold', ...STROKE, strokeThickness: 3 }).setOrigin(0.5);
+      const slotBadge = this.add.circle(x - CARD_W / 2 + 17, y - CARD_H / 2 + 18, 13, 0x082e54).setStrokeStyle(2, 0xffffff);
+      const slotMark = this.add.text(slotBadge.x, slotBadge.y, def.slot === 'weapon' ? '⚔' : def.slot === 'armor' ? '✚' : def.slot === 'pet' ? '✦' : '◆', { fontSize: '14px', color: '#fff4d2', fontStyle: 'bold' }).setOrigin(0.5);
+      this.content.add([card, face, glint, icon, name, meta, slotBadge, slotMark]);
       if (equippedUids.has(item.uid)) {
         this.content.add(this.add.text(x + CARD_W / 2 - 8, y - CARD_H / 2 + 6, 'Équipé', { fontSize: '14px', color: GREEN, fontStyle: 'bold' }).setOrigin(1, 0));
       }
-      card.setInteractive({ useHandCursor: true }).on('pointerup', (p: Phaser.Input.Pointer) => {
+      face.setInteractive({ useHandCursor: true }).on('pointerup', (p: Phaser.Input.Pointer) => {
         // Un glissement n'ouvre rien ; une carte défilée sous les slots non plus.
         if (this.moved || p.y < VIEW_TOP || p.y > VIEW_BOTTOM || this.detail.length > 0) return;
         this.openDetail(item);
@@ -184,6 +208,44 @@ export class EquipmentScene extends Phaser.Scene {
     this.maxScroll = Math.max(0, contentHeight - (VIEW_BOTTOM - VIEW_TOP));
     this.maskShape = this.make.graphics({}, false).fillRect(0, VIEW_TOP, GAME_WIDTH, VIEW_BOTTOM - VIEW_TOP);
     this.content.setMask(this.maskShape.createGeometryMask());
+  }
+
+  /** Petite illustration lisible au format carte, dessinée dans la palette cartoon du jeu. */
+  private drawItemIcon(x: number, y: number, id: string, slot: string, color: number): Phaser.GameObjects.GameObject {
+    if (id === 'amulette_braise' && this.textures.exists('item-amulette-braise')) {
+      return this.add.image(x, y, 'item-amulette-braise').setDisplaySize(70, 70);
+    }
+    if (slot === 'pet' && this.textures.exists(`pet-${id}`)) return this.add.image(x, y, `pet-${id}`).setDisplaySize(66, 66);
+    const g = this.add.graphics().setPosition(x, y);
+    const ink = 0x14213d;
+    g.lineStyle(7, ink, 1);
+    if (id.includes('arc')) {
+      g.lineStyle(10, color, 1).beginPath().arc(0, 0, 34, -1.15, 1.15, false).strokePath();
+      g.lineStyle(4, 0xffefb0, 1).lineBetween(14, -31, 14, 31);
+      g.lineStyle(7, ink, 1).strokeCircle(0, 0, 5);
+    } else if (id.includes('baton')) {
+      g.lineStyle(14, 0x8d4b22, 1).lineBetween(-19, 30, 17, -28);
+      g.lineStyle(5, ink, 1).lineBetween(-19, 30, 17, -28);
+      g.fillStyle(color, 1).fillCircle(19, -31, 17).lineStyle(5, ink, 1).strokeCircle(19, -31, 17);
+      g.fillStyle(0xffffff, 0.8).fillCircle(14, -37, 5);
+    } else if (id.includes('lames')) {
+      g.fillStyle(color, 1).fillTriangle(-25, 29, 23, -34, 9, 12).lineStyle(5, ink, 1).strokeTriangle(-25, 29, 23, -34, 9, 12);
+      g.lineStyle(8, 0xffd85b, 1).lineBetween(-9, 5, 20, 25);
+    } else if (slot === 'armor') {
+      g.fillStyle(color, 1).fillRoundedRect(-31, -32, 62, 65, 16).lineStyle(6, ink, 1).strokeRoundedRect(-31, -32, 62, 65, 16);
+      g.fillStyle(0xffdb69, 1).fillTriangle(0, -4, 16, 6, 0, 23).fillTriangle(0, -4, -16, 6, 0, 23);
+      g.lineStyle(5, 0xffefb0, 0.85).lineBetween(-21, -22, 21, -22);
+    } else if (slot === 'ring') {
+      g.lineStyle(14, 0xffc735, 1).strokeEllipse(0, 2, 56, 41);
+      g.lineStyle(6, ink, 1).strokeEllipse(0, 2, 56, 41);
+      g.fillStyle(color, 1).fillTriangle(0, -31, 14, -17, 0, -4).fillTriangle(0, -31, -14, -17, 0, -4);
+      g.lineStyle(3, 0xffffff, 0.9).lineBetween(-5, -22, 3, -28);
+    } else {
+      g.fillStyle(color, 1).fillTriangle(0, -37, 28, 0, 0, 34).fillTriangle(0, -37, -28, 0, 0, 34);
+      g.lineStyle(6, ink, 1).strokeTriangle(0, -37, 28, 0, 0, 34).strokeTriangle(0, -37, -28, 0, 0, 34);
+      g.fillStyle(0xffffff, 0.7).fillTriangle(-2, -27, 10, -2, -2, 4);
+    }
+    return g;
   }
 
   /** Panneau de détail : stats, passif, différence si équipé (ou retiré), boutons. */
@@ -199,13 +261,14 @@ export class EquipmentScene extends Phaser.Scene {
     };
 
     add(this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.78).setDepth(100).setInteractive());
-    add(this.add.rectangle(cx, 640, 650, 1010, COLORS.background).setStrokeStyle(8, rarityColor(item.rarity)).setDepth(101));
+    add(this.add.rectangle(cx, 640, 650, 1010, 0xeac49d).setStrokeStyle(9, rarityColor(item.rarity)).setDepth(101));
+    add(this.add.rectangle(cx, 174, 650, 78, 0xffc42b).setStrokeStyle(6, 0x9b4b13).setDepth(101));
 
     let y = 170;
     const line = (text: string, color: string, size: number, bold = false): void => {
       const t = add(
         this.add
-          .text(cx, y, text, { fontSize: `${size}px`, color, fontStyle: bold ? 'bold' : 'normal', align: 'center', wordWrap: { width: 580 }, ...(bold ? STROKE : {}) })
+          .text(cx, y, text, { fontSize: `${size}px`, color: color === COLORS.text ? '#fffaf0' : color === COLORS.textMuted ? '#714923' : color === GREEN ? '#087b35' : color === RED ? '#a51e39' : color, fontStyle: bold ? 'bold' : 'normal', align: 'center', wordWrap: { width: 580 }, ...(bold ? STROKE : {}) })
           .setOrigin(0.5, 0)
           .setDepth(102),
       );
@@ -318,12 +381,12 @@ export class EquipmentScene extends Phaser.Scene {
           .on('pointerup', onClick),
       );
     };
-    button(cx - 150, equippedSlot ? ' Retirer ' : ' Équiper ', equippedSlot ? '#ff9a9a' : COLORS.gold, () => {
+    button(cx - 150, equippedSlot ? ' Retirer ' : ' Équiper ', equippedSlot ? '#ff5864' : '#22aaff', () => {
       if (equippedSlot) GameState.unequip(equippedSlot);
       else GameState.equipItem(item.uid, slot);
       this.build();
     });
-    button(cx + 170, ' Fermer ', '#d6f0dc', () => this.closeDetail());
+    button(cx + 170, ' Fermer ', '#ffc629', () => this.closeDetail());
   }
 
   private track<T extends Phaser.GameObjects.GameObject>(obj: T): T {

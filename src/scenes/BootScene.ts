@@ -9,6 +9,10 @@ export class BootScene extends Phaser.Scene {
     super(SCENES.boot);
   }
 
+  preload(): void {
+    this.load.image('item-amulette-braise', 'assets/twin-core.png');
+  }
+
   create(): void {
     this.makeCircle('player', 22, 0x3fa4ff, true);
     for (const hero of HEROES) this.makeHeroTexture(hero);
