@@ -213,7 +213,7 @@ Tâche 4.0 (Martin, avec l'aide de Claude pour chaque écran). 1) Créer un comp
 ```
 Validation : le projet existe, tes identifiants de compte et les clés sont dans ton gestionnaire / `.env.local` / Variables GitHub ; rien n'est apparu dans le chat ni dans git.
 
-### [ ] 4.1 Table de sauvegarde et règles d'accès (RLS)
+### [x] 4.1 Table de sauvegarde et règles d'accès (RLS)
 
 ```
 Tâche 4.1. Le fichier docs/supabase/001_saves.sql crée la table public.saves (une ligne par joueur : data jsonb, save_version, revision, updated_at, limite de 200 Ko) avec la sécurité au niveau des lignes (RLS) : chaque joueur connecté ne lit, n'écrit et ne supprime que SA ligne, le rôle anon n'a aucun accès, et un trigger fixe revision (+1 à chaque écriture) et updated_at (now()) côté serveur, sans que le client puisse les choisir. Martin colle ce fichier dans Supabase → SQL Editor, puis lance les vérifications SQL écrites en commentaire en bas du fichier et dit ce qu'il obtient. Claude ne code rien tant que la RLS n'est pas vérifiée.
