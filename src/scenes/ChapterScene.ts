@@ -27,21 +27,27 @@ export class ChapterScene extends Phaser.Scene {
       const number = index + 1;
       const y = 320 + index * 310;
       const available = isChapterUnlocked(number, GameState.data.bestChapter);
-      const wall = Phaser.Display.Color.HexStringToColor(chapter.visual.wallColor).color;
       const floor = Phaser.Display.Color.HexStringToColor(chapter.visual.floorColor).color;
       const accent = Phaser.Display.Color.HexStringToColor(chapter.visual.accentColor).color;
-      const panelColor = available ? wall : 0x354660;
-      this.add.rectangle(cx, y, 660, 255, 0x081c36, 0.65).setStrokeStyle(8, available ? accent : 0x69788d);
-      this.add.rectangle(cx, y, 642, 237, panelColor).setStrokeStyle(3, floor);
-      this.add.rectangle(118, y, 104, 180, floor, available ? 0.95 : 0.35).setStrokeStyle(5, accent);
+      const panelColor = available ? 0x0a4f83 : 0x334b69;
+      this.add.rectangle(cx, y + 8, 660, 255, 0x061b32, 0.9).setStrokeStyle(8, 0x06172c);
+      this.add.rectangle(cx, y, 642, 237, panelColor).setStrokeStyle(5, available ? accent : 0x75859b);
+      this.add.rectangle(118, y, 104, 180, floor, available ? 1 : 0.4).setStrokeStyle(6, accent);
+      this.add.rectangle(118, y - 81, 84, 7, 0xffffff, 0.42);
       this.add.text(118, y - 25, `${number}`, { fontSize: '68px', color: '#ffffff', fontStyle: 'bold', stroke: '#152139', strokeThickness: 10 }).setOrigin(0.5);
       this.add.text(246, y - 70, `CHAPITRE ${number}`, { fontSize: '22px', color: '#ffffff', fontStyle: 'bold', stroke: '#14253e', strokeThickness: 5 }).setOrigin(0, 0.5);
       this.add.text(246, y - 25, chapter.name, { fontSize: '32px', color: available ? chapter.visual.accentColor : '#c3cfdf', fontStyle: 'bold', stroke: '#14253e', strokeThickness: 7, wordWrap: { width: 395 } }).setOrigin(0, 0.5);
-      this.add.text(246, y + 28, `${chapter.rooms.length} salles  ·  deux haltes  ·  boss final`, { fontSize: '19px', color: '#ffffff', fontStyle: 'bold', stroke: '#14253e', strokeThickness: 4 }).setOrigin(0, 0.5);
+      this.add.text(246, y + 31, available ? 'OUVERT' : 'VERROUILLÉ', {
+        fontSize: '20px', color: available ? '#7cff68' : '#c3cfdf', fontStyle: 'bold', stroke: '#14253e', strokeThickness: 5,
+      }).setOrigin(0, 0.5);
 
       const label = available ? 'JOUER' : `TERMINE LE CHAPITRE ${number - 1}`;
-      const button = this.add.text(470, y + 83, label, {
-        fontSize: available ? '28px' : '18px', color: '#17263d', fontStyle: 'bold', backgroundColor: available ? '#ffd447' : '#8d9aae', padding: { x: 24, y: 20 },
+      this.add.rectangle(493, y + 85, 278, 92, 0x071c32).setStrokeStyle(5, 0x07172b);
+      const button = this.add.rectangle(490, y + 78, 272, 88, available ? 0xffc72f : 0x8796aa).setStrokeStyle(5, available ? 0xffef82 : 0x58677d);
+      this.add.rectangle(490, y + 41, 250, 6, 0xffffff, 0.32);
+      this.add.text(490, y + 78, label, {
+        fontSize: available ? '32px' : '16px', color: '#17263d', fontStyle: 'bold', align: 'center', wordWrap: { width: 245 },
+        stroke: '#fff1c5', strokeThickness: available ? 2 : 0,
       }).setOrigin(0.5);
       if (available) button.setInteractive({ useHandCursor: true }).on('pointerup', () => this.scene.start(SCENES.run, { chapterId: chapter.id }));
     });
