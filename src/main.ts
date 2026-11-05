@@ -1,0 +1,23 @@
+import Phaser from 'phaser';
+import { COLORS, GAME_HEIGHT, GAME_WIDTH } from './config';
+import { BootScene } from './scenes/BootScene';
+import { MenuScene } from './scenes/MenuScene';
+import { RunScene } from './scenes/RunScene';
+
+new Phaser.Game({
+  type: Phaser.AUTO,
+  parent: 'game',
+  backgroundColor: COLORS.background,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+  },
+  physics: {
+    default: 'arcade',
+    arcade: { debug: false },
+  },
+  input: { activePointers: 3 },
+  scene: [BootScene, MenuScene, RunScene],
+});

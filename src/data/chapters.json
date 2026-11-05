@@ -1,0 +1,29 @@
+[
+  {
+    "id": "ch1",
+    "name": "Forêt maudite",
+    "difficulty": 1,
+    "rooms": [
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 3 }] },
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 4 }] },
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 2 }, { "id": "archer_squelette", "count": 1 }] },
+      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 3 }] },
+      { "type": "angel" },
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 4 }, { "id": "archer_squelette", "count": 2 }] },
+      { "type": "combat", "enemies": [{ "id": "shaman", "count": 2 }] },
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 3 }, { "id": "shaman", "count": 1 }] },
+      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 3 }, { "id": "shaman", "count": 1 }] },
+      { "type": "miniboss", "enemies": [{ "id": "ogre", "count": 1 }] },
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 6 }] },
+      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 2 }, { "id": "shaman", "count": 2 }] },
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 4 }, { "id": "shaman", "count": 2 }] },
+      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 4 }, { "id": "gobelin", "count": 2 }] },
+      { "type": "angel" },
+      { "type": "combat", "enemies": [{ "id": "shaman", "count": 3 }, { "id": "gobelin", "count": 3 }] },
+      { "type": "combat", "enemies": [{ "id": "ogre", "count": 1 }, { "id": "gobelin", "count": 2 }] },
+      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 4 }, { "id": "shaman", "count": 2 }] },
+      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 6 }, { "id": "archer_squelette", "count": 2 }] },
+      { "type": "boss", "enemies": [{ "id": "liche", "count": 1 }] }
+    ]
+  }
+]

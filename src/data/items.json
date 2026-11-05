@@ -1,0 +1,61 @@
+[
+  {
+    "id": "arc_chasseur",
+    "name": "Arc du chasseur",
+    "slot": "weapon",
+    "description": "Équilibré. Une flèche rapide.",
+    "modifiers": [{ "stat": "attack", "type": "flat", "value": 10 }],
+    "rarityPassives": { "epic": "fleche_bonus" },
+    "weapon": { "projectile": "arrow" }
+  },
+  {
+    "id": "baton_runique",
+    "name": "Bâton runique",
+    "slot": "weapon",
+    "description": "Tir lent mais perçant.",
+    "modifiers": [
+      { "stat": "attack", "type": "flat", "value": 16 },
+      { "stat": "attackSpeed", "type": "percent", "value": -0.25 }
+    ],
+    "weapon": { "projectile": "bolt", "pierce": 1 }
+  },
+  {
+    "id": "lames_ombre",
+    "name": "Lames de l'ombre",
+    "slot": "weapon",
+    "description": "Très rapides, peu de dégâts.",
+    "modifiers": [
+      { "stat": "attack", "type": "flat", "value": 6 },
+      { "stat": "attackSpeed", "type": "percent", "value": 0.4 }
+    ],
+    "weapon": { "projectile": "shuriken" }
+  },
+  {
+    "id": "cotte_mailles",
+    "name": "Cotte de mailles",
+    "slot": "armor",
+    "description": "Robuste.",
+    "modifiers": [{ "stat": "maxHp", "type": "flat", "value": 60 }]
+  },
+  {
+    "id": "anneau_loup",
+    "name": "Anneau du loup",
+    "slot": "ring",
+    "description": "Coups critiques plus fréquents.",
+    "modifiers": [{ "stat": "critChance", "type": "flat", "value": 0.05 }]
+  },
+  {
+    "id": "anneau_vent",
+    "name": "Anneau du vent",
+    "slot": "ring",
+    "description": "Plus agile.",
+    "modifiers": [{ "stat": "dodge", "type": "flat", "value": 0.04 }]
+  },
+  {
+    "id": "amulette_braise",
+    "name": "Amulette de braise",
+    "slot": "amulet",
+    "description": "Puissance accrue.",
+    "modifiers": [{ "stat": "attack", "type": "percent", "value": 0.08 }]
+  }
+]

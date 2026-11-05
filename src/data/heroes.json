@@ -1,0 +1,17 @@
+[
+  {
+    "id": "aldric",
+    "name": "Aldric",
+    "description": "Rôdeur polyvalent.",
+    "base": { "maxHp": 200, "attack": 20, "attackSpeed": 1.6, "moveSpeed": 230, "critChance": 0.05, "critDamage": 2, "projectileSpeed": 650, "dodge": 0 },
+    "unlockCostGems": 0
+  },
+  {
+    "id": "seren",
+    "name": "Seren",
+    "description": "Mage de feu : ses projectiles brûlent dès le départ.",
+    "base": { "maxHp": 170, "attack": 22, "attackSpeed": 1.5, "moveSpeed": 220, "critChance": 0.05, "critDamage": 2, "projectileSpeed": 600, "dodge": 0 },
+    "passive": "feu_inne",
+    "unlockCostGems": 300
+  }
+]

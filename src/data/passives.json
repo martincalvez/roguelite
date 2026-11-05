@@ -1,0 +1,4 @@
+[
+  { "id": "fleche_bonus", "name": "Flèche bonus", "description": "Commence chaque run avec +1 projectile.", "effect": { "kind": "multishot", "value": 1 } },
+  { "id": "feu_inne", "name": "Feu inné", "description": "Les projectiles brûlent.", "effect": { "kind": "burn", "dps": 6, "duration": 2 } }
+]

@@ -1,0 +1,14 @@
+[
+  { "id": "tir_multiple", "name": "Tir multiple", "description": "+1 projectile vers l'avant.", "maxStacks": 3, "weight": 8, "effect": { "kind": "multishot", "value": 1 } },
+  { "id": "tir_diagonal", "name": "Tir diagonal", "description": "Tire aussi en diagonale.", "maxStacks": 1, "weight": 6, "effect": { "kind": "diagonal" } },
+  { "id": "tir_arriere", "name": "Tir arrière", "description": "Tire aussi derrière toi.", "maxStacks": 1, "weight": 6, "effect": { "kind": "rear" } },
+  { "id": "ricochet", "name": "Ricochet", "description": "Les projectiles rebondissent vers un autre ennemi.", "maxStacks": 2, "weight": 5, "effect": { "kind": "ricochet", "value": 1 } },
+  { "id": "percant", "name": "Projectile perçant", "description": "Traverse un ennemi de plus.", "maxStacks": 2, "weight": 5, "effect": { "kind": "pierce", "value": 1 } },
+  { "id": "frenesie", "name": "Frénésie", "description": "+25 % de vitesse d'attaque.", "maxStacks": 4, "weight": 10, "effect": { "kind": "stat", "modifiers": [{ "stat": "attackSpeed", "type": "percent", "value": 0.25 }] } },
+  { "id": "force", "name": "Force brute", "description": "+20 % de dégâts.", "maxStacks": 5, "weight": 10, "effect": { "kind": "stat", "modifiers": [{ "stat": "attack", "type": "percent", "value": 0.2 }] } },
+  { "id": "vitalite", "name": "Vitalité", "description": "+20 % de PV max.", "maxStacks": 5, "weight": 8, "effect": { "kind": "stat", "modifiers": [{ "stat": "maxHp", "type": "percent", "value": 0.2 }] } },
+  { "id": "soin", "name": "Potion", "description": "Rend 40 % des PV.", "maxStacks": 99, "weight": 6, "effect": { "kind": "heal", "value": 0.4 } },
+  { "id": "flamme", "name": "Flèches de feu", "description": "Brûle l'ennemi touché.", "maxStacks": 1, "weight": 5, "effect": { "kind": "burn", "dps": 8, "duration": 2 } },
+  { "id": "givre", "name": "Flèches de givre", "description": "Ralentit l'ennemi touché.", "maxStacks": 1, "weight": 5, "effect": { "kind": "freeze", "slow": 0.5, "duration": 1.5 } },
+  { "id": "orbe", "name": "Orbe protecteur", "description": "Un orbe tourne autour de toi.", "maxStacks": 2, "weight": 4, "effect": { "kind": "orb", "count": 1, "damage": 12 } }
+]
