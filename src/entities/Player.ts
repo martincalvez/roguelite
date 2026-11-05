@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GameState } from '../state/GameState';
+import type { Stats } from '../types';
 import type { VirtualJoystick } from '../ui/VirtualJoystick';
 
 /**
@@ -10,6 +11,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys: Record<'Z' | 'Q' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
   private readonly moveVector = new Phaser.Math.Vector2();
+  /** Stats du héros (équipement + talents). Les compétences du run viendront en phase 2. */
+  readonly stats: Stats = GameState.heroStats();
   private moveSpeed: number;
   private joystick?: VirtualJoystick;
 
@@ -18,7 +21,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.moveSpeed = GameState.heroStats().moveSpeed;
+    this.moveSpeed = this.stats.moveSpeed;
     this.setCollideWorldBounds(true);
     this.setCircle(this.width / 2);
 
@@ -48,6 +51,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   get isMoving(): boolean {
     return this.moveVector.lengthSq() > 0;
+  }
+
+  /** Tourne le héros vers un point (le repère visuel de la texture pointe vers la droite). */
+  faceTowards(x: number, y: number): void {
+    this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, x, y));
   }
 
   /** À appeler à chaque frame depuis la scène. */

@@ -34,7 +34,7 @@ Tâche 1.3. Crée src/entities/Enemy.ts et un groupe Phaser poolé dans RunScene
 ```
 Validation : 3 gobelins foncent vers le héros ; en modifiant chapters.json pour mettre des archers, ils tirent.
 
-### [ ] 1.4 Tir automatique
+### [x] 1.4 Tir automatique
 
 ```
 Tâche 1.4. Crée src/entities/Projectile.ts et un pool de projectiles joueur (texture 'projectile'). Quand le joueur est immobile (ou toujours si GameState.data.settings.alwaysShoot), il tire vers l'ennemi vivant le plus proche à la cadence stats.attackSpeed, vitesse stats.projectileSpeed. Dégâts = stats.attack, coup critique selon critChance × critDamage. Les ennemis perdent des PV et meurent à 0 (émettre l'événement 'enemy-died' avec l'EnemyDef). Calcule les dégâts dans une fonction pure src/systems/combat.ts. Le héros se tourne vers sa cible.

@@ -71,6 +71,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /** Retire des PV ; à 0, l'ennemi disparaît et la scène est prévenue par 'enemy-died'. */
+  takeDamage(amount: number): void {
+    this.hp -= amount;
+    if (this.hp <= 0) {
+      this.kill();
+      this.scene.events.emit('enemy-died', this.def);
+    }
+  }
+
   kill(): void {
     this.disableBody(true, true);
   }

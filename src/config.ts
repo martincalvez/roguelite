@@ -71,6 +71,7 @@ export const FUSION_COUNT = 3;
 export const POOLS = {
   enemies: 40,
   enemyProjectiles: 120,
+  playerProjectiles: 60,
 };
 
 export const SCENES = {

@@ -4,6 +4,9 @@ import { getChapter, getEnemy } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Player } from '../entities/Player';
+import { Projectile } from '../entities/Projectile';
+import { GameState } from '../state/GameState';
+import { damageAmount, rollCrit } from '../systems/combat';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
 
 interface RunData {
@@ -19,6 +22,8 @@ export class RunScene extends Phaser.Scene {
   private player!: Player;
   private enemies!: Phaser.Physics.Arcade.Group;
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
+  private playerProjectiles!: Phaser.Physics.Arcade.Group;
+  private nextShotAt = 0;
 
   constructor() {
     super(SCENES.run);
@@ -37,11 +42,13 @@ export class RunScene extends Phaser.Scene {
 
     this.enemies = this.physics.add.group({ classType: Enemy, maxSize: POOLS.enemies });
     this.enemyProjectiles = this.physics.add.group({ classType: EnemyProjectile, maxSize: POOLS.enemyProjectiles });
+    this.playerProjectiles = this.physics.add.group({ classType: Projectile, maxSize: POOLS.playerProjectiles });
     this.physics.add.collider(this.enemies, this.enemies);
+    this.physics.add.overlap(this.playerProjectiles, this.enemies, (a, b) => this.onProjectileHit(a as Projectile, b as Enemy));
 
     // Les projectiles ennemis disparaissent en touchant un mur.
     this.physics.world.on('worldbounds', (body: Phaser.Physics.Arcade.Body) => {
-      if (body.gameObject instanceof EnemyProjectile) body.gameObject.kill();
+      if (body.gameObject instanceof EnemyProjectile || body.gameObject instanceof Projectile) body.gameObject.kill();
     });
     this.events.on('enemy-shoot', this.onEnemyShoot, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off('enemy-shoot', this.onEnemyShoot, this));
@@ -66,6 +73,52 @@ export class RunScene extends Phaser.Scene {
     for (let i = 0; i < list.length; i++) {
       if (list[i].active) list[i].updateAI(time, this.player.x, this.player.y);
     }
+    this.updateAutoFire(time);
+  }
+
+  /** Tire sur l'ennemi le plus proche : à l'arrêt, ou en permanence si settings.alwaysShoot. */
+  private updateAutoFire(time: number): void {
+    if (this.player.isMoving && !GameState.data.settings.alwaysShoot) return;
+    const target = this.nearestEnemy();
+    if (!target) return;
+
+    this.player.faceTowards(target.x, target.y);
+    if (time < this.nextShotAt) return;
+
+    const stats = this.player.stats;
+    this.nextShotAt = time + 1000 / stats.attackSpeed;
+    const isCrit = rollCrit(stats.critChance);
+    const damage = damageAmount(stats.attack, isCrit, stats.critDamage);
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
+    (this.playerProjectiles.get(this.player.x, this.player.y) as Projectile | null)?.fire(
+      this.player.x,
+      this.player.y,
+      angle,
+      stats.projectileSpeed,
+      damage,
+      isCrit,
+    );
+  }
+
+  private nearestEnemy(): Enemy | null {
+    const list = this.enemies.getChildren() as Enemy[];
+    let best: Enemy | null = null;
+    let bestDist = Infinity;
+    for (let i = 0; i < list.length; i++) {
+      if (!list[i].active) continue;
+      const d = Phaser.Math.Distance.Squared(this.player.x, this.player.y, list[i].x, list[i].y);
+      if (d < bestDist) {
+        bestDist = d;
+        best = list[i];
+      }
+    }
+    return best;
+  }
+
+  private onProjectileHit(projectile: Projectile, enemy: Enemy): void {
+    if (!projectile.active || !enemy.active) return;
+    projectile.kill();
+    enemy.takeDamage(projectile.damage);
   }
 
   private onEnemyShoot(x: number, y: number, angle: number, speed: number, damage: number): void {
