@@ -20,6 +20,12 @@ class GameStateImpl {
     SaveManager.save(this.data);
   }
 
+  /** Remplace toute la sauvegarde (récupération depuis le cloud) et l'écrit en local. */
+  replaceData(data: SaveData): void {
+    this.data = data;
+    this.persist();
+  }
+
   addGold(amount: number): void {
     this.data.gold += Math.round(amount);
     this.persist();

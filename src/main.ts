@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from './config';
 import { BootScene } from './scenes/BootScene';
+import { Sync } from './cloud/syncManager';
 import { AccountScene } from './scenes/AccountScene';
+import { ConflictScene } from './scenes/ConflictScene';
 import { ChestScene } from './scenes/ChestScene';
 import { EquipmentScene } from './scenes/EquipmentScene';
 import { LootScene } from './scenes/LootScene';
@@ -27,5 +29,12 @@ new Phaser.Game({
   input: { activePointers: 3 },
   // Champs de saisie HTML (adresse e-mail, code) : Phaser n'a pas de champ texte natif.
   dom: { createContainer: true },
-  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene, ChestScene, TalentScene, AccountScene],
+  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene, ChestScene, TalentScene, AccountScene, ConflictScene],
+});
+
+// Synchro cloud (sans effet si le cloud n'est pas configuré ou si personne n'est connecté) :
+// au lancement, puis chaque fois qu'on revient dans le jeu (avec un délai minimal entre deux essais).
+void Sync.syncNow(true);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') void Sync.syncNow(false);
 });

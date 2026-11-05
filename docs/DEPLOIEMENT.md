@@ -40,3 +40,14 @@ Le compte est facultatif : sans configuration, le jeu fonctionne comme avant, et
 - **Sécurité :** la clé utilisée est la clé *publique* (« publishable » ou « anon »), visible dans le jeu publié par conception. Les données sont protégées par les règles RLS de `docs/supabase/001_saves.sql`. La clé « secret » ou « service_role » ne doit jamais être utilisée.
 - **Connexion :** par code à 6 chiffres reçu par e-mail, sans mot de passe. Les inscriptions sont fermées : seule l'adresse créée à la main dans Supabase (Authentication → Users) peut se connecter.
 - **Projet en pause :** le plan gratuit met le projet en pause après environ une semaine sans activité. Le jeu continue alors en local ; relance le projet dans le tableau de bord Supabase.
+
+## Synchronisation de la sauvegarde
+
+Une fois connecté (écran COMPTE), la sauvegarde est synchronisée avec le cloud : au lancement, à la fin de chaque run, au retour dans le jeu et avec le bouton « Synchroniser maintenant ».
+
+- **Le jeu ne dépend jamais du cloud.** Si Supabase ne répond pas (réseau coupé, projet en pause), le jeu continue en local et affiche « Synchro indisponible » ; il réessaie au prochain lancement.
+- **Chaque appareil mémorise** la dernière version du cloud qu'il a vue (`revision`) et l'empreinte de sa sauvegarde à ce moment-là. L'envoi n'a lieu que si le cloud n'a pas changé entre-temps (écriture conditionnelle).
+- **Décision :** seul cet appareil a changé → envoi ; seul le cloud a changé → récupération ; les deux ont changé → écran « Quelle sauvegarde garder ? » (jamais d'écrasement silencieux) ; rien n'a changé → rien.
+- **Nouvel appareil :** s'il n'a pas progressé, il récupère le cloud ; s'il a déjà progressé alors que le cloud existe, il te demande de choisir.
+- **Sauvegarde cloud trop récente** (format plus récent que ce jeu) : refusée avec un message, rien n'est écrasé.
+- **Supprimer ma sauvegarde cloud** (écran COMPTE, avec confirmation) supprime la ligne du cloud, pas le compte ni la progression de l'appareil.

@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_WIDTH, SCENES } from '../config';
 import { cloudEnabled } from '../cloud/client';
+import { Sync } from '../cloud/syncManager';
 import { getHero } from '../data';
 import { accountXpToNext } from '../systems/progression';
+import { syncLabel } from '../ui/syncLabel';
 import { GameState } from '../state/GameState';
 
 /** Menu principal : une liste de gros boutons (JOUER, ÉQUIPEMENT…). */
@@ -12,6 +14,11 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Un conflit de synchro attend une décision : on la demande tout de suite (jamais en plein run).
+    if (Sync.status === 'conflict') {
+      this.scene.start(SCENES.conflict);
+      return;
+    }
     const cx = GAME_WIDTH / 2;
     const d = GameState.data;
     const stats = GameState.heroStats();
@@ -48,6 +55,22 @@ export class MenuScene extends Phaser.Scene {
     this.add
       .text(cx, 548, `Niveau de compte ${d.accountLevel}`, { fontSize: '16px', color: '#ffffff', fontStyle: 'bold', stroke: '#1a1020', strokeThickness: 4 })
       .setOrigin(0.5);
+
+    // Statut de la synchro cloud, discret, en haut.
+    const status = this.add.text(cx, 36, '', { fontSize: '20px', fontStyle: 'bold', stroke: '#1a1020', strokeThickness: 4 }).setOrigin(0.5);
+    const refreshStatus = (): void => {
+      const label = syncLabel(Sync.status);
+      status.setText(label?.text ?? '').setColor(label?.color ?? '#ffffff');
+      if (Sync.status === 'conflict') this.scene.start(SCENES.conflict);
+    };
+    refreshStatus();
+    const offStatus = Sync.onChange(refreshStatus);
+    // La sauvegarde a été remplacée par celle du cloud : on redessine le menu avec les nouvelles valeurs.
+    const offReplaced = Sync.onDataReplaced(() => this.scene.restart());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      offStatus();
+      offReplaced();
+    });
 
     this.menuButton(cx, 640, '  JOUER  ', 56, () => this.scene.start(SCENES.run, { chapterId: 'ch1' }));
     this.menuButton(cx, 765, ' ÉQUIPEMENT ', 40, () => this.scene.start(SCENES.equipment));

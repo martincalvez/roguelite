@@ -26,7 +26,7 @@ export function defaultSave(): SaveData {
 }
 
 /** Chaque changement de format = SAVE_VERSION + 1 et une étape ici. Ne jamais casser une vieille sauvegarde. */
-function migrate(raw: Record<string, unknown>): SaveData {
+export function migrate(raw: Record<string, unknown>): SaveData {
   const data = { ...defaultSave(), ...raw } as SaveData;
   // v1 → v2 : parchemins d'amélioration
   if (Number(raw.version ?? 1) < 2) data.scrolls = emptyScrolls();

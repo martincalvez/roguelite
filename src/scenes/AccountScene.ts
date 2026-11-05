@@ -2,8 +2,10 @@ import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH, SCENES } from '../config';
 import { currentUserEmail, confirmCode, requestCode, signOut } from '../cloud/auth';
 import { cloudEnabled } from '../cloud/client';
+import { Sync } from '../cloud/syncManager';
 import { isValidCode, isValidEmail } from '../cloud/validation';
 import { clearScene } from '../ui/clearScene';
+import { syncLabel } from '../ui/syncLabel';
 
 type View = 'loading' | 'disabled' | 'email' | 'code' | 'signedIn';
 
@@ -25,6 +27,7 @@ export class AccountScene extends Phaser.Scene {
   private resendAt = 0;
   private emailInput?: HTMLInputElement;
   private codeInput?: HTMLInputElement;
+  private confirmingDelete = false;
 
   constructor() {
     super(SCENES.account);
@@ -34,6 +37,11 @@ export class AccountScene extends Phaser.Scene {
     this.input.keyboard?.disableGlobalCapture(); // les touches du clavier doivent aller aux champs de saisie
     this.busy = false;
     this.message = '';
+    this.confirmingDelete = false;
+    const offStatus = Sync.onChange(() => {
+      if (this.view === 'signedIn') this.render();
+    });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, offStatus);
     this.view = cloudEnabled ? 'loading' : 'disabled';
     this.render();
     if (cloudEnabled) {
@@ -81,12 +89,18 @@ export class AccountScene extends Phaser.Scene {
         }, 30);
         this.status(880);
         break;
-      case 'signedIn':
-        this.paragraph(230, 'Connecté', 40, '#5cff7a');
-        this.paragraph(300, this.signedInEmail, 26);
-        this.button(470, '  Se déconnecter  ', '#ff9a9a', () => void this.onSignOut());
-        this.status(610);
+      case 'signedIn': {
+        this.paragraph(200, 'Connecté', 40, '#5cff7a');
+        this.paragraph(265, this.signedInEmail, 24);
+        const label = syncLabel(Sync.status);
+        if (label) this.paragraph(320, label.text, 24, label.color);
+        this.button(430, '  Synchroniser maintenant  ', COLORS.gold, () => void this.onSyncNow(), 30);
+        this.button(570, this.confirmingDelete ? '  Confirmer la suppression  ' : '  Supprimer ma sauvegarde cloud  ', '#ff9a9a', () => void this.onDeleteCloud(), 26);
+        this.paragraph(660, 'Supprime seulement la sauvegarde du cloud, pas ton compte ni ta progression sur cet appareil.', 18, COLORS.textMuted);
+        this.button(790, '  Se déconnecter  ', '#d6f0dc', () => void this.onSignOut(), 30);
+        this.status(920);
         break;
+      }
     }
   }
 
@@ -185,8 +199,41 @@ export class AccountScene extends Phaser.Scene {
     if (outcome.proceed) {
       this.signedInEmail = this.email;
       this.view = 'signedIn';
+      this.say(outcome.message, true);
+      void Sync.syncNow(true).then((status) => {
+        if (status === 'conflict') this.scene.start(SCENES.conflict);
+      });
+      return;
     }
-    this.say(outcome.message, outcome.proceed);
+    this.say(outcome.message, false);
+  }
+
+  private async onSyncNow(): Promise<void> {
+    if (this.busy) return;
+    this.busy = true;
+    const status = await Sync.syncNow(true);
+    this.busy = false;
+    if (status === 'conflict') {
+      this.scene.start(SCENES.conflict);
+      return;
+    }
+    const label = syncLabel(status);
+    this.say(label?.text ?? '', status === 'synced');
+  }
+
+  /** Suppression en deux temps : un premier appui demande confirmation, le second supprime la ligne du cloud. */
+  private async onDeleteCloud(): Promise<void> {
+    if (this.busy) return;
+    if (!this.confirmingDelete) {
+      this.confirmingDelete = true;
+      this.say('Appuie encore une fois pour confirmer. Ta progression sur cet appareil est conservée.');
+      return;
+    }
+    this.confirmingDelete = false;
+    this.busy = true;
+    const done = await Sync.deleteCloudSave();
+    this.busy = false;
+    this.say(done ? 'Sauvegarde cloud supprimée.' : 'Suppression impossible pour le moment. Réessaie plus tard.', done);
   }
 
   private async onSignOut(): Promise<void> {

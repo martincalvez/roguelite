@@ -1,5 +1,6 @@
 import { SCENES } from '../config';
 import { CHAPTERS, getChapter, ITEMS, LOOT } from '../data';
+import { Sync } from '../cloud/syncManager';
 import type { LootData } from '../scenes/LootScene';
 import { GameState } from '../state/GameState';
 import { gemsForRun, rollLoot, rollScrolls } from '../systems/loot';
@@ -32,6 +33,7 @@ export function endRun(ctx: RunContext, victory: boolean): void {
     clearedChapter: victory ? CHAPTERS.findIndex((c) => c.id === chapter.id) + 1 : null,
   };
   const { levelBefore, levelAfter } = GameState.applyRunRewards(rewards);
+  void Sync.syncNow(true); // envoie la progression au cloud (silencieux en cas d'échec)
   const data: LootData = {
     victory,
     roomReached: runState.room + 1,
