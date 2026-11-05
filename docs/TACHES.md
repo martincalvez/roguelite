@@ -82,7 +82,7 @@ Tâche 2.3. Implémente les effets 'multishot' (projectiles parallèles espacés
 ```
 Validation : prendre multishot + diagonale + ricochet donne un tir en éventail qui rebondit.
 
-### [ ] 2.4 Effets et orbe
+### [x] 2.4 Effets et orbe
 
 ```
 Tâche 2.4. Implémente 'burn' (dégâts dans le temps, teinte orange), 'freeze' (ralentissement, teinte bleue), 'orb' (orbes qui tournent autour du héros et blessent au contact, avec un délai par ennemi). Les durées et valeurs viennent de skills.json.
@@ -94,20 +94,20 @@ Tâche 2.4. Implémente 'burn' (dégâts dans le temps, teinte orange), 'freeze'
 Tâche 2.5. Quand une salle est vidée, une porte s'ouvre en haut de l'arène ; la traverser charge la salle suivante du chapitre (PV, XP et compétences conservés). Compteur « Salle X/20 » dans le HUD. Salle 'angel' : pas d'ennemis, choix entre « Soigner 40 % » et une compétence rare. Les PV/dégâts ennemis sont multipliés par chapter.difficulty. Victoire après la dernière salle.
 ```
 
-### [ ] 2.6 Mini-boss et boss
+### [x] 2.6 Mini-boss et boss
 
 ```
 Tâche 2.6. Comportement 'boss' : alterne 3 patterns toutes les ~4 s (ruée vers le joueur, cercle de projectileCount projectiles, salve visée de 3 tirs). Barre de vie de boss en haut de l'écran avec son nom. Bref avertissement visuel (0,5 s) avant chaque attaque, pour que ce soit esquivable.
 ```
 
-### [ ] 2.7 Fin de run et butin
+### [x] 2.7 Fin de run et butin
 
 ```
 Tâche 2.7. Crée LootScene : affiche or gagné, XP de compte gagnée (ajoute la règle dans progression.json), salle atteinte, et 0 à 2 objets lâchés (src/systems/loot.ts pur : tirage pondéré par rareté, table dans un JSON). Tout est ajouté via GameState puis sauvegardé. Mettre à jour bestChapter. Bouton « Menu ».
 ```
 Validation : recharger la page conserve l'or et les objets.
 
-### [ ] 2.8 Arme équipable
+### [x] 2.8 Arme équipable
 
 ```
 Tâche 2.8. Dans le menu, ajoute un sélecteur simple d'arme parmi les armes de l'inventaire. Le champ weapon de l'ItemDef change le tir : 'arrow' normal, 'bolt' gros projectile lent perçant (pierce), 'shuriken' petit et rapide. Les stats de l'arme passent par heroStats().
