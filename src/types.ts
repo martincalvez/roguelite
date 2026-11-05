@@ -68,6 +68,16 @@ export interface SkillDef {
 
 export type EnemyBehavior = 'melee' | 'shooter' | 'spreader' | 'boss';
 
+/** Réglages d'un boss : il alterne ruée, cercle de projectiles et salve visée. */
+export interface BossConfig {
+  cycleMs: number; // délai entre deux attaques
+  warnMs: number; // avertissement visuel avant chaque attaque
+  chargeSpeed: number; // px/s pendant la ruée
+  chargeMs: number; // durée de la ruée
+  volleyCount: number; // tirs de la salve visée
+  volleyIntervalMs: number; // délai entre deux tirs de la salve
+}
+
 export interface EnemyDef {
   id: string;
   name: string;
@@ -84,6 +94,7 @@ export interface EnemyDef {
   projectileCount?: number;
   keepDistance?: number; // px : distance que garde un tireur par rapport au joueur
   spreadAngle?: number; // degrés : ouverture de l'éventail d'un 'spreader'
+  boss?: BossConfig; // obligatoire si behavior === 'boss'
 }
 
 export type RoomType = 'combat' | 'angel' | 'miniboss' | 'boss';
