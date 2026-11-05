@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, FLOOR_TILE, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, SCENES } from '../config';
-import { getChapter, getEnemy, PROGRESSION, SKILLS } from '../data';
+import { COMBAT, getChapter, getEnemy, PROGRESSION, SKILLS } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Player } from '../entities/Player';
@@ -9,7 +9,7 @@ import { XpOrb } from '../entities/XpOrb';
 import { GameState } from '../state/GameState';
 import { RunState } from '../state/RunState';
 import { damageAmount, rollCrit } from '../systems/combat';
-import { drawSkills, skillStatModifiers } from '../systems/skills';
+import { computeShotEffects, drawSkills, skillStatModifiers, type ShotEffects } from '../systems/skills';
 import type { EnemyDef, SkillDef } from '../types';
 import type { SkillPickData } from './SkillPickScene';
 import { Fx } from '../ui/Fx';
@@ -32,6 +32,7 @@ export class RunScene extends Phaser.Scene {
   private playerProjectiles!: Phaser.Physics.Arcade.Group;
   private xpOrbs!: Phaser.Physics.Arcade.Group;
   private runState!: RunState;
+  private shotEffects!: ShotEffects;
   private pendingLevels: number[] = []; // niveaux gagnés dont le choix de compétence est à faire
   private picking = false;
   private collecting = false; // salle vidée : les orbes d'XP sont aspirés vers le héros
@@ -65,6 +66,8 @@ export class RunScene extends Phaser.Scene {
     this.joystick = new VirtualJoystick(this);
     this.player.setJoystick(this.joystick);
     this.runState = new RunState();
+    this.runState.passives = GameState.startingPassives();
+    this.shotEffects = computeShotEffects(this.runState.skills, this.runState.passives);
     new Hud(this, this.player.hp, this.player.maxHp, this.runState.level, this.runState.xp, this.runState.xpNeeded);
     this.fx = new Fx(this);
 
@@ -172,6 +175,7 @@ export class RunScene extends Phaser.Scene {
   /** Enregistre la compétence choisie. Seuls 'stat' et 'heal' ont un effet pour l'instant. */
   private applySkill(skill: SkillDef): void {
     this.runState.addSkill(skill.id);
+    this.shotEffects = computeShotEffects(this.runState.skills, this.runState.passives);
     if (skill.effect.kind === 'stat') {
       this.player.setStats(GameState.heroStats(skillStatModifiers(this.runState.skills)));
     } else if (skill.effect.kind === 'heal') {
@@ -202,7 +206,7 @@ export class RunScene extends Phaser.Scene {
   /** Tire sur l'ennemi le plus proche : à l'arrêt, ou en permanence si settings.alwaysShoot. */
   private updateAutoFire(time: number): void {
     if (this.player.isMoving && !GameState.data.settings.alwaysShoot) return;
-    const target = this.nearestEnemy();
+    const target = this.nearestEnemy(this.player.x, this.player.y);
     if (!target) return;
 
     this.player.faceTowards(target.x, target.y);
@@ -213,23 +217,17 @@ export class RunScene extends Phaser.Scene {
     const isCrit = rollCrit(stats.critChance);
     const damage = damageAmount(stats.attack, isCrit, stats.critDamage);
     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
-    (this.playerProjectiles.get(this.player.x, this.player.y) as Projectile | null)?.fire(
-      this.player.x,
-      this.player.y,
-      angle,
-      stats.projectileSpeed,
-      damage,
-      isCrit,
-    );
+    this.fireVolley(angle, damage, isCrit);
   }
 
-  private nearestEnemy(): Enemy | null {
+  /** Ennemi vivant le plus proche d'un point, en ignorant ceux déjà touchés par `projectile` s'il est donné. */
+  private nearestEnemy(x: number, y: number, projectile?: Projectile): Enemy | null {
     const list = this.enemies.getChildren() as Enemy[];
     let best: Enemy | null = null;
     let bestDist = Infinity;
     for (let i = 0; i < list.length; i++) {
-      if (!list[i].active) continue;
-      const d = Phaser.Math.Distance.Squared(this.player.x, this.player.y, list[i].x, list[i].y);
+      if (!list[i].active || projectile?.hasHit(list[i])) continue;
+      const d = Phaser.Math.Distance.Squared(x, y, list[i].x, list[i].y);
       if (d < bestDist) {
         bestDist = d;
         best = list[i];
@@ -238,16 +236,50 @@ export class RunScene extends Phaser.Scene {
     return best;
   }
 
+  /** Une salve : projectiles parallèles vers l'avant, + diagonales et arrière selon les compétences. */
+  private fireVolley(angle: number, damage: number, isCrit: boolean): void {
+    const fx = this.shotEffects;
+    const count = 1 + fx.multishot;
+    const sideX = -Math.sin(angle);
+    const sideY = Math.cos(angle);
+    for (let i = 0; i < count; i++) {
+      const offset = (i - (count - 1) / 2) * COMBAT.multishotSpacing;
+      this.shoot(this.player.x + sideX * offset, this.player.y + sideY * offset, angle, damage, isCrit);
+    }
+    if (fx.diagonal) {
+      const spread = Phaser.Math.DegToRad(COMBAT.diagonalAngleDeg);
+      this.shoot(this.player.x, this.player.y, angle - spread, damage, isCrit);
+      this.shoot(this.player.x, this.player.y, angle + spread, damage, isCrit);
+    }
+    if (fx.rear) this.shoot(this.player.x, this.player.y, angle + Math.PI, damage, isCrit);
+  }
+
+  private shoot(x: number, y: number, angle: number, damage: number, isCrit: boolean): void {
+    const projectile = this.playerProjectiles.get(x, y) as Projectile | null;
+    projectile?.fire(x, y, angle, this.player.stats.projectileSpeed, damage, isCrit, this.shotEffects.pierce, this.shotEffects.ricochet);
+  }
+
   private onProjectileHit(projectile: Projectile, enemy: Enemy): void {
-    if (!projectile.active || !enemy.active) return;
-    // Direction du coup, lue avant kill() qui remet la vitesse à zéro.
+    if (!projectile.active || !enemy.active || projectile.hasHit(enemy)) return;
+    // Direction du coup, lue avant tout changement de vitesse du projectile.
     const v = (projectile.body as Phaser.Physics.Arcade.Body).velocity;
     const len = Math.hypot(v.x, v.y) || 1;
-    const dirX = v.x / len;
-    const dirY = v.y / len;
-    const { damage, isCrit } = projectile;
+    projectile.registerHit(enemy);
+    enemy.takeDamage(projectile.damage, projectile.isCrit, v.x / len, v.y / len, this.time.now);
+
+    if (projectile.pierceLeft > 0) {
+      projectile.pierceLeft--; // traverse l'ennemi
+      return;
+    }
+    if (projectile.ricochetLeft > 0) {
+      const next = this.nearestEnemy(projectile.x, projectile.y, projectile);
+      if (next) {
+        projectile.ricochetLeft--;
+        projectile.redirect(Phaser.Math.Angle.Between(projectile.x, projectile.y, next.x, next.y));
+        return;
+      }
+    }
     projectile.kill();
-    enemy.takeDamage(damage, isCrit, dirX, dirY, this.time.now);
   }
 
   private onEnemyDied(def: EnemyDef, x: number, y: number): void {

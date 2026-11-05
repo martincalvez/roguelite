@@ -6,6 +6,8 @@ export class RunState {
   xp = 0;
   /** Compétences prises : id -> nombre de stacks. */
   skills: Record<string, number> = {};
+  /** Passifs acquis au début du run (héros, raretés des objets équipés). */
+  passives: string[] = [];
   gold = 0;
   /** Index de la salle actuelle dans le chapitre. */
   room = 0;

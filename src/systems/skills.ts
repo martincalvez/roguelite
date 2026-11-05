@@ -1,6 +1,6 @@
 // Logique pure des compétences de run (sans Phaser).
-import { getSkill } from '../data';
-import type { SkillDef, StatModifier } from '../types';
+import { getPassive, getSkill } from '../data';
+import type { SkillDef, SkillEffect, StatModifier } from '../types';
 
 /**
  * Tire `count` compétences distinctes, pondérées par `weight`, en excluant celles qui ont
@@ -36,4 +36,42 @@ export function skillStatModifiers(stacks: Record<string, number>): StatModifier
     for (const m of effect.modifiers) mods.push({ ...m, value: m.value * count });
   }
   return mods;
+}
+
+/** Effets cumulés qui changent la façon de tirer. */
+export interface ShotEffects {
+  multishot: number; // projectiles parallèles en plus
+  diagonal: boolean;
+  rear: boolean;
+  pierce: number; // ennemis traversés
+  ricochet: number; // rebonds
+}
+
+/** Combine les compétences prises (× stacks) et les passifs de départ (×1) en effets de tir. */
+export function computeShotEffects(stacks: Record<string, number>, passiveIds: string[]): ShotEffects {
+  const out: ShotEffects = { multishot: 0, diagonal: false, rear: false, pierce: 0, ricochet: 0 };
+  const apply = (effect: SkillEffect, count: number): void => {
+    switch (effect.kind) {
+      case 'multishot':
+        out.multishot += effect.value * count;
+        break;
+      case 'diagonal':
+        out.diagonal = true;
+        break;
+      case 'rear':
+        out.rear = true;
+        break;
+      case 'pierce':
+        out.pierce += effect.value * count;
+        break;
+      case 'ricochet':
+        out.ricochet += effect.value * count;
+        break;
+      default:
+        break; // stat, heal, burn, freeze, orb : traités ailleurs
+    }
+  };
+  for (const [id, count] of Object.entries(stacks)) apply(getSkill(id).effect, count);
+  for (const id of passiveIds) apply(getPassive(id).effect, 1);
+  return out;
 }

@@ -5,5 +5,7 @@
   "knockbackMs": 120,
   "shakeMs": 150,
   "shakeIntensity": 0.01,
-  "deathParticles": 10
+  "deathParticles": 10,
+  "multishotSpacing": 22,
+  "diagonalAngleDeg": 45
 }

@@ -75,7 +75,7 @@ Tâche 2.2. Crée src/systems/skills.ts (pur) : tirage pondéré (weight) de 3 c
 ```
 Validation : à chaque niveau, 3 choix ; Force brute augmente visiblement les dégâts.
 
-### [ ] 2.3 Compétences de tir
+### [x] 2.3 Compétences de tir
 
 ```
 Tâche 2.3. Implémente les effets 'multishot' (projectiles parallèles espacés), 'diagonal' (+2 à ±45°), 'rear' (+1 vers l'arrière), 'pierce' (traverse N ennemis), 'ricochet' (rebondit vers l'ennemi le plus proche non touché). Les effets se cumulent. Inclure les passifs d'objets et de héros (passives.json) comme des compétences acquises au début du run.

@@ -156,6 +156,8 @@ export interface CombatConfig {
   shakeMs: number; // tremblement d'écran quand le joueur est touché
   shakeIntensity: number;
   deathParticles: number; // particules à la mort d'un ennemi
+  multishotSpacing: number; // px entre deux projectiles parallèles (Tir multiple)
+  diagonalAngleDeg: number; // angle des tirs en diagonale
 }
 
 /** Progression pendant un run. */
