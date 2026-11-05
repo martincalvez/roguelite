@@ -67,6 +67,15 @@ src/
 - Si une tâche contredit ce fichier ou semble mal conçue, **dis-le avant de coder** au lieu d'improviser.
 - Ne coche une tâche dans `docs/TACHES.md` que lorsque Martin a confirmé qu'elle marche.
 
+## Références externes (pour s'inspirer, pas pour copier)
+
+Ces dépôts n'ont pas de licence libre déclarée : on lit le code pour comprendre une approche, on ne le copie pas. Ne jamais utiliser d'assets, de textes ou de données extraits d'Archero ou d'un autre jeu commercial.
+
+- https://github.com/rgascons/galore : survivor-like roguelite en Phaser + TypeScript + Vite (même stack que nous) : vagues, montée de niveau, boutique persistante. Assets Kenney (CC).
+- https://github.com/manucaralmo/ironharch : clone d'Archero en JavaScript + canvas, sans moteur : boucle tir à l'arrêt, vagues, boss. Démo : https://manucaralmo.github.io/ironharch/ (clavier seulement).
+- https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick : joystick virtuel de référence pour Phaser 3 (tâche 1.2 : on code le nôtre, mais on peut s'inspirer de son API).
+- https://phaser.io/examples : exemples officiels Phaser 3 (pools, Arcade physics, particules, caméra, entrées tactiles).
+
 ## Commandes
 
 - `npm run dev` → jeu sur http://localhost:5173 (et sur le téléphone via l'IP locale affichée, même Wi-Fi)
