@@ -197,10 +197,11 @@ export class RunScene extends Phaser.Scene {
       const y = ARENA.y + block.y + block.height / 2;
       this.add.ellipse(x + 3, y + 7, block.width * 0.9, block.height * 0.55, 0x000000, 0.24).setDepth(-6);
       if (this.textures.exists('stone-pillar')) {
-        const collider = this.add.rectangle(x, y, block.width, block.height, 0xffffff, 0).setVisible(false);
+        // L'illustration a un bord transparent : la hitbox correspond à la silhouette visible.
+        const collider = this.add.rectangle(x, y, block.width * 0.7, block.height, 0xffffff, 0).setVisible(false);
         blocks.add(collider);
         this.add
-          .image(x, y - 10, 'stone-pillar')
+          .image(x, y, 'stone-pillar')
           .setDisplaySize(block.width * 1.25, block.height * 1.35)
           .setTint(stone)
           .setDepth(-5);

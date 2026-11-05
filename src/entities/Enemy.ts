@@ -68,13 +68,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const art = ENEMY_ART[def.id];
     if (art && this.scene.textures.exists(art)) {
       this.setTexture(art);
-      const targetHeight = def.radius * (def.boss ? 5 : 4.3);
-      this.setScale(targetHeight / Math.max(this.width, this.height));
+      const targetHeight = def.radius * (def.boss ? 4.8 : 3.3);
+      this.setScale(targetHeight / Math.max(this.frame.width, this.frame.height));
     } else {
       this.setTexture(`enemy-${def.id}`).setScale(1);
     }
     // Garde la collision gameplay à la taille définie, même si l'illustration est agrandie.
-    this.setCircle(def.radius / Math.max(this.scaleX, 0.001));
+    const scaleX = Math.max(Math.abs(this.scaleX), 0.001);
+    const scaleY = Math.max(Math.abs(this.scaleY), 0.001);
+    const radius = Math.min(def.radius / scaleX, def.radius / scaleY);
+    this.setCircle(radius, (this.frame.width - radius * 2) / 2, (this.frame.height - radius * 2) / 2);
     this.stationary = def.id === 'archer_squelette';
     this.setCollideWorldBounds(true);
     this.setVelocity(0, 0);

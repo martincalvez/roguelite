@@ -11,7 +11,7 @@ export class EnemyProjectile extends Phaser.Physics.Arcade.Sprite {
   fire(x: number, y: number, angle: number, speed: number, damage: number): void {
     this.enableBody(true, x, y, true, true);
     this.damage = damage;
-    this.setCircle(this.width / 2);
+    this.setCircle(this.frame.width / 2, 0, 0);
     this.setCollideWorldBounds(true);
     (this.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     this.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);

@@ -31,11 +31,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setTexture('hero-aldric-sheet', 0);
     }
     // Aldric est plus grand comme dans la référence ; le rayon de collision reste inchangé.
-    this.setDisplaySize(GameState.data.selectedHero === 'aldric' ? 170 : 128, GameState.data.selectedHero === 'aldric' ? 170 : 128);
+    this.setDisplaySize(GameState.data.selectedHero === 'aldric' ? 170 : 128, GameState.data.selectedHero === 'aldric' ? 170 : 160);
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.setCollideWorldBounds(true);
-    this.setCircle(20, 4, 4);
+    this.setCenteredHitbox(20);
 
     const keyboard = scene.input.keyboard!;
     this.cursors = keyboard.createCursorKeys();
@@ -135,5 +135,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const y = Math.sin(angle);
     if (Math.abs(x) > Math.abs(y)) return x < 0 ? 1 : 2;
     return y < 0 ? 3 : 0;
+  }
+
+  /** Le cercle reste centré même quand l'illustration utilise une planche plus grande que le héros. */
+  private setCenteredHitbox(worldRadius: number): void {
+    const scaleX = Math.max(Math.abs(this.scaleX), 0.001);
+    const scaleY = Math.max(Math.abs(this.scaleY), 0.001);
+    const radiusX = worldRadius / scaleX;
+    const radiusY = worldRadius / scaleY;
+    const radius = Math.min(radiusX, radiusY);
+    const offsetX = (this.frame.width - radius * 2) / 2;
+    const offsetY = (this.frame.height - radius * 2) / 2;
+    this.setCircle(radius, offsetX, offsetY);
   }
 }

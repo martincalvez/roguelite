@@ -17,13 +17,14 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   fire(x: number, y: number, angle: number, speed: number, damage: number, isCrit: boolean, pierce: number, ricochet: number, texture: string): void {
     this.enableBody(true, x, y, true, true);
     this.setTexture(texture);
+    this.setScale(1);
     this.damage = damage;
     this.isCrit = isCrit;
     this.speed = speed;
     this.pierceLeft = pierce;
     this.ricochetLeft = ricochet;
     this.hits.length = 0;
-    this.setCircle(this.width / 2);
+    this.setCircle(this.frame.width / 2, 0, 0);
     this.setCollideWorldBounds(true);
     (this.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     this.redirect(angle);
