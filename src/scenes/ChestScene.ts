@@ -33,8 +33,16 @@ export class ChestScene extends Phaser.Scene {
     this.busy = false;
     this.reveal = [];
     const cx = GAME_WIDTH / 2;
-    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.background);
-    this.add.text(cx, 60, 'COFFRES', { fontSize: '44px', color: COLORS.gold, fontStyle: 'bold', ...STROKE, strokeThickness: 8 }).setOrigin(0.5);
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x087ead, 0x075a8e, 0x063d72, 0x052c58, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    bg.lineStyle(3, 0x52cfff, 0.12);
+    for (let y = 180; y < GAME_HEIGHT; y += 145) {
+      bg.lineBetween(0, y, GAME_WIDTH, y + 155);
+      bg.lineBetween(GAME_WIDTH, y, 0, y + 155);
+    }
+    this.add.rectangle(cx, 61, 690, 84, 0x06375f).setStrokeStyle(5, 0x021e3d);
+    this.add.rectangle(cx, 57, 678, 72, 0xc51f78).setStrokeStyle(3, 0xff62bd);
+    this.add.text(cx, 57, 'COFFRES', { fontSize: '44px', color: '#fff36a', fontStyle: 'bold', ...STROKE, strokeThickness: 8 }).setOrigin(0.5);
     this.add
       .text(24, 60, '← Retour', { fontSize: '26px', color: COLORS.text, padding: { x: 14, y: 28 } })
       .setOrigin(0, 0.5)
@@ -43,7 +51,7 @@ export class ChestScene extends Phaser.Scene {
     this.currency = this.add.text(GAME_WIDTH - 24, 60, '', { fontSize: '22px', color: COLORS.gold, fontStyle: 'bold' }).setOrigin(1, 0.5);
     this.refreshCurrency();
 
-    CHESTS.forEach((chest, i) => this.buildChestCard(chest, 300 + i * 400));
+    CHESTS.forEach((chest, i) => this.buildChestCard(chest, 290 + i * 390));
   }
 
   private refreshCurrency(): void {
@@ -67,24 +75,29 @@ export class ChestScene extends Phaser.Scene {
   private buildChestCard(chest: ChestDef, y: number): void {
     const cx = GAME_WIDTH / 2;
     const affordable = (): boolean => canAffordChest(chest, GameState.data.gold, GameState.data.gems);
-    const panel = this.add.rectangle(cx, y, 640, 340, 0x000000, 0.35).setStrokeStyle(6, 0xffc83d).setInteractive({ useHandCursor: true });
-    this.drawChest(190, y + 10, 1.05, chest.id);
+    const panelColor = chest.costGems ? 0x873fc4 : 0x248fc9;
+    this.add.rectangle(cx, y + 10, 662, 354, 0x051c35, 0.92).setStrokeStyle(7, 0x06172d);
+    const panel = this.add.rectangle(cx, y, 650, 344, panelColor).setStrokeStyle(7, chest.costGems ? 0xe08bff : 0x74dcff).setInteractive({ useHandCursor: true });
+    this.add.rectangle(cx, y - 144, 632, 58, chest.costGems ? 0xb452db : 0x32b5ea).setStrokeStyle(3, 0xffffff, 0.55);
+    this.drawChest(190, y + 8, 1.13, chest.id);
+    this.add.ellipse(190, y + 110, 220, 24, 0x061a32, 0.45);
 
-    this.add.text(430, y - 150, chest.name, { fontSize: '30px', color: '#ffffff', fontStyle: 'bold', align: 'center', wordWrap: { width: 300 }, ...STROKE }).setOrigin(0.5, 0);
+    this.add.text(cx, y - 144, chest.name.toUpperCase(), { fontSize: '28px', color: '#ffffff', fontStyle: 'bold', align: 'center', wordWrap: { width: 570 }, ...STROKE }).setOrigin(0.5);
     const cost = chest.costGems ? `${chest.costGems} gemmes` : `${chest.costGold} or`;
-    this.add.text(430, y - 104, cost, { fontSize: '30px', color: chest.costGems ? '#5cff7a' : COLORS.gold, fontStyle: 'bold' }).setOrigin(0.5, 0);
+    this.add.rectangle(452, y - 82, 306, 44, 0x062e53, 0.88).setStrokeStyle(3, 0xffd64b);
+    this.add.text(452, y - 82, cost.toUpperCase(), { fontSize: '26px', color: chest.costGems ? '#73fa48' : '#ffe15b', fontStyle: 'bold', ...STROKE, strokeThickness: 4 }).setOrigin(0.5);
 
     // Chances de rareté (en pourcentage), seulement celles qui sont possibles.
     const odds = chestRarityWeights(chest).filter((o) => o.weight > 0);
     const total = odds.reduce((sum, o) => sum + o.weight, 0);
     const text = odds.map((o) => `${RARITY_LABEL[o.rarity]} ${Number(((o.weight / total) * 100).toFixed(1))} %`).join('\n');
-    this.add.text(430, y - 58, text, { fontSize: '17px', color: COLORS.textMuted, align: 'center', lineSpacing: 2 }).setOrigin(0.5, 0);
+    this.add.text(452, y - 47, text, { fontSize: '20px', color: '#ffffff', fontStyle: 'bold', align: 'center', lineSpacing: 4, ...STROKE, strokeThickness: 3 }).setOrigin(0.5, 0);
 
-    this.add
-      .text(430, y + 118, '  OUVRIR  ', { fontSize: '32px', color: '#14111a', backgroundColor: COLORS.gold, padding: { x: 18, y: 24 } })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-      .on('pointerup', () => this.openChest(chest, affordable()));
+    this.add.rectangle(452, y + 119, 310, 86, 0x061a2e).setStrokeStyle(4, 0x061a2e);
+    const open = this.add.rectangle(452, y + 111, 304, 84, 0xffc629).setStrokeStyle(5, 0xfff08b);
+    this.add.rectangle(452, y + 78, 284, 6, 0xffffff, 0.45);
+    this.add.text(452, y + 111, 'OUVRIR', { fontSize: '32px', color: '#ffffff', fontStyle: 'bold', ...STROKE, strokeThickness: 6 }).setOrigin(0.5);
+    open.setInteractive({ useHandCursor: true }).on('pointerup', () => this.openChest(chest, affordable()));
     panel.on('pointerup', () => this.openChest(chest, affordable()));
   }
 
