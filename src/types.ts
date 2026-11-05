@@ -158,6 +158,10 @@ export interface CombatConfig {
   deathParticles: number; // particules à la mort d'un ennemi
   multishotSpacing: number; // px entre deux projectiles parallèles (Tir multiple)
   diagonalAngleDeg: number; // angle des tirs en diagonale
+  statusTickMs: number; // intervalle des dégâts de brûlure
+  orbHitCooldownMs: number; // délai entre deux coups d'un orbe protecteur sur un même ennemi
+  orbRadius: number; // distance des orbes au héros
+  orbSpeedDegPerSec: number; // vitesse de rotation des orbes
 }
 
 /** Progression pendant un run. */

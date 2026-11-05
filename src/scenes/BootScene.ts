@@ -13,6 +13,7 @@ export class BootScene extends Phaser.Scene {
     this.makeCircle('projectile', 7, 0xffe14a);
     this.makeCircle('enemy-projectile', 8, 0xff3b6b);
     this.makeCircle('particle', 5, 0xffffff);
+    this.makeCircle('orbit-orb', 14, 0xb35cff);
     this.makeCircle('xp-orb', 6, 0x5cff7a);
     // Un cercle par type d'ennemi, à sa couleur et son rayon (EnemyDef).
     for (const def of ENEMIES) {

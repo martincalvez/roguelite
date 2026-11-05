@@ -7,5 +7,9 @@
   "shakeIntensity": 0.01,
   "deathParticles": 10,
   "multishotSpacing": 22,
-  "diagonalAngleDeg": 45
+  "diagonalAngleDeg": 45,
+  "statusTickMs": 500,
+  "orbHitCooldownMs": 500,
+  "orbRadius": 110,
+  "orbSpeedDegPerSec": 220
 }

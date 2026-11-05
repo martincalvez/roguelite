@@ -4,6 +4,7 @@ import { COMBAT, getChapter, getEnemy, PROGRESSION, SKILLS } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Player } from '../entities/Player';
+import { OrbitOrbs } from '../entities/OrbitOrbs';
 import { Projectile } from '../entities/Projectile';
 import { XpOrb } from '../entities/XpOrb';
 import { GameState } from '../state/GameState';
@@ -33,6 +34,7 @@ export class RunScene extends Phaser.Scene {
   private xpOrbs!: Phaser.Physics.Arcade.Group;
   private runState!: RunState;
   private shotEffects!: ShotEffects;
+  private orbs!: OrbitOrbs;
   private pendingLevels: number[] = []; // niveaux gagnés dont le choix de compétence est à faire
   private picking = false;
   private collecting = false; // salle vidée : les orbes d'XP sont aspirés vers le héros
@@ -75,6 +77,9 @@ export class RunScene extends Phaser.Scene {
     this.enemyProjectiles = this.physics.add.group({ classType: EnemyProjectile, maxSize: POOLS.enemyProjectiles });
     this.playerProjectiles = this.physics.add.group({ classType: Projectile, maxSize: POOLS.playerProjectiles });
     this.xpOrbs = this.physics.add.group({ classType: XpOrb, maxSize: POOLS.xpOrbs });
+    this.orbs = new OrbitOrbs(this);
+    this.applyOrbEffect();
+    this.physics.add.overlap(this.orbs.group, this.enemies, (_o, e) => this.onOrbHit(e as Enemy));
     this.physics.add.collider(this.enemies, this.enemies);
     this.physics.add.overlap(this.player, this.xpOrbs, (_p, orb) => this.collectOrb(orb as XpOrb));
     // Dégâts au joueur : contact avec un ennemi, ou projectile ennemi.
@@ -124,6 +129,7 @@ export class RunScene extends Phaser.Scene {
     this.fx.update(time);
     if (this.ended) return;
     this.player.updateMovement(time);
+    this.orbs.update(time, this.player.x, this.player.y);
     const list = this.enemies.getChildren() as Enemy[];
     for (let i = 0; i < list.length; i++) {
       if (list[i].active) list[i].updateAI(time, this.player.x, this.player.y);
@@ -172,10 +178,11 @@ export class RunScene extends Phaser.Scene {
     this.scene.launch(SCENES.skillPick, data);
   }
 
-  /** Enregistre la compétence choisie. Seuls 'stat' et 'heal' ont un effet pour l'instant. */
+  /** Enregistre la compétence choisie. Les effets de tir et d'orbe passent par shotEffects ; 'stat' et 'heal' sont appliqués ici. */
   private applySkill(skill: SkillDef): void {
     this.runState.addSkill(skill.id);
     this.shotEffects = computeShotEffects(this.runState.skills, this.runState.passives);
+    this.applyOrbEffect();
     if (skill.effect.kind === 'stat') {
       this.player.setStats(GameState.heroStats(skillStatModifiers(this.runState.skills)));
     } else if (skill.effect.kind === 'heal') {
@@ -259,6 +266,22 @@ export class RunScene extends Phaser.Scene {
     projectile?.fire(x, y, angle, this.player.stats.projectileSpeed, damage, isCrit, this.shotEffects.pierce, this.shotEffects.ricochet);
   }
 
+  private applyOrbEffect(): void {
+    const orb = this.shotEffects.orb;
+    this.orbs.setOrbs(orb?.count ?? 0, orb?.damage ?? 0);
+  }
+
+  /** Un orbe touche un ennemi : dégâts, avec un délai avant de pouvoir le retoucher. */
+  private onOrbHit(enemy: Enemy): void {
+    const time = this.time.now;
+    if (!enemy.active || time < enemy.nextOrbHitAt) return;
+    enemy.nextOrbHitAt = time + COMBAT.orbHitCooldownMs;
+    const dx = enemy.x - this.player.x;
+    const dy = enemy.y - this.player.y;
+    const len = Math.hypot(dx, dy) || 1;
+    enemy.takeDamage(this.orbs.damage, false, dx / len, dy / len, time);
+  }
+
   private onProjectileHit(projectile: Projectile, enemy: Enemy): void {
     if (!projectile.active || !enemy.active || projectile.hasHit(enemy)) return;
     // Direction du coup, lue avant tout changement de vitesse du projectile.
@@ -266,6 +289,11 @@ export class RunScene extends Phaser.Scene {
     const len = Math.hypot(v.x, v.y) || 1;
     projectile.registerHit(enemy);
     enemy.takeDamage(projectile.damage, projectile.isCrit, v.x / len, v.y / len, this.time.now);
+    if (enemy.active) {
+      const { burn, freeze } = this.shotEffects;
+      if (burn) enemy.applyBurn(burn.dps, burn.duration, this.time.now);
+      if (freeze) enemy.applyFreeze(freeze.slow, freeze.duration, this.time.now);
+    }
 
     if (projectile.pierceLeft > 0) {
       projectile.pierceLeft--; // traverse l'ennemi
