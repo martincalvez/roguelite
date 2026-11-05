@@ -15,7 +15,7 @@ export class Hud {
     scene.add.rectangle(BAR_X, y, BAR_WIDTH, BAR_HEIGHT, 0x000000, 0.45).setOrigin(0, 0.5);
     this.fill = scene.add.rectangle(BAR_X, y, BAR_WIDTH, BAR_HEIGHT, COLORS.hp).setOrigin(0, 0.5);
     this.label = scene.add
-      .text(BAR_X + BAR_WIDTH / 2, y, '', { fontSize: '26px', color: '#ffffff', fontStyle: 'bold' })
+      .text(BAR_X + BAR_WIDTH / 2, y, '', { fontSize: '26px', color: '#ffffff', fontStyle: 'bold', stroke: '#1a1020', strokeThickness: 5 })
       .setOrigin(0.5);
     this.setHp(hp, maxHp);
 

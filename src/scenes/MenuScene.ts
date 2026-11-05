@@ -16,10 +16,12 @@ export class MenuScene extends Phaser.Scene {
 
     this.add
       .text(cx, 260, 'ROGUELITE\nFANTASY', {
-        fontFamily: 'Georgia, serif',
-        fontSize: '72px',
+        fontFamily: '"Arial Black", "Trebuchet MS", sans-serif',
+        fontSize: '80px',
         color: COLORS.gold,
         align: 'center',
+        stroke: '#1a1020',
+        strokeThickness: 12,
       })
       .setOrigin(0.5);
 

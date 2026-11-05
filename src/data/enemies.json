@@ -1,7 +1,7 @@
 [
-  { "id": "gobelin", "name": "Gobelin", "behavior": "melee", "hp": 40, "damage": 12, "speed": 90, "xp": 6, "gold": 2, "radius": 18, "color": "#7fbf5a" },
-  { "id": "archer_squelette", "name": "Archer squelette", "behavior": "shooter", "hp": 30, "damage": 10, "speed": 50, "xp": 8, "gold": 3, "radius": 18, "color": "#d8d2c0", "fireRate": 0.5, "projectileSpeed": 260, "keepDistance": 300 },
-  { "id": "shaman", "name": "Shaman", "behavior": "spreader", "hp": 50, "damage": 9, "speed": 40, "xp": 10, "gold": 4, "radius": 20, "color": "#9b6bd6", "fireRate": 0.35, "projectileSpeed": 200, "projectileCount": 5, "keepDistance": 300, "spreadAngle": 60 },
-  { "id": "ogre", "name": "Ogre", "behavior": "boss", "hp": 380, "damage": 20, "speed": 70, "xp": 40, "gold": 20, "radius": 38, "color": "#c26a3a", "fireRate": 0.6, "projectileSpeed": 220, "projectileCount": 8 },
-  { "id": "liche", "name": "Liche", "behavior": "boss", "hp": 900, "damage": 24, "speed": 60, "xp": 120, "gold": 60, "radius": 42, "color": "#5ab3d6", "fireRate": 0.8, "projectileSpeed": 240, "projectileCount": 12 }
+  { "id": "gobelin", "name": "Gobelin", "behavior": "melee", "hp": 40, "damage": 12, "speed": 90, "xp": 6, "gold": 2, "radius": 18, "color": "#ff8a2b" },
+  { "id": "archer_squelette", "name": "Archer squelette", "behavior": "shooter", "hp": 30, "damage": 10, "speed": 50, "xp": 8, "gold": 3, "radius": 18, "color": "#fff4d6", "fireRate": 0.5, "projectileSpeed": 260, "keepDistance": 300 },
+  { "id": "shaman", "name": "Shaman", "behavior": "spreader", "hp": 50, "damage": 9, "speed": 40, "xp": 10, "gold": 4, "radius": 20, "color": "#c45cff", "fireRate": 0.35, "projectileSpeed": 200, "projectileCount": 5, "keepDistance": 300, "spreadAngle": 60 },
+  { "id": "ogre", "name": "Ogre", "behavior": "boss", "hp": 380, "damage": 20, "speed": 70, "xp": 40, "gold": 20, "radius": 38, "color": "#ff4a35", "fireRate": 0.6, "projectileSpeed": 220, "projectileCount": 8 },
+  { "id": "liche", "name": "Liche", "behavior": "boss", "hp": 900, "damage": 24, "speed": 60, "xp": 120, "gold": 60, "radius": 42, "color": "#2fd0ff", "fireRate": 0.8, "projectileSpeed": 240, "projectileCount": 12 }
 ]

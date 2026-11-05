@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, SCENES, WALL_THICKNESS } from '../config';
+import { ARENA, COLORS, FLOOR_TILE, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, SCENES } from '../config';
 import { getChapter, getEnemy } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
@@ -214,14 +214,27 @@ export class RunScene extends Phaser.Scene {
     }
   }
 
-  /** Murs (rectangle plein) puis sol par-dessus : il reste une bordure de WALL_THICKNESS. */
+  /** Murs (rectangle plein), puis sol en damier par-dessus : il reste une bordure de WALL_THICKNESS. */
   private buildArena(): void {
     const top = HUD_HEIGHT;
+    this.add.rectangle(0, top, GAME_WIDTH, GAME_HEIGHT - top, COLORS.wall).setOrigin(0, 0);
+
+    const floor = this.add.graphics();
+    for (let row = 0; row * FLOOR_TILE < ARENA.height; row++) {
+      for (let col = 0; col * FLOOR_TILE < ARENA.width; col++) {
+        floor.fillStyle((row + col) % 2 === 0 ? COLORS.floor : COLORS.floorAlt, 1);
+        floor.fillRect(
+          ARENA.x + col * FLOOR_TILE,
+          ARENA.y + row * FLOOR_TILE,
+          Math.min(FLOOR_TILE, ARENA.width - col * FLOOR_TILE),
+          Math.min(FLOOR_TILE, ARENA.height - row * FLOOR_TILE),
+        );
+      }
+    }
+    // Liseré sombre autour du sol, pour détacher les murs.
     this.add
-      .rectangle(0, top, GAME_WIDTH, GAME_HEIGHT - top, COLORS.wall)
-      .setOrigin(0, 0);
-    this.add
-      .rectangle(WALL_THICKNESS, top + WALL_THICKNESS, ARENA.width, ARENA.height, COLORS.floor)
-      .setOrigin(0, 0);
+      .rectangle(ARENA.x, ARENA.y, ARENA.width, ARENA.height)
+      .setOrigin(0, 0)
+      .setStrokeStyle(6, COLORS.wallEdge);
   }
 }

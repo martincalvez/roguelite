@@ -24,15 +24,20 @@ export const JOYSTICK = {
 };
 
 export const COLORS = {
-  background: 0x14111a,
-  floor: 0x1f1a26,
-  wall: 0x3a3346,
-  text: '#ece4d4',
-  textMuted: '#9b91a6',
-  gold: '#f0a640',
-  hp: 0xd94b4b,
-  xp: 0x8bd17c,
+  background: 0x1f4d35, // bandeau HUD et bords de l'écran : vert forêt profond
+  floor: 0x8fd16a, // sol : herbe vive en damier
+  floorAlt: 0x84c75f,
+  wall: 0x7a5233, // murs : bois / pierre chaude
+  wallEdge: 0x4a301c,
+  text: '#ffffff',
+  textMuted: '#d6f0dc',
+  gold: '#ffc83d',
+  hp: 0xff4d5e,
+  xp: 0x5cff7a,
 };
+
+/** Taille d'une case du damier du sol (décor). */
+export const FLOOR_TILE = 85;
 
 export const RARITY_ORDER: Rarity[] = ['common', 'rare', 'epic', 'legendary', 'mythic'];
 
