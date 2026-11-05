@@ -78,6 +78,7 @@ export const POOLS = {
   enemyProjectiles: 120,
   playerProjectiles: 60,
   floatingTexts: 30,
+  xpOrbs: 60,
 };
 
 export const SCENES = {

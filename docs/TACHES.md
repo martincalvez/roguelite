@@ -61,7 +61,7 @@ Validation : les coups « se sentent » ; pas de baisse de fluidité sur télép
 
 ## Phase 2 — Run complet (porte : run de 10 min jouable sur PC et téléphone)
 
-### [ ] 2.1 État du run et XP
+### [x] 2.1 État du run et XP
 
 ```
 Tâche 2.1. Crée src/state/RunState.ts (état du run en cours : niveau, XP, compétences prises avec leurs stacks, or gagné, salle actuelle). Ajoute src/data/progression.json typé dans types.ts : XP nécessaire par niveau de run (tableau). Les ennemis morts lâchent des orbes d'XP (texture 'xp-orb') aspirés par le joueur quand la salle est vidée. Barre d'XP dans le HUD. Émettre 'level-up' quand un niveau est atteint.

@@ -157,3 +157,10 @@ export interface CombatConfig {
   shakeIntensity: number;
   deathParticles: number; // particules à la mort d'un ennemi
 }
+
+/** Progression pendant un run. */
+export interface ProgressionConfig {
+  /** XP nécessaire pour passer du niveau n+1 au suivant (index 0 : niveau 1 → 2). Au-delà : dernière valeur. */
+  xpPerLevel: number[];
+  orbMagnetSpeed: number; // px/s : vitesse des orbes d'XP aspirés vers le héros
+}

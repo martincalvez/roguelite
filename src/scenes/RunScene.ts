@@ -1,12 +1,15 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, FLOOR_TILE, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, SCENES } from '../config';
-import { getChapter, getEnemy } from '../data';
+import { getChapter, getEnemy, PROGRESSION } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Player } from '../entities/Player';
 import { Projectile } from '../entities/Projectile';
+import { XpOrb } from '../entities/XpOrb';
 import { GameState } from '../state/GameState';
+import { RunState } from '../state/RunState';
 import { damageAmount, rollCrit } from '../systems/combat';
+import type { EnemyDef } from '../types';
 import { Fx } from '../ui/Fx';
 import { Hud } from '../ui/Hud';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
@@ -25,6 +28,9 @@ export class RunScene extends Phaser.Scene {
   private enemies!: Phaser.Physics.Arcade.Group;
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   private playerProjectiles!: Phaser.Physics.Arcade.Group;
+  private xpOrbs!: Phaser.Physics.Arcade.Group;
+  private runState!: RunState;
+  private collecting = false; // salle vidée : les orbes d'XP sont aspirés vers le héros
   private joystick!: VirtualJoystick;
   private fx!: Fx;
   private nextShotAt = 0;
@@ -39,6 +45,7 @@ export class RunScene extends Phaser.Scene {
     this.chapterId = data?.chapterId ?? 'ch1';
     // La scène est réutilisée à chaque partie : on remet l'état à zéro.
     this.ended = false;
+    this.collecting = false;
     this.enemiesAlive = 0;
     this.nextShotAt = 0;
   }
@@ -51,13 +58,16 @@ export class RunScene extends Phaser.Scene {
     this.player = new Player(this, GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
     this.joystick = new VirtualJoystick(this);
     this.player.setJoystick(this.joystick);
-    new Hud(this, this.player.hp, this.player.maxHp);
+    this.runState = new RunState();
+    new Hud(this, this.player.hp, this.player.maxHp, this.runState.level, this.runState.xp, this.runState.xpNeeded);
     this.fx = new Fx(this);
 
     this.enemies = this.physics.add.group({ classType: Enemy, maxSize: POOLS.enemies });
     this.enemyProjectiles = this.physics.add.group({ classType: EnemyProjectile, maxSize: POOLS.enemyProjectiles });
     this.playerProjectiles = this.physics.add.group({ classType: Projectile, maxSize: POOLS.playerProjectiles });
+    this.xpOrbs = this.physics.add.group({ classType: XpOrb, maxSize: POOLS.xpOrbs });
     this.physics.add.collider(this.enemies, this.enemies);
+    this.physics.add.overlap(this.player, this.xpOrbs, (_p, orb) => this.collectOrb(orb as XpOrb));
     // Dégâts au joueur : contact avec un ennemi, ou projectile ennemi.
     this.physics.add.overlap(this.player, this.enemies, (_p, e) =>
       this.player.takeDamage((e as Enemy).def.damage, this.time.now),
@@ -106,6 +116,33 @@ export class RunScene extends Phaser.Scene {
       if (list[i].active) list[i].updateAI(time, this.player.x, this.player.y);
     }
     this.updateAutoFire(time);
+    if (this.collecting) this.pullOrbs();
+  }
+
+  /** Aspire les orbes vers le héros ; quand ils sont tous ramassés, affiche l'écran de fin. */
+  private pullOrbs(): void {
+    const list = this.xpOrbs.getChildren() as XpOrb[];
+    let remaining = 0;
+    for (let i = 0; i < list.length; i++) {
+      if (!list[i].active) continue;
+      list[i].pullTowards(this.player.x, this.player.y, PROGRESSION.orbMagnetSpeed);
+      remaining++;
+    }
+    if (remaining === 0) {
+      this.collecting = false;
+      this.endRun('Salle terminée', '#5cff7a');
+    }
+  }
+
+  /** Ramasse un orbe (seulement pendant l'aspiration) : XP, barre du HUD, événement 'level-up'. */
+  private collectOrb(orb: XpOrb): void {
+    if (!this.collecting || !orb.active) return;
+    const value = orb.value;
+    orb.kill();
+    const gained = this.runState.addXp(value);
+    const { level, xp, xpNeeded } = this.runState;
+    this.events.emit('xp-changed', level, xp, xpNeeded);
+    for (let i = gained - 1; i >= 0; i--) this.events.emit('level-up', level - i);
   }
 
   /** Tire sur l'ennemi le plus proche : à l'arrêt, ou en permanence si settings.alwaysShoot. */
@@ -159,9 +196,11 @@ export class RunScene extends Phaser.Scene {
     enemy.takeDamage(damage, isCrit, dirX, dirY, this.time.now);
   }
 
-  private onEnemyDied(): void {
+  private onEnemyDied(def: EnemyDef, x: number, y: number): void {
+    this.runState.gold += def.gold;
+    (this.xpOrbs.get(x, y) as XpOrb | null)?.spawn(x, y, def.xp);
     this.enemiesAlive--;
-    if (this.enemiesAlive <= 0 && !this.ended) this.endRun('Salle terminée', '#8bd17c');
+    if (this.enemiesAlive <= 0 && !this.ended) this.collecting = true;
   }
 
   private onPlayerDied(): void {
