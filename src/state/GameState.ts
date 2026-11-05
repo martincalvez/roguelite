@@ -2,11 +2,12 @@
 import type { EquipSlot, ItemDef, ItemInstance, Rarity, RunRewards, SaveData, StatModifier, Stats } from '../types';
 import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
-import { getChest, getHero, getItem, ITEMS } from '../data';
+import { getChest, getHero, getItem, getTalent, ITEMS } from '../data';
 import { slotAccepts } from '../systems/equipment';
 import { fusionResult, pickFusionInputs } from '../systems/fusion';
 import { canAffordChest, openChest } from '../systems/chests';
 import { newUid } from '../systems/loot';
+import { talentState } from '../systems/talents';
 import { passiveStatModifiers } from '../systems/skills';
 import { canUpgrade, upgradeCost } from '../systems/upgrade';
 import { accountXpToNext } from '../systems/progression';
@@ -59,6 +60,18 @@ class GameStateImpl {
   unequip(slot: EquipSlot): void {
     delete this.data.equipped[slot];
     this.persist();
+  }
+
+  /** Achète un niveau de talent (or). Renvoie faux si le talent est au max, verrouillé ou trop cher. */
+  buyTalent(talentId: string): boolean {
+    const def = getTalent(talentId);
+    const level = this.data.talents[talentId] ?? 0;
+    const state = talentState(def, level, this.data.gold, this.data.accountLevel);
+    if (state.kind !== 'ok') return false;
+    this.data.gold -= state.cost;
+    this.data.talents[talentId] = level + 1;
+    this.persist();
+    return true;
   }
 
   /** Ouvre un coffre : débite le prix, ajoute l'objet tiré à l'inventaire. Renvoie l'objet, ou null si le joueur ne peut pas payer. */

@@ -134,6 +134,7 @@ export interface TalentDef {
   id: string;
   name: string;
   maxLevel: number;
+  requiredAccountLevel: number; // niveau de compte minimal pour acheter ce talent
   costGold: number[]; // coût par niveau
   perLevel: StatModifier;
 }

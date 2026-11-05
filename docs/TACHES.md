@@ -143,21 +143,21 @@ Tâche 3.1. Crée src/scenes/EquipmentScene.ts, accessible par un bouton « ÉQU
 ```
 Validation : on équipe et retire des objets, la différence de stats est juste (vert/rouge), et le menu affiche les nouveaux PV et ATQ.
 
-### [ ] 3.2 Amélioration d'objet
+### [x] 3.2 Amélioration d'objet
 
 ```
 Tâche 3.2. Passe SAVE_VERSION à 2 : SaveData gagne scrolls: Record<ItemSlotType, number> (migrate() l'initialise à 0 pour une ancienne sauvegarde). Crée src/data/upgrade.json (typé dans types.ts) : niveau max par rareté, et le coût de chaque niveau en or et en parchemins. Logique pure dans src/systems/upgrade.ts : upgradeCost(level, rarity), canUpgrade(item, gold, scrolls). Les parchemins sont lâchés en fin de run : ajoute-les à loot.json (nombre et type tirés au hasard), à RunRewards, à GameState.applyRunRewards et à l'écran de butin. Dans le panneau de détail de l'écran équipement, bouton « Améliorer » (coût affiché, grisé si impossible) : retire l'or et les parchemins du slot de l'objet, monte son niveau (les stats suivent déjà ITEM_GROWTH_PER_LEVEL) et sauvegarde. Affiche or et parchemins dans l'en-tête de l'écran équipement.
 ```
 Validation : un objet monte de niveau, ses stats augmentent, l'or et les parchemins baissent ; une ancienne sauvegarde se charge sans erreur.
 
-### [ ] 3.3 Fusion et passifs de rareté
+### [x] 3.3 Fusion et passifs de rareté
 
 ```
 Tâche 3.3. Passe SAVE_VERSION à 3 si besoin de migrer. D'abord, fais fonctionner les passifs de type 'stat' : startingPassives() renvoie des PassiveDef dont l'effet 'stat' doit entrer dans GameState.heroStats() comme les compétences (via les modificateurs). Ajoute dans items.json et passives.json des passifs de rareté pour chaque objet (en réutilisant les effets existants : multishot, pierce, ricochet, burn, freeze, orb, stat), débloqués à partir d'une rareté croissante. Logique pure dans src/systems/fusion.ts : canFuse(inventory, defId, rarity) (FUSION_COUNT objets identiques, même defId et même rareté, rareté non maximale) et fuse(...) qui retire les objets consommés et renvoie un objet de la rareté supérieure (niveau 1). Un objet équipé ne peut pas être consommé tant qu'il en reste d'autres. Dans l'écran équipement : bouton « Fusionner (3) » dans le détail d'un objet qui peut l'être, avec confirmation, résultat affiché en clair, sauvegarde.
 ```
 Validation : trois objets identiques deviennent un objet de rareté supérieure avec son nouveau passif actif au prochain run.
 
-### [ ] 3.4 Coffres et gemmes
+### [x] 3.4 Coffres et gemmes
 
 ```
 Tâche 3.4. Les gemmes sont gagnées en fin de run (ajoute-les à loot.json, RunRewards, applyRunRewards et à l'écran de butin : bonus de victoire, bonus par boss tué). Crée src/data/chests.json (typé dans types.ts) : coffre de bois (coût en or) et coffre doré (coût en gemmes), chacun avec ses poids de rareté (le doré garantit au moins « rare »). Logique pure dans src/systems/chests.ts : openChest(def, items, rng) qui renvoie un ItemInstance. Crée src/scenes/ChestScene.ts, accessible par un bouton « COFFRES » du menu : deux gros coffres à toucher ; ouvrir un coffre débite le coût, joue une animation (le coffre tremble, flash, puis la carte de l'objet apparaît avec sa couleur de rareté, façon récompense Archero), ajoute l'objet à l'inventaire et sauvegarde. Refuse proprement (message) si le joueur n'a pas assez d'or ou de gemmes.

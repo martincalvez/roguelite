@@ -1,5 +1,5 @@
 [
-  { "id": "t_vigueur", "name": "Vigueur", "maxLevel": 10, "costGold": [100, 150, 220, 320, 450, 600, 800, 1050, 1350, 1700], "perLevel": { "stat": "maxHp", "type": "flat", "value": 15 } },
-  { "id": "t_puissance", "name": "Puissance", "maxLevel": 10, "costGold": [100, 150, 220, 320, 450, 600, 800, 1050, 1350, 1700], "perLevel": { "stat": "attack", "type": "flat", "value": 2 } },
-  { "id": "t_agilite", "name": "Agilité", "maxLevel": 5, "costGold": [200, 400, 700, 1100, 1600], "perLevel": { "stat": "moveSpeed", "type": "percent", "value": 0.03 } }
+  {"id": "t_vigueur", "name": "Vigueur", "maxLevel": 10, "requiredAccountLevel": 1, "costGold": [100, 150, 220, 320, 450, 600, 800, 1050, 1350, 1700], "perLevel": {"stat": "maxHp", "type": "flat", "value": 15}},
+  {"id": "t_puissance", "name": "Puissance", "maxLevel": 10, "requiredAccountLevel": 2, "costGold": [100, 150, 220, 320, 450, 600, 800, 1050, 1350, 1700], "perLevel": {"stat": "attack", "type": "flat", "value": 2}},
+  {"id": "t_agilite", "name": "Agilité", "maxLevel": 5, "requiredAccountLevel": 4, "costGold": [200, 400, 700, 1100, 1600], "perLevel": {"stat": "moveSpeed", "type": "percent", "value": 0.03}}
 ]

@@ -6,6 +6,7 @@ import { EquipmentScene } from './scenes/EquipmentScene';
 import { LootScene } from './scenes/LootScene';
 import { MenuScene } from './scenes/MenuScene';
 import { RunScene } from './scenes/RunScene';
+import { TalentScene } from './scenes/TalentScene';
 import { SkillPickScene } from './scenes/SkillPickScene';
 
 new Phaser.Game({
@@ -23,5 +24,5 @@ new Phaser.Game({
     arcade: { debug: false },
   },
   input: { activePointers: 3 },
-  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene, ChestScene],
+  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene, ChestScene, TalentScene],
 });

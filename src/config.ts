@@ -100,4 +100,5 @@ export const SCENES = {
   loot: 'Loot',
   equipment: 'Equipment',
   chests: 'Chests',
+  talents: 'Talents',
 } as const;
