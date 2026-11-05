@@ -104,6 +104,7 @@ export class RoomFlow {
 
   private onEnemyDied(def: EnemyDef, x: number, y: number): void {
     this.ctx.runState.gold += def.gold;
+    if (def.boss) this.ctx.runState.bossesKilled++;
     (this.xpOrbs.get(x, y) as XpOrb | null)?.spawn(x, y, def.xp);
     this.enemiesAlive--;
     if (this.enemiesAlive <= 0 && !this.ctx.runState.ended) this.collecting = true;

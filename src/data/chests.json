@@ -1,0 +1,27 @@
+[
+  {
+    "id": "coffre_bois",
+    "name": "Coffre de bois",
+    "costGold": 500,
+    "rarityWeights": {
+      "common": 78,
+      "rare": 18,
+      "epic": 3.5,
+      "legendary": 0.5,
+      "mythic": 0
+    }
+  },
+  {
+    "id": "coffre_dore",
+    "name": "Coffre dor\u00e9",
+    "costGems": 50,
+    "minRarity": "rare",
+    "rarityWeights": {
+      "common": 0,
+      "rare": 65,
+      "epic": 25,
+      "legendary": 8.5,
+      "mythic": 1.5
+    }
+  }
+]

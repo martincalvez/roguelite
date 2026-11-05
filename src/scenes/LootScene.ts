@@ -13,6 +13,7 @@ export interface LootData {
   levelAfter: number;
   items: ItemInstance[];
   scrolls: Record<ItemSlotType, number>;
+  gems: number;
 }
 
 /** Écran de butin affiché à la mort ou à la victoire. Les récompenses sont déjà sauvegardées. */
@@ -40,6 +41,7 @@ export class LootScene extends Phaser.Scene {
       `Or gagné : +${Math.round(data.gold)}`,
       `XP de compte : +${data.accountXp}`,
     ];
+    if (data.gems > 0) lines.push(`Gemmes : +${data.gems}`);
     const scrollText = SCROLL_TYPES.filter((t) => data.scrolls[t] > 0)
       .map((t) => `${SLOT_TYPE_LABEL[t]} x${data.scrolls[t]}`)
       .join(' · ');

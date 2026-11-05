@@ -4,7 +4,7 @@ import type { ItemDef, ItemInstance, ItemSlotType, LootConfig, Rarity } from '..
 import { emptyScrolls } from './upgrade';
 
 /** Choisit un index selon des poids. */
-function weightedIndex(weights: number[], rng: () => number): number {
+export function weightedIndex(weights: number[], rng: () => number): number {
   const total = weights.reduce((sum, w) => sum + w, 0);
   let roll = rng() * total;
   for (let i = 0; i < weights.length; i++) {
@@ -47,4 +47,9 @@ export function rollScrolls(config: LootConfig, victory: boolean, rng: () => num
   const count = weightedIndex(config.scrollCountWeights, rng) + (victory ? config.victoryScrollBonus : 0);
   for (let i = 0; i < count; i++) out[SCROLL_TYPES[Math.floor(rng() * SCROLL_TYPES.length)]]++;
   return out;
+}
+
+/** Gemmes gagnées à la fin d'un run : par boss tué, plus un bonus de victoire. */
+export function gemsForRun(config: LootConfig, bossesKilled: number, victory: boolean): number {
+  return bossesKilled * config.gemsPerBoss + (victory ? config.gemsVictoryBonus : 0);
 }

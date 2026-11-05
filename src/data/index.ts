@@ -1,5 +1,5 @@
 // Point d'entrée unique des données : le code n'importe jamais un JSON directement.
-import type { ChapterDef, CombatConfig, LootConfig, ProgressionConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, PassiveDef, SkillDef, TalentDef } from '../types';
+import type { ChapterDef, ChestDef, CombatConfig, LootConfig, ProgressionConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, PassiveDef, SkillDef, TalentDef } from '../types';
 import itemsJson from './items.json';
 import skillsJson from './skills.json';
 import enemiesJson from './enemies.json';
@@ -11,6 +11,7 @@ import combatJson from './combat.json';
 import progressionJson from './progression.json';
 import lootJson from './loot.json';
 import upgradeJson from './upgrade.json';
+import chestsJson from './chests.json';
 
 export const ITEMS = itemsJson as ItemDef[];
 export const SKILLS = skillsJson as SkillDef[];
@@ -23,6 +24,7 @@ export const COMBAT = combatJson as CombatConfig;
 export const PROGRESSION = progressionJson as ProgressionConfig;
 export const LOOT = lootJson as LootConfig;
 export const UPGRADE = upgradeJson as UpgradeConfig;
+export const CHESTS = chestsJson as ChestDef[];
 
 function byId<T extends { id: string }>(list: T[], kind: string) {
   const map = new Map(list.map((x) => [x.id, x]));
@@ -40,3 +42,4 @@ export const getChapter = byId(CHAPTERS, 'Chapitre');
 export const getHero = byId(HEROES, 'Héros');
 export const getPassive = byId(PASSIVES, 'Passif');
 export const getTalent = byId(TALENTS, 'Talent');
+export const getChest = byId(CHESTS, 'Coffre');

@@ -26,7 +26,7 @@ export class MenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(cx, 450, `${getHero(d.selectedHero).name} · Niv. ${d.accountLevel} · ${d.gold} or`, {
+      .text(cx, 450, `${getHero(d.selectedHero).name} · Niv. ${d.accountLevel} · ${d.gold} or · ${d.gems} gemmes`, {
         fontSize: '28px',
         color: COLORS.text,
       })
@@ -40,6 +40,7 @@ export class MenuScene extends Phaser.Scene {
 
     this.menuButton(cx, 700, '  JOUER  ', 56, () => this.scene.start(SCENES.run, { chapterId: 'ch1' }));
     this.menuButton(cx, 860, ' ÉQUIPEMENT ', 40, () => this.scene.start(SCENES.equipment));
+    this.menuButton(cx, 1000, '   COFFRES   ', 40, () => this.scene.start(SCENES.chests));
   }
 
   /** Gros bouton doré (hauteur ≥ 88 px, règle mobile d'abord). */

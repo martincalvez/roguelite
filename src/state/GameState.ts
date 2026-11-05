@@ -2,9 +2,10 @@
 import type { EquipSlot, ItemDef, ItemInstance, Rarity, RunRewards, SaveData, StatModifier, Stats } from '../types';
 import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
-import { getHero, getItem } from '../data';
+import { getChest, getHero, getItem, ITEMS } from '../data';
 import { slotAccepts } from '../systems/equipment';
 import { fusionResult, pickFusionInputs } from '../systems/fusion';
+import { canAffordChest, openChest } from '../systems/chests';
 import { newUid } from '../systems/loot';
 import { passiveStatModifiers } from '../systems/skills';
 import { canUpgrade, upgradeCost } from '../systems/upgrade';
@@ -60,11 +61,24 @@ class GameStateImpl {
     this.persist();
   }
 
+  /** Ouvre un coffre : débite le prix, ajoute l'objet tiré à l'inventaire. Renvoie l'objet, ou null si le joueur ne peut pas payer. */
+  buyChest(chestId: string): ItemInstance | null {
+    const chest = getChest(chestId);
+    if (!canAffordChest(chest, this.data.gold, this.data.gems)) return null;
+    this.data.gold -= chest.costGold ?? 0;
+    this.data.gems -= chest.costGems ?? 0;
+    const item = openChest(chest, ITEMS);
+    this.data.inventory.push(item);
+    this.persist();
+    return item;
+  }
+
   /** Ajoute les récompenses d'un run (or, XP de compte, objets, meilleur chapitre) et sauvegarde. */
   applyRunRewards(rewards: RunRewards): { levelBefore: number; levelAfter: number } {
     const d = this.data;
     const levelBefore = d.accountLevel;
     d.gold += Math.round(rewards.gold);
+    d.gems += rewards.gems;
     d.accountXp += rewards.accountXp;
     while (d.accountXp >= accountXpToNext(d.accountLevel)) {
       d.accountXp -= accountXpToNext(d.accountLevel);

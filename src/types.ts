@@ -198,6 +198,8 @@ export interface LootConfig {
   rarityWeights: Record<Rarity, number>;
   scrollCountWeights: number[]; // poids du nombre de parchemins lâchés (index = nombre : 0, 1, 2…)
   victoryScrollBonus: number; // parchemins en plus en cas de victoire
+  gemsPerBoss: number; // gemmes par boss ou mini-boss tué
+  gemsVictoryBonus: number; // gemmes en plus en cas de victoire
 }
 
 /** Amélioration d'objet (or + parchemins du type de l'objet). */
@@ -209,11 +211,22 @@ export interface UpgradeConfig {
   scrollPerLevel: number; // parchemins en plus par niveau
 }
 
+/** Coffre ouvrable depuis le menu (payé en or ou en gemmes). */
+export interface ChestDef {
+  id: string;
+  name: string;
+  costGold?: number;
+  costGems?: number;
+  minRarity?: Rarity; // rareté minimale garantie
+  rarityWeights: Record<Rarity, number>;
+}
+
 /** Récompenses d'un run, ajoutées à la sauvegarde en une fois. */
 export interface RunRewards {
   gold: number;
   accountXp: number;
   items: ItemInstance[];
   scrolls: Record<ItemSlotType, number>;
+  gems: number;
   clearedChapter: number | null; // numéro du chapitre terminé (1 = ch1), null si défaite
 }

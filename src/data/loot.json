@@ -18,5 +18,7 @@
     30,
     10
   ],
-  "victoryScrollBonus": 3
+  "victoryScrollBonus": 3,
+  "gemsPerBoss": 5,
+  "gemsVictoryBonus": 20
 }

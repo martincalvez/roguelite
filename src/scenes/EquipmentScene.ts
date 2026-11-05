@@ -96,7 +96,7 @@ export class EquipmentScene extends Phaser.Scene {
       .setOrigin(0, 0.5)
       .setInteractive({ useHandCursor: true })
       .on('pointerup', () => this.scene.start(SCENES.menu));
-    this.add.text(GAME_WIDTH - 24, 60, `${d.gold} or`, { fontSize: '26px', color: COLORS.gold, fontStyle: 'bold' }).setOrigin(1, 0.5);
+    this.add.text(GAME_WIDTH - 24, 60, `${d.gold} or · ${d.gems} gemmes`, { fontSize: '26px', color: COLORS.gold, fontStyle: 'bold' }).setOrigin(1, 0.5);
     this.buildStats();
     this.buildScrolls();
     this.buildSlots();
