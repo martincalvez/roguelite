@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RARITY_ORDER } from '../config';
-import { CHAPTERS, CHESTS, COMBAT, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, TALENTS, UPGRADE } from './index';
+import { ARENA_DECOR, CHAPTERS, CHESTS, COMBAT, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, TALENTS, UPGRADE } from './index';
 
 const ids = <T extends { id: string }>(list: T[]) => list.map((x) => x.id);
 
@@ -96,6 +96,21 @@ describe('références entre fichiers', () => {
 });
 
 describe('cohérence des valeurs', () => {
+  it('décor d’arène : cases, couverture et chances dans des bornes valides', () => {
+    expect(ARENA_DECOR.cell).toBeGreaterThan(0);
+    expect(ARENA_DECOR.obstacleCoverage).toBeGreaterThanOrEqual(0);
+    expect(ARENA_DECOR.obstacleCoverage).toBeLessThan(1);
+    expect(ARENA_DECOR.obstacleMinCells).toBeGreaterThan(0);
+    expect(ARENA_DECOR.obstacleMaxCells).toBeGreaterThanOrEqual(ARENA_DECOR.obstacleMinCells);
+    expect(ARENA_DECOR.obstacleInset).toBeGreaterThanOrEqual(0);
+    expect(ARENA_DECOR.spawnClearance).toBeGreaterThan(0);
+    expect(ARENA_DECOR.doorClearance).toBeGreaterThan(0);
+    for (const chance of [ARENA_DECOR.stonePatchChance, ARENA_DECOR.waterPatchChance]) {
+      expect(chance).toBeGreaterThanOrEqual(0);
+      expect(chance).toBeLessThanOrEqual(1);
+    }
+  });
+
   it('ennemis : PV, vitesse et rayon positifs ; tireurs avec distance ; boss avec configuration', () => {
     for (const e of ENEMIES) {
       expect(e.hp, e.id).toBeGreaterThan(0);

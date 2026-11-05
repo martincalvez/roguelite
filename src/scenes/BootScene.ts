@@ -11,8 +11,22 @@ export class BootScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('item-amulette-braise', 'assets/twin-core.png');
-    this.load.image('pet-familier_chouette', 'assets/characters/amber_owl_idle.png');
-    this.load.image('hero-aldric', 'assets/characters/aldric_idle.png');
+    this.load.image('pet-familier_chouette', 'assets/generated/gemini-transparent/owl-pose-1.png');
+    this.load.image('hero-aldric', 'assets/generated/gemini-transparent/aldric-view-r1-c1.png');
+    this.load.spritesheet('hero-aldric-sheet', 'assets/generated/gemini-transparent/aldric-sheet.png', {
+      frameWidth: 256,
+      frameHeight: 256,
+    });
+    this.load.image('tile-grass', 'assets/tiles/grass-tile.png');
+    this.load.image('xp-orb', 'assets/generated/gemini-transparent/xp-gem.png');
+    this.load.image('coin-gold', 'assets/generated/gemini-transparent/gold-coin.png');
+    this.load.image('stone-wall-texture', 'assets/generated/gemini-transparent/stone-wall-texture.png');
+    this.load.image('stone-pillar', 'assets/generated/gemini-transparent/stone-pillar.png');
+    this.load.image('water-texture', 'assets/generated/gemini-transparent/water-texture.png');
+    this.load.image('enemy-art-turret', 'assets/generated/gemini-transparent/red-turret.png');
+    this.load.image('enemy-art-crystal-green', 'assets/generated/gemini-transparent/crystal-golem-green.png');
+    this.load.image('enemy-art-crystal-pink', 'assets/generated/gemini-transparent/crystal-golem-pink.png');
+    this.load.image('enemy-art-blue-knight', 'assets/generated/gemini-transparent/blue-knight-boss.png');
   }
 
   create(): void {
@@ -26,7 +40,7 @@ export class BootScene extends Phaser.Scene {
     this.makeCircle('enemy-projectile', 8, 0xff3b6b);
     this.makeCircle('particle', 5, 0xffffff);
     this.makeCircle('orbit-orb', 14, 0xb35cff);
-    this.makeCircle('xp-orb', 6, 0x5cff7a);
+    if (!this.textures.exists('xp-orb')) this.makeCircle('xp-orb', 6, 0x5cff7a);
     // Un cercle par type d'ennemi, à sa couleur et son rayon (EnemyDef).
     for (const def of ENEMIES) {
       this.makeCircle(`enemy-${def.id}`, def.radius, Phaser.Display.Color.HexStringToColor(def.color).color);

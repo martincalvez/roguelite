@@ -133,9 +133,11 @@ export interface ChapterDef {
   visual: {
     wallColor: string;
     wallEdgeColor: string;
-    floorColor: string;
-    floorAltColor: string;
+    floorTint: string; // teinte appliquée à la tuile d'herbe (blanc = texture d'origine)
     accentColor: string;
+    stoneColor: string; // tuiles de pierre claire, en plaques sur le sol
+    stoneEdgeColor: string;
+    waterColor: string; // canaux d'eau (décoratifs pour l'instant)
   };
   rooms: RoomDef[];
 }
@@ -207,6 +209,19 @@ export interface CombatConfig {
   projectileSpeedMultiplier: Record<WeaponProjectile, number>; // vitesse du tir selon l'arme (bolt lent, shuriken rapide)
   roomDamageShare: number; // part du multiplicateur de salle appliquée aux dégâts des ennemis (0 = aucun, 1 = autant que les PV)
   angelRareMaxWeight: number; // salle de l'ange : une compétence "rare" a un poids d'apparition ≤ à cette valeur
+}
+
+/** Décor de l'arène (tuiles, plaques et blocs de pierre) : rendu, pas d'équilibrage. */
+export interface ArenaDecorConfig {
+  cell: number; // côté d'une case en px logiques
+  obstacleCoverage: number; // part des cases libres occupée par des blocs (0 à 1)
+  obstacleMinCells: number; // longueur minimale d'un bloc, en cases
+  obstacleMaxCells: number; // longueur maximale d'un bloc, en cases
+  obstacleInset: number; // retrait visuel et de collision autour d'une case bloquée
+  spawnClearance: number; // rayon libre autour du point de départ du héros
+  doorClearance: number; // demi-largeur libre autour de la porte de sortie
+  stonePatchChance: number; // probabilité d'une plaque de pierre par case
+  waterPatchChance: number; // probabilité d'un canal d'eau par case
 }
 
 /** Progression pendant un run. */

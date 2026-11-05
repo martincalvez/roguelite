@@ -238,9 +238,11 @@
     "visual": {
       "wallColor": "#7a5233",
       "wallEdgeColor": "#4a301c",
-      "floorColor": "#8fd16a",
-      "floorAltColor": "#84c75f",
-      "accentColor": "#ffc83d"
+      "accentColor": "#ffc83d",
+      "stoneColor": "#cdc49b",
+      "stoneEdgeColor": "#9a9169",
+      "waterColor": "#2fa8dc",
+      "floorTint": "#ffffff"
     }
   },
   {
@@ -250,9 +252,11 @@
     "visual": {
       "wallColor": "#186b73",
       "wallEdgeColor": "#073b57",
-      "floorColor": "#55d796",
-      "floorAltColor": "#37c8bb",
-      "accentColor": "#ffcf45"
+      "accentColor": "#ffcf45",
+      "stoneColor": "#b4ddd2",
+      "stoneEdgeColor": "#5f8f88",
+      "waterColor": "#2f7fe0",
+      "floorTint": "#c8fff4"
     },
     "rooms": [
       {
@@ -514,9 +518,11 @@
     "visual": {
       "wallColor": "#744034",
       "wallEdgeColor": "#351b35",
-      "floorColor": "#ffb84d",
-      "floorAltColor": "#ff8a59",
-      "accentColor": "#54eaff"
+      "accentColor": "#54eaff",
+      "stoneColor": "#f0cfa0",
+      "stoneEdgeColor": "#b0814f",
+      "waterColor": "#2fd0e8",
+      "floorTint": "#ffe6c2"
     },
     "rooms": [
       {

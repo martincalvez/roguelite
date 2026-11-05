@@ -5,7 +5,7 @@ export class PetFollower {
   private readonly sprite: Phaser.GameObjects.Image;
 
   constructor(scene: Phaser.Scene, texture: string, x: number, y: number) {
-    this.sprite = scene.add.image(x, y, texture).setDisplaySize(76, 76).setDepth(40);
+    this.sprite = scene.add.image(x, y, texture).setDisplaySize(84, 90).setDepth(40);
   }
 
   update(time: number, delta: number, playerX: number, playerY: number): void {

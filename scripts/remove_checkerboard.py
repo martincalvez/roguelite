@@ -68,8 +68,12 @@ def clear_connected_checkerboard(image: Image.Image, chroma_tolerance: int) -> I
 
     alpha = Image.new("L", rgba.size)
     alpha.putdata([0 if visited[index] else 255 for index in range(width * height)])
-    rgba.putalpha(alpha)
-    return rgba
+    # Zero RGB under fully transparent pixels: PNG compresses dramatically better,
+    # and hidden checker colors cannot create a fringe when atlases are resized.
+    rgb = Image.new("RGB", rgba.size, (0, 0, 0))
+    rgb.paste(rgba.convert("RGB"), mask=alpha)
+    rgb.putalpha(alpha)
+    return rgb
 
 
 def process_asset(
@@ -79,15 +83,21 @@ def process_asset(
     output = output_dir / item["output"]
     output.parent.mkdir(parents=True, exist_ok=True)
     image = Image.open(source).convert("RGB")
+    max_size = int(item["max_size"]) if item.get("max_size") else None
+
+    def downscale(image_to_save: Image.Image) -> Image.Image:
+        if max_size:
+            image_to_save.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+        return image_to_save
 
     if item.get("mode") == "texture":
-        image.save(output, optimize=True)
+        downscale(image).save(output, optimize=True)
         return [output]
 
     grid = item.get("grid")
     tolerance = int(item.get("chroma_tolerance", 24))
     if not grid:
-        clear_connected_checkerboard(image, tolerance).save(output, optimize=True)
+        downscale(clear_connected_checkerboard(image, tolerance)).save(output, optimize=True)
         return [output]
 
     rows, columns = map(int, grid)

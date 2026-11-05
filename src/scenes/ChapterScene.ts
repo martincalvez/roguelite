@@ -27,7 +27,7 @@ export class ChapterScene extends Phaser.Scene {
       const number = index + 1;
       const y = 320 + index * 310;
       const available = isChapterUnlocked(number, GameState.data.bestChapter);
-      const floor = Phaser.Display.Color.HexStringToColor(chapter.visual.floorColor).color;
+      const floor = Phaser.Display.Color.HexStringToColor(chapter.visual.stoneColor).color;
       const accent = Phaser.Display.Color.HexStringToColor(chapter.visual.accentColor).color;
       const panelColor = available ? 0x0a4f83 : 0x334b69;
       this.add.rectangle(cx, y + 8, 660, 255, 0x061b32, 0.9).setStrokeStyle(8, 0x06172c);

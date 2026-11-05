@@ -6,3 +6,7 @@ https://archero2hub.com/icons/rune/twinborn/icon_rune_twin_core.png
 Les noms, images et éléments graphiques d'Archero 2 appartiennent à Habby Pte. Ltd. Cette image est utilisée comme référence graphique dans ce projet, sans revendication de propriété. Conditions du site source : https://archero2hub.com/en/terms
 
 `fonts/LilitaOne-Regular.ttf` est la police Lilita One de Juan Montoreano, distribuée sous SIL Open Font License 1.1. La licence complète est dans `fonts/OFL-Lilita-One.txt`. Source : https://github.com/google/fonts/tree/main/ofl/lilitaone
+
+## Assets fournis par Martin (pas des ressources tierces)
+
+`tiles/grass-tile.png` : tuile d'herbe fournie par Martin le 5 novembre 2026 pour le sol des arènes, redimensionnée de 1254 à 512 px de côté pour le jeu.

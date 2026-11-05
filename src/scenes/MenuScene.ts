@@ -109,7 +109,7 @@ export class MenuScene extends Phaser.Scene {
     this.tweens.add({ targets: glow, scale: 1.12, alpha: 0.28, duration: 1400, yoyo: true, repeat: -1 });
     this.add.ellipse(cx, 468, 210, 40, 0x07533f, 0.4);
     const customSprite = heroId === 'aldric';
-    const hero = this.add.image(cx - 38, 376, `hero-${heroId}`).setDisplaySize(200, customSprite ? 200 : 250);
+    const hero = this.add.image(cx - 38, 366, `hero-${heroId}`).setDisplaySize(customSprite ? 190 : 200, customSprite ? 222 : 250);
     this.tweens.add({ targets: hero, y: 364, duration: 1100, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
     const pet = GameState.equippedPet();
     if (pet?.def.petAppearance && this.textures.exists(`pet-${pet.def.id}`)) {

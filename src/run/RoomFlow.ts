@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
-import { ARENA, COLORS, GAME_WIDTH, POOLS } from '../config';
+import { ARENA, COLORS, GAME_WIDTH, PLAYER_SPAWN, POOLS } from '../config';
 import { COMBAT, getChapter, getEnemy, PROGRESSION } from '../data';
 import type { Enemy } from '../entities/Enemy';
 import type { EnemyProjectile } from '../entities/EnemyProjectile';
 import type { Projectile } from '../entities/Projectile';
 import { XpOrb } from '../entities/XpOrb';
+import { pickEnemySpawn } from '../systems/arenaLayout';
 import type { EnemyDef } from '../types';
 import type { RunContext } from './RunContext';
 import type { SkillFlow } from './SkillFlow';
@@ -55,7 +56,7 @@ export class RoomFlow {
     for (const group of [enemyProjectiles, playerProjectiles]) {
       for (const shot of group.getChildren() as (EnemyProjectile | Projectile)[]) if (shot.active) shot.kill();
     }
-    (player.body as Phaser.Physics.Arcade.Body).reset(GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
+    (player.body as Phaser.Physics.Arcade.Body).reset(PLAYER_SPAWN.x, PLAYER_SPAWN.y);
     this.spawnRoom(index);
     scene.events.emit('room-changed', index + 1, chapter.rooms.length);
     scene.cameras.main.resetFX();
@@ -71,9 +72,9 @@ export class RoomFlow {
     else this.setDoor(true);
   }
 
-  /** Fait apparaître les ennemis d'une salle du chapitre, dans la moitié haute de l'arène. */
+  /** Fait apparaître les ennemis d'une salle du chapitre, dans la moitié haute de l'arène, hors des blocs. */
   private spawnRoom(roomIndex: number): void {
-    const { scene, enemies } = this.ctx;
+    const { scene, enemies, arena } = this.ctx;
     const chapter = getChapter(this.ctx.chapterId);
     const room = chapter.rooms[roomIndex];
     const margin = 60;
@@ -84,8 +85,10 @@ export class RoomFlow {
     for (const group of room.enemies ?? []) {
       const def = getEnemy(group.id);
       for (let i = 0; i < group.count; i++) {
-        const x = Phaser.Math.Between(ARENA.x + margin, ARENA.x + ARENA.width - margin);
-        const y = Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
+        // Case libre de la moitié haute ; à défaut (arène très remplie), tirage au hasard historique.
+        const spot = pickEnemySpawn(arena);
+        const x = spot ? ARENA.x + spot.x : Phaser.Math.Between(ARENA.x + margin, ARENA.x + ARENA.width - margin);
+        const y = spot ? ARENA.y + spot.y : Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
         const enemy = enemies.get(x, y) as Enemy | null;
         if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
         enemy.spawn(def, x, y, scene.time.now, hpScale, damageScale);

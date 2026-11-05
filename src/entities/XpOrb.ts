@@ -10,9 +10,9 @@ export class XpOrb extends Phaser.Physics.Arcade.Sprite {
 
   spawn(x: number, y: number, value: number): void {
     this.enableBody(true, x, y, true, true);
-    this.setActive(true).setVisible(true).setAlpha(1).setScale(1).setAngle(0);
+    this.setActive(true).setVisible(true).setAlpha(1).setAngle(0).setDisplaySize(42, 42);
     this.value = value;
-    this.setCircle(this.width / 2);
+    this.setCircle(14, 7, 7);
     this.setVelocity(0, 0);
   }
 

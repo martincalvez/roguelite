@@ -13,6 +13,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys: Record<'Z' | 'Q' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
   private readonly moveVector = new Phaser.Math.Vector2();
+  /** Ligne de la planche d'Aldric : bas, gauche, droite, haut. */
+  private aldricFacingRow = 0;
   /** Stats courantes du héros. À remplacer via setStats() quand elles changent (compétences du run). */
   stats: Stats = GameState.heroStats();
   private joystick?: VirtualJoystick;
@@ -25,8 +27,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    // Le sprite prend plus de place à l'écran; le cercle de collision reste réglé séparément ci-dessous.
-    this.setDisplaySize(128, 128);
+    if (GameState.data.selectedHero === 'aldric' && scene.textures.exists('hero-aldric-sheet')) {
+      this.setTexture('hero-aldric-sheet', 0);
+    }
+    // Aldric est plus grand comme dans la référence ; le rayon de collision reste inchangé.
+    this.setDisplaySize(GameState.data.selectedHero === 'aldric' ? 170 : 128, GameState.data.selectedHero === 'aldric' ? 170 : 128);
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.setCollideWorldBounds(true);
@@ -81,6 +86,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Tourne le héros vers un point en tenant compte de l'orientation native de chaque sprite. */
   faceTowards(x: number, y: number): void {
     const angle = Phaser.Math.Angle.Between(this.x, this.y, x, y);
+    if (GameState.data.selectedHero === 'aldric' && this.texture.key === 'hero-aldric-sheet') {
+      this.aldricFacingRow = this.rowForAngle(angle);
+      this.setFrame(this.aldricFacingRow * 4);
+      this.setRotation(0);
+      return;
+    }
     const spriteOffset = GameState.data.selectedHero === 'aldric' ? -Math.PI / 2 : 0;
     this.setRotation(angle + spriteOffset);
   }
@@ -107,6 +118,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Clignotement pendant l'invulnérabilité.
     this.setAlpha(time < this.invulnerableUntil && Math.floor(time / 80) % 2 === 0 ? 0.3 : 1);
     const v = this.getMoveVector();
+    if (GameState.data.selectedHero === 'aldric' && this.texture.key === 'hero-aldric-sheet') {
+      if (v.lengthSq() > 0.001) {
+        this.aldricFacingRow = Math.abs(v.x) > Math.abs(v.y) ? (v.x < 0 ? 1 : 2) : v.y < 0 ? 3 : 0;
+        const frameColumn = Math.floor(time / 150) % 4;
+        this.setFrame(this.aldricFacingRow * 4 + frameColumn);
+      } else {
+        this.setFrame(this.aldricFacingRow * 4);
+      }
+    }
     this.setVelocity(v.x * this.stats.moveSpeed, v.y * this.stats.moveSpeed);
+  }
+
+  private rowForAngle(angle: number): number {
+    const x = Math.cos(angle);
+    const y = Math.sin(angle);
+    if (Math.abs(x) > Math.abs(y)) return x < 0 ? 1 : 2;
+    return y < 0 ? 3 : 0;
   }
 }

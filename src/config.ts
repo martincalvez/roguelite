@@ -15,6 +15,9 @@ export const ARENA = {
   height: GAME_HEIGHT - HUD_HEIGHT - WALL_THICKNESS * 2,
 };
 
+/** Point d'apparition du héros dans une salle (bas de l'arène). */
+export const PLAYER_SPAWN = { x: GAME_WIDTH / 2, y: ARENA.y + ARENA.height * 0.75 };
+
 /** Joystick virtuel flottant (réglages d'interface, pas d'équilibrage). */
 export const JOYSTICK = {
   radius: 90,
@@ -35,9 +38,6 @@ export const COLORS = {
   hp: 0xff4d5e,
   xp: 0x5cff7a,
 };
-
-/** Taille d'une case du damier du sol (décor). */
-export const FLOOR_TILE = 85;
 
 /** Types d'objets, donc de parchemins. */
 export const SCROLL_TYPES: ItemSlotType[] = ['weapon', 'armor', 'ring', 'amulet', 'pet'];

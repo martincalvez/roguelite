@@ -98,7 +98,7 @@ export class HeroScene extends Phaser.Scene {
     this.add.text(cx, 190, 'HÉROS ACTIF', { fontSize: '27px', color: '#ffffff', fontStyle: 'bold', stroke: '#102d4c', strokeThickness: 6 }).setOrigin(0.5);
 
     const customSprite = hero.id === 'aldric';
-    this.add.image(cx - 86, customSprite ? 352 : 337, `hero-${hero.id}`).setDisplaySize(customSprite ? 220 : 210, customSprite ? 220 : 262);
+    this.add.image(cx - 86, customSprite ? 350 : 337, `hero-${hero.id}`).setDisplaySize(customSprite ? 200 : 210, customSprite ? 234 : 262);
     const pet = GameState.equippedPet();
     if (pet?.def.petAppearance && this.textures.exists(`pet-${pet.def.id}`)) {
       this.add.image(cx + 177, 370, `pet-${pet.def.id}`).setDisplaySize(114, 114);

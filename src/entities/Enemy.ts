@@ -8,6 +8,20 @@ const TOO_CLOSE_RATIO = 0.8;
 const BURN_TINT = 0xff5a1f;
 const FREEZE_TINT = 0x66ccff;
 
+/** Visuels Gemini déjà détourés ; les autres ennemis gardent leurs textures de secours. */
+const ENEMY_ART: Record<string, string> = {
+  archer_squelette: 'enemy-art-turret',
+  shaman: 'enemy-art-crystal-green',
+  ogre: 'enemy-art-crystal-pink',
+  liche: 'enemy-art-blue-knight',
+  golem_floral: 'enemy-art-crystal-green',
+  gardien_racines: 'enemy-art-crystal-green',
+  chauve_souris_braise: 'enemy-art-crystal-pink',
+  mage_ombre: 'enemy-art-crystal-green',
+  elementaire_lave: 'enemy-art-crystal-pink',
+  golem_cendre: 'enemy-art-crystal-pink',
+};
+
 /**
  * Ennemi poolé, configuré par un EnemyDef. Ne connaît ni le joueur ni les projectiles :
  * la scène lui donne la position de la cible, et il annonce ses tirs par l'événement
@@ -36,6 +50,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private volleyLeft = 0;
   private nextVolleyAt = 0;
   private tintState = 0; // 0 aucun, 1 brûlure, 2 givre, 3 flash blanc
+  private stationary = false;
   /** Prochain instant où un orbe protecteur peut le toucher. */
   nextOrbHitAt = 0;
 
@@ -50,8 +65,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.maxHp = this.hp;
     this.damage = def.damage * damageScale;
     this.enableBody(true, x, y, true, true);
-    this.setTexture(`enemy-${def.id}`);
-    this.setCircle(def.radius);
+    const art = ENEMY_ART[def.id];
+    if (art && this.scene.textures.exists(art)) {
+      this.setTexture(art);
+      const targetHeight = def.radius * (def.boss ? 5 : 4.3);
+      this.setScale(targetHeight / Math.max(this.width, this.height));
+    } else {
+      this.setTexture(`enemy-${def.id}`).setScale(1);
+    }
+    // Garde la collision gameplay à la taille définie, même si l'illustration est agrandie.
+    this.setCircle(def.radius / Math.max(this.scaleX, 0.001));
+    this.stationary = def.id === 'archer_squelette';
     this.setCollideWorldBounds(true);
     this.setVelocity(0, 0);
     this.clearTint();
@@ -88,7 +112,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     } else if (def.behavior === 'shooter' || def.behavior === 'spreader') {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
       const keep = def.keepDistance ?? 0;
-      if (dist > keep) this.moveAlong(angle, speed);
+      if (this.stationary) this.setVelocity(0, 0);
+      else if (dist > keep) this.moveAlong(angle, speed);
       else if (dist < keep * TOO_CLOSE_RATIO) this.moveAlong(angle, -speed);
       else this.setVelocity(0, 0);
 

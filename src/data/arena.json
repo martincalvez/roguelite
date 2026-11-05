@@ -1,0 +1,11 @@
+{
+  "cell": 85,
+  "obstacleCoverage": 0.14,
+  "obstacleMinCells": 1,
+  "obstacleMaxCells": 3,
+  "obstacleInset": 7,
+  "spawnClearance": 130,
+  "doorClearance": 130,
+  "stonePatchChance": 0.025,
+  "waterPatchChance": 0.012
+}

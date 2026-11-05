@@ -50,8 +50,12 @@ export class LootScene extends Phaser.Scene {
     // Mise en page cumulative : une ligne longue (parchemins) passe à la ligne sans chevaucher la suite.
     let y = 320;
     for (const line of lines) {
+      const goldReward = line.startsWith('Or gagné');
+      if (goldReward && this.textures.exists('coin-gold')) {
+        this.add.image(cx - 158, y + 20, 'coin-gold').setDisplaySize(38, 38);
+      }
       const t = this.add
-        .text(cx, y, line, {
+        .text(cx + (goldReward ? 18 : 0), y, line, {
           fontSize: '30px',
           color: line.startsWith('Niveau de compte') ? COLORS.gold : COLORS.text,
           fontStyle: 'bold',
