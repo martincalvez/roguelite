@@ -14,6 +14,10 @@ export class RunState {
     return xpToNextLevel(this.level);
   }
 
+  addSkill(id: string): void {
+    this.skills[id] = (this.skills[id] ?? 0) + 1;
+  }
+
   /** Ajoute de l'XP ; renvoie le nombre de niveaux gagnés. */
   addXp(amount: number): number {
     this.xp += amount;

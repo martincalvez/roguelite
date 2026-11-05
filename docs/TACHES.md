@@ -68,7 +68,7 @@ Tâche 2.1. Crée src/state/RunState.ts (état du run en cours : niveau, XP, com
 ```
 Validation : la barre d'XP se remplit, le niveau monte.
 
-### [ ] 2.2 Choix d'une compétence parmi 3
+### [x] 2.2 Choix d'une compétence parmi 3
 
 ```
 Tâche 2.2. Crée src/systems/skills.ts (pur) : tirage pondéré (weight) de 3 compétences distinctes, en excluant celles à maxStacks. Crée une scène overlay SkillPickScene qui met RunScene en pause et propose 3 cartes (nom, description, stacks actuels), grandes et lisibles au doigt. Applique tout de suite les compétences 'stat' et 'heal' via RunState → les stats du joueur sont recalculées avec computeStats(heroStats base + modificateurs du run). Les autres types sont enregistrés mais sans effet pour l'instant.

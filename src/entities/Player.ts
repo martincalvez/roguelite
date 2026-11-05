@@ -35,11 +35,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.keys = keyboard.addKeys('Z,Q,S,D') as Player['keys'];
   }
 
-  /** Remplace les stats (résultat de computeStats) ; les PV actuels sont plafonnés au nouveau max. */
+  /**
+   * Remplace les stats (résultat de computeStats). Si les PV max augmentent, les PV actuels
+   * augmentent d'autant (sinon « +PV max » ne servirait à rien sur le moment).
+   */
   setStats(stats: Stats): void {
+    const gain = Math.max(0, stats.maxHp - this.maxHp);
     this.stats = stats;
     this.maxHp = stats.maxHp;
-    this.hp = Math.min(this.hp, this.maxHp);
+    this.hp = Math.min(this.hp + gain, this.maxHp);
+    this.scene.events.emit('player-hp-changed', this.hp, this.maxHp);
+  }
+
+  /** Rend une fraction des PV max. */
+  heal(fraction: number): void {
+    this.hp = Math.min(this.maxHp, this.hp + this.maxHp * fraction);
+    this.scene.events.emit('player-hp-changed', this.hp, this.maxHp);
   }
 
   setJoystick(joystick: VirtualJoystick): void {

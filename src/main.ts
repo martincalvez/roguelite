@@ -3,6 +3,7 @@ import { COLORS, GAME_HEIGHT, GAME_WIDTH } from './config';
 import { BootScene } from './scenes/BootScene';
 import { MenuScene } from './scenes/MenuScene';
 import { RunScene } from './scenes/RunScene';
+import { SkillPickScene } from './scenes/SkillPickScene';
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -19,5 +20,5 @@ new Phaser.Game({
     arcade: { debug: false },
   },
   input: { activePointers: 3 },
-  scene: [BootScene, MenuScene, RunScene],
+  scene: [BootScene, MenuScene, RunScene, SkillPickScene],
 });
