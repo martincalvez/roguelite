@@ -37,6 +37,18 @@ describe('références entre fichiers', () => {
     for (const hero of HEROES) if (hero.passive) expect(passiveIds.has(hero.passive), hero.id).toBe(true);
   });
 
+  it('chaque familier a une apparence et une palette valides', () => {
+    const pets = ITEMS.filter((item) => item.slot === 'pet');
+    expect(pets.length).toBeGreaterThan(0);
+    for (const pet of pets) {
+      expect(pet.petAppearance, pet.id).toBeDefined();
+      expect(['owl', 'dragon', 'spirit'], pet.id).toContain(pet.petAppearance?.form);
+      expect(pet.petAppearance?.bodyColor, pet.id).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(pet.petAppearance?.accentColor, pet.id).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(pet.petAppearance?.eyeColor, pet.id).toMatch(/^#[0-9a-f]{6}$/i);
+    }
+  });
+
   it('chaque salle ne contient que des ennemis connus, en nombre positif', () => {
     for (const chapter of CHAPTERS) {
       chapter.rooms.forEach((room, i) => {

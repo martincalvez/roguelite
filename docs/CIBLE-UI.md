@@ -1,23 +1,38 @@
-# Cible d'interface (inspiration, à atteindre progressivement)
+# Cible visuelle et d'interface
 
-Martin vise à terme une interface de gestion dans l'esprit d'un jeu mobile de roguelite d'action moderne (référence : l'écran « Équipement » d'un Archero récent). Cette note décrit la **structure** à reproduire avec **nos propres visuels** : on ne copie ni les images, ni les icônes, ni les noms de ce jeu (voir CLAUDE.md : le dépôt est public). La capture de référence n'est pas stockée dans le dépôt.
+Les captures fournies par Martin (IMG_3929 à IMG_3934, 5 novembre 2026) sont la référence visuelle de la phase 5. Elles montrent le niveau de couleur, de relief, de densité et de lisibilité souhaité. Cette direction complète le style Archero déjà défini dans `CLAUDE.md`.
 
-## Structure de l'écran équipement visé
+## Langage visuel
 
-1. **Bandeau de monnaies en haut** : niveau de compte avec % d'XP, énergie, or, gemmes (chaque monnaie dans une pastille arrondie avec son icône).
-2. **Le héros au centre**, grand, entouré des slots : une colonne de slots à gauche, une à droite, un slot en bas au centre. Chaque slot est une case carrée à la couleur de sa rareté, avec le niveau (« Lv.60 »), une pastille d'état en coin (améliorable, nouveau) et une petite flèche verte si une amélioration est possible.
-3. **Ligne de statistiques** sous le héros : Attaque et PV en gros chiffres.
-4. **Onglets de catégories** (Héros, Familier, Ailes…) en bandeau défilant.
-5. **Barre de tri/filtre** (« Par qualité », « Collections », « Favoris », « Forge ») au-dessus de la grille.
-6. **Grille d'inventaire** de cases carrées colorées par rareté, avec icône de type en haut à gauche et niveau en bas.
-7. **Barre de navigation fixe en bas** (5 onglets : coffres, équipement, carte/chapitres, talents/amélioration, défi/mode), l'onglet actif agrandi, des pastilles rouges de notification.
+- Interface mobile portrait, très colorée, lumineuse et immédiatement lisible.
+- Boutons et cartes épais, contours sombres, ombres nettes, reflets, lueurs et cadres dorés ; fonds bleus, verts et turquoise saturés.
+- Icônes illustrées, grandes et reconnaissables à petite taille ; raretés distinctes par couleur et cadre.
+- Badges visibles pour nouveautés, améliorations et notifications.
+- Décors de jeu vivants, avec profondeur, eau, végétation et arènes aux couleurs franches ; boss signalé par une barre de vie dédiée en haut.
+- Choix de compétences dans de grandes cartes verticales, avec icône expressive, titre court et description lisible au téléphone.
+- Les familiers apparaissent près du héros, dans l'écran de gestion et pendant le combat ; leur onglet et leur emplacement d'équipement doivent être faciles à trouver.
 
-## Ce qu'on garde de notre côté
-- Mobile d'abord (rien d'important dans les 60 px du bas : la barre de navigation doit tenir compte de la zone de geste du téléphone).
-- Style cartoon coloré (voir CLAUDE.md, direction artistique).
-- Visuels générés ou libres de droits (Kenney, OpenGameArt) puis dessinés par nous en phase 5.5, jamais extraits du jeu de référence.
+## Écran de gestion visé
 
-## Plan proposé
-- **Pendant la phase 3** : barre de navigation du bas (Équipement, Coffres, Talents, Jouer) et bandeau de monnaies commun à tous les écrans, pour que 3.2 à 3.5 s'y branchent directement.
-- **Après la 3.5** : refonte de l'écran équipement (héros au centre, slots autour, grille colorée, onglets), avec toujours des formes générées.
-- **Phase 5.5** : vrais visuels (héros, icônes d'objets, fonds).
+1. Bandeau de ressources en haut : niveau et XP, énergie, or, gemmes.
+2. Héros ou familier mis en scène au centre, entouré des emplacements d'équipement sous forme de cartes carrées colorées selon la rareté.
+3. Attaque et PV présentés en chiffres larges sous le personnage.
+4. Onglets horizontaux pour les catégories (héros, familier, équipement et autres systèmes à venir).
+5. Tri et filtres au-dessus d'une grille d'inventaire dense, mais lisible au doigt.
+6. Navigation fixe en bas, adaptée à la zone de geste de l'iPhone ; l'onglet actif ressort nettement.
+
+## Écrans de jeu visés
+
+- **Accueil** : décor central reconnaissable, boutons latéraux pour les activités, grand bouton « Jouer » en bas au centre.
+- **Talents** : fond bleu texturé, onglets en haut, icônes en médaillons hexagonaux, progression et bouton d'amélioration très visibles.
+- **Combat** : arène lumineuse, héros et familier bien détachés du sol, effets de tir colorés, PV du boss en haut et commandes tactiles dégagées.
+- **Choix de compétence** : panneau central contrasté et trois cartes verticales avec de grandes zones tactiles.
+
+Les captures servent de référence de direction et de composition, elles ne sont pas copiées dans le dépôt. Martin a confirmé qu'il peut utiliser les visuels concernés. Les ressources qu'il fournit ou choisit pourront donc être intégrées au projet ; les captures ne sont pas nécessaires dans le dépôt.
+
+## Application progressive
+
+- **5.1 Familiers** : gestion dans cette direction, familier visible auprès du héros et fiche/carte lisible.
+- **5.2 Héros** : même mise en scène centrale et langage de cartes.
+- **5.3–5.4** : décors plus vivants, boss lisibles, effets lumineux et choix de compétences au format carte.
+- **5.5** : enrichir les sprites, décors, icônes et sons pour atteindre le rendu montré dans les références.

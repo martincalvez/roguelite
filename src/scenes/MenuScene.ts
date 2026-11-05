@@ -72,12 +72,13 @@ export class MenuScene extends Phaser.Scene {
       offReplaced();
     });
 
-    this.menuButton(cx, 640, '  JOUER  ', 56, () => this.scene.start(SCENES.run, { chapterId: 'ch1' }));
-    this.menuButton(cx, 765, ' ÉQUIPEMENT ', 40, () => this.scene.start(SCENES.equipment));
-    this.menuButton(cx, 870, '   COFFRES   ', 40, () => this.scene.start(SCENES.chests));
-    this.menuButton(cx, 975, '   TALENTS   ', 40, () => this.scene.start(SCENES.talents));
+    this.menuButton(cx, 610, '  JOUER  ', 52, () => this.scene.start(SCENES.run, { chapterId: 'ch1' }));
+    this.menuButton(cx, 710, ' ÉQUIPEMENT ', 36, () => this.scene.start(SCENES.equipment));
+    this.menuButton(cx, 800, '   FAMILIERS   ', 36, () => this.scene.start(SCENES.pets), '#76d9ff');
+    this.menuButton(cx, 890, '   COFFRES   ', 36, () => this.scene.start(SCENES.chests));
+    this.menuButton(cx, 980, '   TALENTS   ', 36, () => this.scene.start(SCENES.talents));
     // Grisé si le cloud n'est pas configuré (l'écran explique alors pourquoi).
-    this.menuButton(cx, 1080, '   COMPTE   ', 40, () => this.scene.start(SCENES.account), cloudEnabled ? COLORS.gold : '#9aa5a0');
+    this.menuButton(cx, 1070, '   COMPTE   ', 36, () => this.scene.start(SCENES.account), cloudEnabled ? COLORS.gold : '#9aa5a0');
   }
 
   /** Gros bouton doré (hauteur ≥ 88 px, règle mobile d'abord). */

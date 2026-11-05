@@ -151,5 +151,29 @@
       "legendary": "braise_brasier",
       "mythic": "braise_double"
     }
+  },
+  {
+    "id": "familier_chouette",
+    "name": "Chouette d'ambre",
+    "slot": "pet",
+    "description": "Une gardienne vive qui accompagne tes aventures.",
+    "modifiers": [{ "stat": "critChance", "type": "flat", "value": 0.02 }],
+    "petAppearance": { "form": "owl", "bodyColor": "#e7a84b", "accentColor": "#fff0c2", "eyeColor": "#42ddff" }
+  },
+  {
+    "id": "familier_dragonnet",
+    "name": "Dragonnet braise",
+    "slot": "pet",
+    "description": "Un petit dragon qui renforce tes attaques.",
+    "modifiers": [{ "stat": "attack", "type": "percent", "value": 0.04 }],
+    "petAppearance": { "form": "dragon", "bodyColor": "#f15b48", "accentColor": "#ffd05c", "eyeColor": "#6df5ff" }
+  },
+  {
+    "id": "familier_esprit",
+    "name": "Esprit des bois",
+    "slot": "pet",
+    "description": "Un esprit bienveillant qui augmente tes PV.",
+    "modifiers": [{ "stat": "maxHp", "type": "flat", "value": 18 }],
+    "petAppearance": { "form": "spirit", "bodyColor": "#62d9b4", "accentColor": "#e6fff2", "eyeColor": "#6887ff" }
   }
 ]

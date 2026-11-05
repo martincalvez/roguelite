@@ -37,6 +37,12 @@ class GameStateImpl {
     return instance ? { instance, def: getItem(instance.defId) } : undefined;
   }
 
+  /** Familier actuellement équipé, avec sa définition. */
+  equippedPet(): { instance: ItemInstance; def: ItemDef } | undefined {
+    const instance = this.data.inventory.find((i) => i.uid === this.data.equipped.pet);
+    return instance ? { instance, def: getItem(instance.defId) } : undefined;
+  }
+
   /** Équipe un objet dans un slot (il quitte son ancien slot). Renvoie faux si le slot ne l'accepte pas. */
   equipItem(uid: string, slot: EquipSlot): boolean {
     const item = this.data.inventory.find((i) => i.uid === uid);

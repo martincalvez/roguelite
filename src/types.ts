@@ -25,6 +25,13 @@ export type EquipSlot = 'weapon' | 'armor' | 'ring1' | 'ring2' | 'amulet' | 'pet
 
 export type WeaponProjectile = 'arrow' | 'bolt' | 'shuriken';
 
+export interface PetAppearance {
+  form: 'owl' | 'dragon' | 'spirit';
+  bodyColor: string;
+  accentColor: string;
+  eyeColor: string;
+}
+
 export interface ItemDef {
   id: string;
   name: string;
@@ -36,6 +43,8 @@ export interface ItemDef {
   rarityPassives?: Partial<Record<Rarity, string>>;
   /** pour les armes : comportement de tir */
   weapon?: { projectile: WeaponProjectile; pierce?: number; spread?: number };
+  /** pour les familiers : silhouette et palette du sprite généré au démarrage */
+  petAppearance?: PetAppearance;
 }
 
 /** Un objet possédé par le joueur */

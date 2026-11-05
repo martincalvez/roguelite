@@ -3,6 +3,7 @@ import { ARENA, COLORS, FLOOR_TILE, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, 
 import { getChapter } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
+import { PetFollower } from '../entities/PetFollower';
 import { Player } from '../entities/Player';
 import { Projectile } from '../entities/Projectile';
 import { endRun } from '../run/endRun';
@@ -32,6 +33,7 @@ export class RunScene extends Phaser.Scene {
   private fx!: Fx;
   private shots!: ShotController;
   private rooms!: RoomFlow;
+  private pet?: PetFollower;
 
   constructor() {
     super(SCENES.run);
@@ -47,6 +49,10 @@ export class RunScene extends Phaser.Scene {
     this.physics.world.setBounds(ARENA.x, ARENA.y, ARENA.width, ARENA.height);
 
     const player = new Player(this, GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
+    const equippedPet = GameState.equippedPet();
+    if (equippedPet?.def.petAppearance) {
+      this.pet = new PetFollower(this, `pet-${equippedPet.def.id}`, player.x - 54, player.y - 46);
+    }
     const joystick = new VirtualJoystick(this);
     player.setJoystick(joystick);
     const runState = new RunState();
@@ -99,11 +105,12 @@ export class RunScene extends Phaser.Scene {
       .on('pointerup', () => this.scene.start(SCENES.menu));
   }
 
-  update(time: number): void {
+  update(time: number, delta: number): void {
     this.fx.update(time);
     const { player, runState, enemies } = this.ctx;
     if (runState.ended) return;
     player.updateMovement(time);
+    this.pet?.update(time, delta, player.x, player.y);
     this.shots.updateOrbs(time);
     const list = enemies.getChildren() as Enemy[];
     for (let i = 0; i < list.length; i++) {

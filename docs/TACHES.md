@@ -220,14 +220,14 @@ Tâche 4.1. Le fichier docs/supabase/001_saves.sql crée la table public.saves (
 ```
 Validation : `rowsecurity = true`, 4 politiques « authenticated », « permission denied » pour le rôle anon, trigger `saves_before_write` présent, pas de colonne d'horodatage client.
 
-### [ ] 4.2 Connexion par code e-mail
+### [x] 4.2 Connexion par code e-mail
 
 ```
 Tâche 4.2. Après accord sur la dépendance : npm install @supabase/supabase-js. Crée src/cloud/client.ts : client Supabase créé à partir de import.meta.env.VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY ; si elles sont absentes, le cloud est simplement désactivé (le jeu fonctionne comme avant, bouton COMPTE grisé). Active le champ DOM de Phaser (dom: { createContainer: true } dans main.ts) pour saisir une adresse e-mail et un code au clavier du téléphone. Crée src/scenes/AccountScene.ts, accessible par un bouton « COMPTE » du menu : (1) non connecté : champ e-mail + bouton « Recevoir un code » (signInWithOtp avec shouldCreateUser: false), puis champ du code à 6 chiffres + bouton « Valider » (verifyOtp) ; (2) connecté : adresse affichée et bouton « Se déconnecter ». Messages d'erreur clairs et sobres (e-mail refusé ou inconnu, code faux ou expiré, trop de demandes, hors ligne) ; un e-mail inconnu ne doit pas révéler si le compte existe. Ne jamais afficher ni journaliser le jeton de session ni l'adresse e-mail dans la console. Ajoute les deux variables au step « npm run build » du workflow GitHub (env: ${{ vars.VITE_SUPABASE_URL }} et ${{ vars.VITE_SUPABASE_ANON_KEY }}) et documente dans docs/DEPLOIEMENT.md.
 ```
 Validation : on se connecte avec un code reçu par e-mail, sur PC et sur téléphone (jeu installé), et on reste connecté après rechargement ; un e-mail inconnu est refusé ; sans variables d'environnement, le jeu marche sans cloud.
 
-### [ ] 4.3 Synchronisation de la sauvegarde
+### [x] 4.3 Synchronisation de la sauvegarde
 
 ```
 Tâche 4.3. Logique pure dans src/systems/cloudSync.ts, avec tests Vitest couvrant chaque cas de la décision de synchro décrite plus haut : decideSync({ localChanged, lastSyncedRevision, remote }) renvoie 'noop' | 'upload' | 'download' | 'conflict'. Chaque appareil mémorise (dans localStorage, sous une clé à part, jamais dans SaveData) la dernière revision synchronisée et l'empreinte de sa sauvegarde à ce moment-là ; « le local a changé » = empreinte actuelle (calculée hors updatedAt) différente de l'empreinte mémorisée (pour un appareil jamais synchronisé : différente de celle de defaultSave()). Crée src/cloud/cloudSave.ts : fetchRemote(), insertFirst() puis pushConditional() (update … eq('user_id') eq('revision', connue), qui renvoie la nouvelle revision ; 0 ligne modifiée ou erreur 23505 = la revision a bougé → refaire fetchRemote() et decideSync()), et la migration de la sauvegarde téléchargée par migrate() de SaveManager avant de l'accepter (une sauvegarde cloud d'une version plus récente que le jeu est refusée avec un message clair). Déclencheurs : au lancement, à la fin d'un run (après applyRunRewards) et au retour dans le jeu (visibilitychange), avec un délai minimal entre deux envois. En cas de conflit : écran « Quelle sauvegarde garder ? » comparant les deux (niveau de compte, or, gemmes, nombre d'objets, date serveur) avec deux gros boutons. Si Supabase ne répond pas : aucune erreur bloquante, une petite mention « Synchro indisponible » dans le menu, nouvel essai au prochain lancement. Ajoute « Supprimer ma sauvegarde cloud » (delete sur sa ligne, avec confirmation) : la ligne est supprimée, pas le compte.
@@ -249,7 +249,14 @@ Validation effectuée le 5 novembre 2026 : les tests SQL T1–T14 sont tous OK ;
 
 ## Phase 5 — Contenu
 
+Direction visuelle de Martin : interface portrait très colorée, héros et familier au centre, cartes de rareté, boutons épais avec contour et relief, arènes lumineuses, boss bar visible et choix de compétences en grandes cartes. Voir `docs/CIBLE-UI.md`.
+
 - [ ] 5.1 Familiers (slot pet)
+
+```
+Tâche 5.1. Ajoute trois familiers équipables avec des bonus de stats distincts définis dans items.json et une apparence générée depuis leur palette JSON. Migre les sauvegardes existantes vers SAVE_VERSION 3 sans perte : chaque joueur reçoit et équipe une Chouette d'ambre si aucun familier de départ n'existe. Crée un écran FAMILIERS accessible depuis le menu, dans la direction de docs/CIBLE-UI.md : héros et compagnon mis en scène dans un panneau central, cartes de familiers bordées par leur rareté, bonus affichés, équipement en un toucher et défilement adapté au téléphone. En run, le familier équipé suit le héros avec un léger flottement, sans collision ni dégâts. Les bonus passent par les stats d'équipement existantes. Tests : migration v2→v3 sans perte ni doublon, présence et palette valides pour chaque familier. Pas de nouvelle dépendance.
+```
+Validation : un familier est visible sur l'écran FAMILIERS et suit le héros en combat ; en changer met à jour l'apparence et les stats ; une ancienne sauvegarde garde sa progression et reçoit le familier de départ.
 - [ ] 5.2 Écran des héros et déblocage (gemmes)
 - [ ] 5.3 Chapitres 2 et 3, nouveaux ennemis
 - [ ] 5.4 Mode Survie (vagues infinies, bestWave)

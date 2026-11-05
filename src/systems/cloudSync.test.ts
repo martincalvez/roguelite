@@ -75,7 +75,7 @@ describe('empreinte', () => {
 describe('summarizeSave', () => {
   it('résume ce qui sert à choisir entre deux sauvegardes', () => {
     const s = { ...defaultSave(), accountLevel: 4, gold: 900, gems: 12, bestChapter: 1 };
-    expect(summarizeSave(s)).toEqual({ accountLevel: 4, gold: 900, gems: 12, items: 1, bestChapter: 1 });
+    expect(summarizeSave(s)).toEqual({ accountLevel: 4, gold: 900, gems: 12, items: 2, bestChapter: 1 });
   });
 });
 

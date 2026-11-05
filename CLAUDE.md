@@ -23,6 +23,10 @@ Le style visé est celui d'**Archero** : cartoon, très coloré, vif, lisible, "
 - Les formes générées dans `BootScene` doivent déjà suivre ce style (couleurs vives, contour net).
 - La palette actuelle de `config.ts` (`COLORS`) est sombre : à rafraîchir quand Martin le demande, pas avant.
 
+### Référence visuelle de la phase 5
+
+Les captures fournies par Martin le 5 novembre 2026 définissent le rendu souhaité : interface portrait riche en couleurs, héros mis en scène au centre, équipement en cartes de rareté, boutons épais avec contours et relief, navigation claire, talents en médaillons, arènes lumineuses, boss bar et choix de compétences en grandes cartes. Les familiers doivent être visibles près du héros dans l'écran de gestion comme en combat. Voir `docs/CIBLE-UI.md`.
+
 ## Stack
 
 - Phaser 3 + TypeScript strict + Vite. Pas d'autre framework, pas de dépendance sans demande explicite.
