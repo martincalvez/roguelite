@@ -1,43 +1,57 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_HEIGHT, GAME_WIDTH, SCENES } from '../config';
-import { GameState } from '../state/GameState';
+import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, SCENES, WALL_THICKNESS } from '../config';
+import { Player } from '../entities/Player';
 
 interface RunData {
   chapterId: string;
 }
 
 /**
- * Scène de combat. Squelette : à construire tâche par tâche (docs/TACHES.md, phase 1).
- * Zone de jeu : bandeau HUD en haut (120 px), arène en dessous.
+ * Scène de combat, construite tâche par tâche (docs/TACHES.md, phase 1).
+ * Zone de jeu : bandeau HUD en haut (HUD_HEIGHT), arène entourée de murs en dessous.
  */
 export class RunScene extends Phaser.Scene {
-  private chapterId = 'ch1';
+  chapterId = 'ch1'; // utilisé dès la tâche 1.3 (ennemis du chapitre)
+  private player!: Player;
 
   constructor() {
     super(SCENES.run);
   }
 
   init(data: RunData): void {
-    this.chapterId = data.chapterId ?? 'ch1';
+    this.chapterId = data?.chapterId ?? 'ch1';
   }
 
   create(): void {
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 60, GAME_WIDTH - 40, GAME_HEIGHT - 160, COLORS.floor);
-    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT - 260, 'player');
+    this.buildArena();
+    this.physics.world.setBounds(ARENA.x, ARENA.y, ARENA.width, ARENA.height);
 
-    const stats = GameState.heroStats();
+    this.player = new Player(this, GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
+
+    // Bandeau HUD (vide pour l'instant) : seul le retour au menu y figure.
     this.add
-      .text(GAME_WIDTH / 2, 400, `Chapitre ${this.chapterId}\nPV ${Math.round(stats.maxHp)}\n\nCombat à construire :\nvoir docs/TACHES.md`, {
-        fontSize: '32px',
-        color: COLORS.text,
-        align: 'center',
+      .text(24, HUD_HEIGHT / 2, '← Menu', {
+        fontSize: '28px',
+        color: COLORS.textMuted,
+        padding: { x: 16, y: 30 },
       })
-      .setOrigin(0.5);
-
-    this.add
-      .text(GAME_WIDTH / 2, 120, '← Menu', { fontSize: '28px', color: COLORS.textMuted })
-      .setOrigin(0.5)
+      .setOrigin(0, 0.5)
       .setInteractive({ useHandCursor: true })
       .on('pointerup', () => this.scene.start(SCENES.menu));
+  }
+
+  update(): void {
+    this.player.updateMovement();
+  }
+
+  /** Murs (rectangle plein) puis sol par-dessus : il reste une bordure de WALL_THICKNESS. */
+  private buildArena(): void {
+    const top = HUD_HEIGHT;
+    this.add
+      .rectangle(0, top, GAME_WIDTH, GAME_HEIGHT - top, COLORS.wall)
+      .setOrigin(0, 0);
+    this.add
+      .rectangle(WALL_THICKNESS, top + WALL_THICKNESS, ARENA.width, ARENA.height, COLORS.floor)
+      .setOrigin(0, 0);
   }
 }

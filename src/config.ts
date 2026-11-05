@@ -5,6 +5,16 @@ import type { Rarity } from './types';
 export const GAME_WIDTH = 720;
 export const GAME_HEIGHT = 1280;
 
+/** Mise en page de l'écran de combat : bandeau HUD en haut, arène entourée de murs. */
+export const HUD_HEIGHT = 120;
+export const WALL_THICKNESS = 20;
+export const ARENA = {
+  x: WALL_THICKNESS,
+  y: HUD_HEIGHT + WALL_THICKNESS,
+  width: GAME_WIDTH - WALL_THICKNESS * 2,
+  height: GAME_HEIGHT - HUD_HEIGHT - WALL_THICKNESS * 2,
+};
+
 export const COLORS = {
   background: 0x14111a,
   floor: 0x1f1a26,
