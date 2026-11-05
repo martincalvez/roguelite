@@ -67,9 +67,7 @@ src/
 - Si une tâche contredit ce fichier ou semble mal conçue, **dis-le avant de coder** au lieu d'improviser.
 - Ne coche une tâche dans `docs/TACHES.md` que lorsque Martin a confirmé qu'elle marche.
 
-## Références externes (pour s'inspirer, pas pour copier)
-
-Ces dépôts n'ont pas de licence libre déclarée : on lit le code pour comprendre une approche, on ne le copie pas. Ne jamais utiliser d'assets, de textes ou de données extraits d'Archero ou d'un autre jeu commercial.
+## Références externes
 
 - https://github.com/rgascons/galore : survivor-like roguelite en Phaser + TypeScript + Vite (même stack que nous) : vagues, montée de niveau, boutique persistante. Assets Kenney (CC).
 - https://github.com/manucaralmo/ironharch : clone d'Archero en JavaScript + canvas, sans moteur : boucle tir à l'arrêt, vagues, boss. Démo : https://manucaralmo.github.io/ironharch/ (clavier seulement).
