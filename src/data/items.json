@@ -4,9 +4,22 @@
     "name": "Arc du chasseur",
     "slot": "weapon",
     "description": "Équilibré. Une flèche rapide.",
-    "modifiers": [{ "stat": "attack", "type": "flat", "value": 10 }],
-    "rarityPassives": { "epic": "fleche_bonus" },
-    "weapon": { "projectile": "arrow" }
+    "modifiers": [
+      {
+        "stat": "attack",
+        "type": "flat",
+        "value": 10
+      }
+    ],
+    "rarityPassives": {
+      "rare": "arc_affute",
+      "epic": "fleche_bonus",
+      "legendary": "arc_arriere",
+      "mythic": "arc_ricochet"
+    },
+    "weapon": {
+      "projectile": "arrow"
+    }
   },
   {
     "id": "baton_runique",
@@ -14,10 +27,27 @@
     "slot": "weapon",
     "description": "Tir lent mais perçant.",
     "modifiers": [
-      { "stat": "attack", "type": "flat", "value": 16 },
-      { "stat": "attackSpeed", "type": "percent", "value": -0.25 }
+      {
+        "stat": "attack",
+        "type": "flat",
+        "value": 16
+      },
+      {
+        "stat": "attackSpeed",
+        "type": "percent",
+        "value": -0.25
+      }
     ],
-    "weapon": { "projectile": "bolt", "pierce": 1 }
+    "weapon": {
+      "projectile": "bolt",
+      "pierce": 1
+    },
+    "rarityPassives": {
+      "rare": "baton_perce",
+      "epic": "baton_force",
+      "legendary": "baton_braise",
+      "mythic": "baton_perce2"
+    }
   },
   {
     "id": "lames_ombre",
@@ -25,37 +55,101 @@
     "slot": "weapon",
     "description": "Très rapides, peu de dégâts.",
     "modifiers": [
-      { "stat": "attack", "type": "flat", "value": 6 },
-      { "stat": "attackSpeed", "type": "percent", "value": 0.4 }
+      {
+        "stat": "attack",
+        "type": "flat",
+        "value": 6
+      },
+      {
+        "stat": "attackSpeed",
+        "type": "percent",
+        "value": 0.4
+      }
     ],
-    "weapon": { "projectile": "shuriken" }
+    "weapon": {
+      "projectile": "shuriken"
+    },
+    "rarityPassives": {
+      "rare": "lames_precision",
+      "epic": "lames_diagonale",
+      "legendary": "lames_frenesie",
+      "mythic": "lames_ricochet"
+    }
   },
   {
     "id": "cotte_mailles",
     "name": "Cotte de mailles",
     "slot": "armor",
     "description": "Robuste.",
-    "modifiers": [{ "stat": "maxHp", "type": "flat", "value": 60 }]
+    "modifiers": [
+      {
+        "stat": "maxHp",
+        "type": "flat",
+        "value": 60
+      }
+    ],
+    "rarityPassives": {
+      "rare": "mailles_robustes",
+      "epic": "mailles_esquive",
+      "legendary": "mailles_titan",
+      "mythic": "mailles_orbe"
+    }
   },
   {
     "id": "anneau_loup",
     "name": "Anneau du loup",
     "slot": "ring",
     "description": "Coups critiques plus fréquents.",
-    "modifiers": [{ "stat": "critChance", "type": "flat", "value": 0.05 }]
+    "modifiers": [
+      {
+        "stat": "critChance",
+        "type": "flat",
+        "value": 0.05
+      }
+    ],
+    "rarityPassives": {
+      "rare": "loup_ferocite",
+      "epic": "loup_instinct",
+      "legendary": "loup_morsure",
+      "mythic": "loup_alpha"
+    }
   },
   {
     "id": "anneau_vent",
     "name": "Anneau du vent",
     "slot": "ring",
     "description": "Plus agile.",
-    "modifiers": [{ "stat": "dodge", "type": "flat", "value": 0.04 }]
+    "modifiers": [
+      {
+        "stat": "dodge",
+        "type": "flat",
+        "value": 0.04
+      }
+    ],
+    "rarityPassives": {
+      "rare": "vent_pas",
+      "epic": "vent_agile",
+      "legendary": "vent_givre",
+      "mythic": "vent_tempete"
+    }
   },
   {
     "id": "amulette_braise",
     "name": "Amulette de braise",
     "slot": "amulet",
     "description": "Puissance accrue.",
-    "modifiers": [{ "stat": "attack", "type": "percent", "value": 0.08 }]
+    "modifiers": [
+      {
+        "stat": "attack",
+        "type": "percent",
+        "value": 0.08
+      }
+    ],
+    "rarityPassives": {
+      "rare": "braise_vive",
+      "epic": "braise_flamme",
+      "legendary": "braise_brasier",
+      "mythic": "braise_double"
+    }
   }
 ]

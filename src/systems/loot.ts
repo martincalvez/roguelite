@@ -15,7 +15,7 @@ function weightedIndex(weights: number[], rng: () => number): number {
 }
 
 let uidCounter = 0;
-function defaultUid(): string {
+export function newUid(): string {
   uidCounter++;
   return `${Date.now().toString(36)}-${uidCounter}-${Math.floor(Math.random() * 1e6).toString(36)}`;
 }
@@ -26,7 +26,7 @@ export function rollLoot(
   items: ItemDef[],
   victory: boolean,
   rng: () => number = Math.random,
-  makeUid: () => string = defaultUid,
+  makeUid: () => string = newUid,
 ): ItemInstance[] {
   let count = weightedIndex(config.itemCountWeights, rng);
   if (victory) count = Math.max(count, config.victoryMinItems);

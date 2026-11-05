@@ -97,3 +97,13 @@ export function computeShotEffects(stacks: Record<string, number>, passiveIds: s
   for (const id of passiveIds) apply(getPassive(id).effect, 1);
   return out;
 }
+
+/** Modificateurs de stats donnés par les passifs de type 'stat' (héros, raretés des objets équipés). */
+export function passiveStatModifiers(passiveIds: string[]): StatModifier[] {
+  const mods: StatModifier[] = [];
+  for (const id of passiveIds) {
+    const effect = getPassive(id).effect;
+    if (effect.kind === 'stat') mods.push(...effect.modifiers);
+  }
+  return mods;
+}

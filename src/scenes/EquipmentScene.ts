@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_HEIGHT, GAME_WIDTH, RARITY_COLOR, RARITY_LABEL, RARITY_ORDER, SCENES, SCROLL_TYPES, SLOT_TYPE_LABEL } from '../config';
+import { FUSION_COUNT, COLORS, GAME_HEIGHT, GAME_WIDTH, RARITY_COLOR, RARITY_LABEL, RARITY_ORDER, SCENES, SCROLL_TYPES, SLOT_TYPE_LABEL } from '../config';
 import { getItem, getPassive } from '../data';
 import { GameState } from '../state/GameState';
 import { describeModifier, EQUIP_SLOTS, formatStat, STAT_LABEL, statDiff, targetSlot } from '../systems/equipment';
 import { itemModifiers } from '../systems/stats';
+import { nextRarity, pickFusionInputs } from '../systems/fusion';
 import { canUpgrade, maxLevel, upgradeCost } from '../systems/upgrade';
 import type { EquipSlot, ItemInstance } from '../types';
 
@@ -183,7 +184,7 @@ export class EquipmentScene extends Phaser.Scene {
   }
 
   /** Panneau de détail : stats, passif, différence si équipé (ou retiré), boutons. */
-  private openDetail(item: ItemInstance): void {
+  private openDetail(item: ItemInstance, banner?: string): void {
     if (this.detail.length > 0) return;
     const def = getItem(item.defId);
     const d = GameState.data;
@@ -208,6 +209,7 @@ export class EquipmentScene extends Phaser.Scene {
       y += t.height + 12;
     };
 
+    if (banner) line(banner, COLORS.gold, 30, true);
     line(def.name, RARITY_COLOR[item.rarity], 42, true);
     line(`${RARITY_LABEL[item.rarity]} · ${SLOT_TYPE_LABEL[def.slot]} · Niveau ${item.level}`, COLORS.textMuted, 24);
     line(def.description, COLORS.text, 26);
@@ -225,7 +227,7 @@ export class EquipmentScene extends Phaser.Scene {
       if (!passiveId) continue;
       const unlocked = RARITY_ORDER.indexOf(item.rarity) >= RARITY_ORDER.indexOf(rarity as ItemInstance['rarity']);
       const p = getPassive(passiveId);
-      line(`${unlocked ? 'Passif' : 'Passif à la rareté ' + RARITY_LABEL[rarity as ItemInstance['rarity']]} : ${p.name}\n${p.description}`, unlocked ? GREEN : COLORS.textMuted, 22);
+      line(`${RARITY_LABEL[rarity as ItemInstance['rarity']]} : ${p.name} — ${p.description}`, unlocked ? GREEN : COLORS.textMuted, 20);
     }
 
     // Différence de stats : équiper (ou retirer si déjà équipé).
@@ -249,6 +251,28 @@ export class EquipmentScene extends Phaser.Scene {
     if (changes.length === 0) line('Aucun changement', COLORS.textMuted, 24);
     for (const c of changes) {
       line(`${STAT_LABEL[c.stat]} : ${formatStat(c.stat, c.before)} → ${formatStat(c.stat, c.after)}`, c.after > c.before ? GREEN : RED, 26, true);
+    }
+
+    // Fusion : FUSION_COUNT exemplaires identiques (même objet, même rareté) → rareté supérieure.
+    const upper = nextRarity(item.rarity);
+    const copies = d.inventory.filter((i) => i.defId === item.defId && i.rarity === item.rarity).length;
+    const fusionInputs = pickFusionInputs(d.inventory, item.defId, item.rarity, new Set(Object.values(d.equipped)));
+    if (fusionInputs) {
+      add(
+        this.add
+          .text(cx, 845, ` Fusionner (${FUSION_COUNT}) → ${RARITY_LABEL[upper as ItemInstance['rarity']]} `, {
+            fontSize: '28px',
+            color: '#14111a',
+            backgroundColor: '#e08bff',
+            padding: { x: 20, y: 28 },
+          })
+          .setOrigin(0.5)
+          .setDepth(102)
+          .setInteractive({ useHandCursor: true })
+          .on('pointerup', () => this.openFuseConfirm(item, fusionInputs)),
+      );
+    } else if (upper) {
+      add(this.add.text(cx, 845, `Fusion : ${copies}/${FUSION_COUNT} exemplaires identiques`, { fontSize: '22px', color: COLORS.textMuted }).setOrigin(0.5).setDepth(102));
     }
 
     // Amélioration : or + parchemins du type de l'objet.
@@ -297,6 +321,60 @@ export class EquipmentScene extends Phaser.Scene {
       this.build();
     });
     button(cx + 170, ' Fermer ', '#d6f0dc', () => this.closeDetail());
+  }
+
+  private track<T extends Phaser.GameObjects.GameObject>(obj: T): T {
+    this.detail.push(obj);
+    return obj;
+  }
+
+  /** Confirmation de fusion : montre ce qui est consommé, ce qui est perdu et le passif débloqué. */
+  private openFuseConfirm(item: ItemInstance, inputs: ItemInstance[]): void {
+    this.closeDetail();
+    const def = getItem(item.defId);
+    const upper = nextRarity(item.rarity) as ItemInstance['rarity'];
+    const lostLevels = inputs.reduce((sum, i) => sum + (i.level - 1), 0);
+    const unlockedId = def.rarityPassives?.[upper];
+    const cx = GAME_WIDTH / 2;
+
+    this.track(this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.8).setDepth(100).setInteractive());
+    this.track(this.add.rectangle(cx, 640, 620, 640, COLORS.background).setStrokeStyle(8, rarityColor(upper)).setDepth(101));
+
+    let y = 400;
+    const line = (text: string, color: string, size: number, bold = false): void => {
+      const t = this.track(
+        this.add
+          .text(cx, y, text, { fontSize: `${size}px`, color, fontStyle: bold ? 'bold' : 'normal', align: 'center', wordWrap: { width: 540 }, ...(bold ? STROKE : {}) })
+          .setOrigin(0.5, 0)
+          .setDepth(102),
+      );
+      y += t.height + 16;
+    };
+    line('Fusionner ?', COLORS.gold, 40, true);
+    line(`${FUSION_COUNT} × ${def.name} (${RARITY_LABEL[item.rarity]})\n→ 1 × ${def.name} (${RARITY_LABEL[upper]}), niveau 1`, COLORS.text, 26);
+    if (lostLevels > 0) line(`Niveaux d'amélioration perdus : ${lostLevels}`, RED, 24, true);
+    if (unlockedId) line(`Débloque : ${getPassive(unlockedId).name} — ${getPassive(unlockedId).description}`, GREEN, 22);
+
+    const buttonY = 860;
+    const button = (x: number, label: string, bg: string, onClick: () => void): void => {
+      this.track(
+        this.add
+          .text(x, buttonY, label, { fontSize: '34px', color: '#14111a', backgroundColor: bg, padding: { x: 22, y: 24 } })
+          .setOrigin(0.5)
+          .setDepth(102)
+          .setInteractive({ useHandCursor: true })
+          .on('pointerup', onClick),
+      );
+    };
+    button(cx - 140, ' Confirmer ', '#e08bff', () => {
+      const result = GameState.fuseItems(item.defId, item.rarity);
+      this.build();
+      if (result) this.openDetail(result, 'Fusion réussie !');
+    });
+    button(cx + 170, ' Annuler ', '#d6f0dc', () => {
+      this.closeDetail();
+      this.openDetail(item);
+    });
   }
 
   private closeDetail(): void {

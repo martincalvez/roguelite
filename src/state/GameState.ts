@@ -1,9 +1,12 @@
 // État permanent du joueur (entre les runs). Seul ce module modifie la sauvegarde.
-import type { EquipSlot, ItemDef, ItemInstance, RunRewards, SaveData, StatModifier, Stats } from '../types';
+import type { EquipSlot, ItemDef, ItemInstance, Rarity, RunRewards, SaveData, StatModifier, Stats } from '../types';
 import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
 import { getHero, getItem } from '../data';
 import { slotAccepts } from '../systems/equipment';
+import { fusionResult, pickFusionInputs } from '../systems/fusion';
+import { newUid } from '../systems/loot';
+import { passiveStatModifiers } from '../systems/skills';
 import { canUpgrade, upgradeCost } from '../systems/upgrade';
 import { accountXpToNext } from '../systems/progression';
 import { computeStats, itemModifiers, talentModifiers } from '../systems/stats';
@@ -74,20 +77,49 @@ class GameStateImpl {
     return { levelBefore, levelAfter: d.accountLevel };
   }
 
-  /** Passifs actifs au début d'un run : celui du héros, et ceux des objets équipés dont la rareté est atteinte. */
+  /** Passifs actifs au début d'un run : ceux du héros et des objets équipés (selon leur rareté). */
   startingPassives(): string[] {
+    return this.passiveIdsFor(this.data.equipped);
+  }
+
+  /** Passifs du héros, et ceux des objets d'un équipement (hypothétique ou réel) dont la rareté est atteinte. */
+  private passiveIdsFor(equipped: Partial<Record<EquipSlot, string>>): string[] {
     const ids: string[] = [];
     const hero = getHero(this.data.selectedHero);
     if (hero.passive) ids.push(hero.passive);
-    const equippedUids = new Set(Object.values(this.data.equipped));
+    const equippedUids = new Set(Object.values(equipped));
     for (const item of this.data.inventory) {
       if (!equippedUids.has(item.uid)) continue;
       const owned = RARITY_ORDER.indexOf(item.rarity);
       for (const [rarity, passiveId] of Object.entries(getItem(item.defId).rarityPassives ?? {})) {
-        if (passiveId && RARITY_ORDER.indexOf(rarity as (typeof RARITY_ORDER)[number]) <= owned) ids.push(passiveId);
+        if (passiveId && RARITY_ORDER.indexOf(rarity as Rarity) <= owned) ids.push(passiveId);
       }
     }
     return ids;
+  }
+
+  /**
+   * Fusionne FUSION_COUNT objets identiques (même objet, même rareté) en un objet de rareté supérieure, niveau 1.
+   * Si un objet consommé était équipé, le nouvel objet prend sa place. Renvoie le nouvel objet, ou null si impossible.
+   */
+  fuseItems(defId: string, rarity: Rarity): ItemInstance | null {
+    const d = this.data;
+    const inputs = pickFusionInputs(d.inventory, defId, rarity, new Set(Object.values(d.equipped)));
+    if (!inputs) return null;
+    const consumed = new Set(inputs.map((i) => i.uid));
+    let inheritedSlot: EquipSlot | undefined;
+    for (const slot of Object.keys(d.equipped) as EquipSlot[]) {
+      if (consumed.has(d.equipped[slot] as string)) {
+        inheritedSlot ??= slot;
+        delete d.equipped[slot];
+      }
+    }
+    d.inventory = d.inventory.filter((i) => !consumed.has(i.uid));
+    const result = fusionResult(inputs, newUid);
+    d.inventory.push(result);
+    if (inheritedSlot) d.equipped[inheritedSlot] = result.uid;
+    this.persist();
+    return result;
   }
 
   /**
@@ -103,7 +135,12 @@ class GameStateImpl {
     const hero = getHero(this.data.selectedHero);
     const equippedUids = new Set(Object.values(equipped));
     const items = this.data.inventory.filter((i) => equippedUids.has(i.uid));
-    const mods = [...items.flatMap(itemModifiers), ...talentModifiers(this.data.talents), ...extra];
+    const mods = [
+      ...items.flatMap(itemModifiers),
+      ...talentModifiers(this.data.talents),
+      ...passiveStatModifiers(this.passiveIdsFor(equipped)),
+      ...extra,
+    ];
     return computeStats(hero.base, mods);
   }
 }
