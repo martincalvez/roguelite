@@ -182,11 +182,58 @@ Validation : Martin joue 5 runs et dit si c'est trop dur, trop facile ou trop lo
 
 ---
 
-## Phase 4 — Compte et synchro (à détailler par Opus : sécurité)
+## Phase 4 — Compte et synchro (porte : la progression suit le joueur du PC au téléphone, sans fuite)
 
-- [ ] 4.1 Projet Supabase, table de sauvegarde avec règles d'accès (RLS)
-- [ ] 4.2 Connexion par lien magique email
-- [ ] 4.3 SaveManager : envoi/récupération cloud, la sauvegarde la plus récente gagne (updatedAt)
+Détaillée par Sonnet ; **Opus recommandé** pour la revue de sécurité (4.4), car c'est la seule phase qui touche à de vraies données de comptes. Le dépôt GitHub est **public** : lire d'abord la section « Sécurité » de CLAUDE.md.
+
+### Décisions de conception (valeurs par défaut, à confirmer)
+
+- **Le jeu reste jouable sans compte.** Le cloud est optionnel : `localStorage` reste la source locale, la synchro s'y ajoute.
+- **Qui crée quoi :** Martin crée lui-même le compte et le projet Supabase (gratuit, région Europe) et fait les réglages du tableau de bord ; Claude écrit le code et le SQL, et ne voit jamais de mot de passe ni de clé secrète.
+- **Aucune clé dans le dépôt :** l'URL et la clé `anon` du projet passent par des variables d'environnement (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) : fichier `.env.local` en local (ignoré par git), « Variables » du dépôt GitHub pour le déploiement. La clé `anon` finit de toute façon visible dans le jeu publié : elle est publique par conception, et c'est la **RLS** qui protège les données. La clé `service_role` n'est jamais utilisée.
+- **Dépendance :** `@supabase/supabase-js` (la bibliothèque officielle, la plus sûre pour l'authentification). À valider avant installation (règle « pas de dépendance sans demande »).
+- **Connexion par code à 6 chiffres reçu par e-mail** plutôt que par lien : un lien s'ouvre souvent dans un autre navigateur que celui du jeu (surtout une application installée sur l'écran d'accueil), et la connexion échoue. Le code se tape dans le jeu, sans redirection. Même principe que le lien magique (aucun mot de passe).
+- **Conflits :** si PC et téléphone ont tous deux progressé hors ligne, le jeu **demande** quelle sauvegarde garder (jamais d'écrasement silencieux). La règle « la plus récente gagne » s'applique seulement quand un côté est vide ou strictement plus ancien.
+- **Données personnelles :** seule l'adresse e-mail est stockée (chez Supabase, pour l'authentification). La sauvegarde ne contient aucune donnée personnelle. Un bouton « Supprimer ma sauvegarde cloud » est prévu.
+
+### [ ] 4.0 Réglages à faire par Martin sur Supabase (guidé pas à pas)
+
+```
+Tâche 4.0 (Martin, avec l'aide de Claude pour chaque écran). 1) Créer un compte sur supabase.com avec ton e-mail habituel, un mot de passe unique (gestionnaire de mots de passe) et active la double authentification. 2) Créer un projet « roguelite », région Europe (Frankfurt ou Paris), noter le mot de passe de la base dans ton gestionnaire (jamais dans le dépôt). 3) Authentication → URL Configuration : Site URL = https://martincalvez.github.io/roguelite/ et ajouter http://localhost:5173 dans les Redirect URLs. 4) Authentication → Providers : ne garder que « Email » ; désactiver « Confirm email » seulement si tu veux tester sans e-mail (sinon laisser). 5) Authentication → Email Templates : ajouter le code {{ .Token }} dans le modèle « Magic Link » pour recevoir le code à 6 chiffres. 6) Settings → API : noter l'URL du projet et la clé « anon public » (PAS la clé « service_role ») ; les mettre dans .env.local (jamais dans un message ni un fichier commité). 7) Dans les Variables du dépôt GitHub (Settings → Secrets and variables → Actions → Variables), créer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY avec les mêmes valeurs.
+```
+Validation : le projet existe, l'URL et la clé anon sont dans `.env.local` et dans les Variables GitHub ; aucune clé n'est apparue dans le chat ni dans git.
+
+### [ ] 4.1 Table de sauvegarde et règles d'accès (RLS)
+
+```
+Tâche 4.1. Le fichier docs/supabase/001_saves.sql crée la table public.saves (une ligne par joueur : data jsonb, save_version, client_updated_at, updated_at serveur, limite de 200 Ko) avec la sécurité au niveau des lignes (RLS) activée : chaque joueur connecté ne lit, n'écrit et ne supprime que SA ligne, et le rôle anon n'a aucun accès. Martin colle ce fichier dans Supabase → SQL Editor, puis lance les 3 vérifications SQL écrites en commentaire en bas du fichier et dit ce qu'il obtient. Claude ne code rien tant que la RLS n'est pas vérifiée.
+```
+Validation : `rowsecurity = true`, 4 politiques « authenticated », et « permission denied » pour le rôle anon.
+
+### [ ] 4.2 Connexion par code e-mail
+
+```
+Tâche 4.2. Après accord sur la dépendance : npm install @supabase/supabase-js. Crée src/cloud/client.ts : client Supabase créé à partir de import.meta.env.VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY ; si elles sont absentes, le cloud est simplement désactivé (le jeu fonctionne comme avant, bouton COMPTE masqué ou grisé). Active le champ DOM de Phaser (dom: { createContainer: true } dans main.ts) pour pouvoir saisir une adresse e-mail et un code au clavier du téléphone. Crée src/scenes/AccountScene.ts, accessible par un bouton « COMPTE » du menu : (1) non connecté : champ e-mail + bouton « Recevoir un code » (signInWithOtp, shouldCreateUser: true), puis champ du code à 6 chiffres + bouton « Valider » (verifyOtp) ; (2) connecté : adresse affichée, bouton « Se déconnecter » ; messages d'erreur clairs (e-mail invalide, code faux ou expiré, trop de demandes, hors ligne). Ne jamais afficher ni journaliser le jeton de session. Ajoute .env.local, .env.* au .gitignore (déjà fait) et la variable dans le workflow GitHub (env: du step « npm run build » : ${{ vars.VITE_SUPABASE_URL }} et ${{ vars.VITE_SUPABASE_ANON_KEY }}). Documente dans docs/DEPLOIEMENT.md.
+```
+Validation : on se connecte avec un code reçu par e-mail, sur PC et sur téléphone (jeu installé), et on reste connecté après rechargement ; sans variables d'environnement, le jeu marche sans cloud.
+
+### [ ] 4.3 Synchronisation de la sauvegarde
+
+```
+Tâche 4.3. Logique pure dans src/systems/cloudSync.ts, avec tests Vitest : decideSync(local, remote) renvoie 'noop' (identiques), 'upload' (pas de cloud, ou local strictement plus récent et cloud sans progression propre), 'download' (local vide/neuf et cloud existant, ou cloud strictement plus récent), ou 'conflict' (les deux ont progressé). « Plus récent » se mesure avec client_updated_at ; « a progressé » = différent de defaultSave(). Crée src/cloud/cloudSave.ts : fetchRemote(), pushLocal() (upsert sur user_id, avec save_version), et la migration de la sauvegarde téléchargée par migrate() de SaveManager avant de l'accepter (une sauvegarde cloud d'une version plus récente que le jeu est refusée avec un message). Déclencheurs : à la connexion, à la fin d'un run (après applyRunRewards), et au retour dans le jeu (visibilitychange), avec un délai minimal entre deux envois. En cas de conflit, écran « Quelle sauvegarde garder ? » comparant les deux (niveau de compte, or, gemmes, nombre d'objets, date) avec deux gros boutons. Toute erreur réseau est silencieuse pour le joueur (une petite icône d'état suffit) et ne bloque jamais le jeu. Ajoute « Supprimer ma sauvegarde cloud » (delete sur sa ligne, avec confirmation).
+```
+Validation : une progression faite sur PC apparaît sur le téléphone après connexion, et inversement ; un conflit provoque le choix ; hors ligne, le jeu fonctionne et se synchronise au retour du réseau.
+
+### [ ] 4.4 Revue de sécurité (Opus recommandé)
+
+```
+Tâche 4.4. Revue de sécurité de la phase 4, par ordre de gravité : (1) RLS : test avec deux comptes (le joueur B ne voit ni ne modifie la ligne du joueur A), test du rôle anon, test d'une sauvegarde de plus de 200 Ko ; (2) recherche de secrets dans tout l'historique git (clé service_role, mots de passe, jetons, .env) ; (3) Content-Security-Policy dans index.html (meta) limitant les connexions au seul domaine Supabase du projet et aux ressources du site ; (4) aucune journalisation de jetons ou d'e-mails ; (5) limitation des envois de codes (réglages Supabase) et rappel que le service d'e-mail intégré gratuit est très limité ; (6) comportement si le code est faux 5 fois ; (7) suppression de sauvegarde ; (8) points RGPD : e-mail seule donnée personnelle, où elle est stockée, comment la supprimer.
+```
+Validation : liste de problèmes par gravité, tous corrigés ou acceptés explicitement par Martin.
+
+**Porte de phase 4 → revue Opus.**
+
+---
 
 ## Phase 5 — Contenu
 
