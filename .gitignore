@@ -5,6 +5,7 @@ dist
 # Secrets et fichiers locaux : ne jamais les commiter (le dépôt est public)
 .env
 .env.*
+!.env.example
 *.pem
 *.key
 *.p12
