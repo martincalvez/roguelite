@@ -5,6 +5,7 @@ import { GameState } from '../state/GameState';
 import { describeModifier } from '../systems/equipment';
 import { accountXpToNext } from '../systems/progression';
 import { talentState } from '../systems/talents';
+import { clearScene } from '../ui/clearScene';
 
 const STROKE = { stroke: '#1a1020', strokeThickness: 5 };
 const GREEN = '#5cff7a';
@@ -24,7 +25,7 @@ export class TalentScene extends Phaser.Scene {
 
   /** (Re)construit l'écran : appelé au début et après chaque achat. */
   private build(message?: string): void {
-    this.children.removeAll(true);
+    clearScene(this);
     const d = GameState.data;
     const cx = GAME_WIDTH / 2;
 

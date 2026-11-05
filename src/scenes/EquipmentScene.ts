@@ -7,6 +7,7 @@ import { itemModifiers } from '../systems/stats';
 import { nextRarity, pickFusionInputs } from '../systems/fusion';
 import { canUpgrade, maxLevel, upgradeCost } from '../systems/upgrade';
 import type { EquipSlot, ItemInstance } from '../types';
+import { clearScene } from '../ui/clearScene';
 
 const SLOT_LABEL: Record<EquipSlot, string> = {
   weapon: 'Arme',
@@ -40,6 +41,7 @@ export class EquipmentScene extends Phaser.Scene {
   private scrollY = 0;
   private maxScroll = 0;
   private content!: Phaser.GameObjects.Container;
+  private maskShape?: Phaser.GameObjects.Graphics;
   private detail: Phaser.GameObjects.GameObject[] = [];
   private dragging = false;
   private dragStartY = 0;
@@ -84,7 +86,8 @@ export class EquipmentScene extends Phaser.Scene {
   /** (Re)construit tout l'écran : appelé au début et après chaque changement d'équipement. */
   private build(): void {
     const keepScroll = this.scrollY;
-    this.children.removeAll(true);
+    this.maskShape?.destroy(); // le masque n'est pas dans la liste d'affichage : on le détruit à part
+    clearScene(this);
     this.detail = [];
     const d = GameState.data;
     const cx = GAME_WIDTH / 2;
@@ -179,8 +182,8 @@ export class EquipmentScene extends Phaser.Scene {
     const rows = Math.ceil(items.length / COLS);
     const contentHeight = rows * (CARD_H + CARD_GAP);
     this.maxScroll = Math.max(0, contentHeight - (VIEW_BOTTOM - VIEW_TOP));
-    const mask = this.make.graphics({}, false).fillRect(0, VIEW_TOP, GAME_WIDTH, VIEW_BOTTOM - VIEW_TOP);
-    this.content.setMask(mask.createGeometryMask());
+    this.maskShape = this.make.graphics({}, false).fillRect(0, VIEW_TOP, GAME_WIDTH, VIEW_BOTTOM - VIEW_TOP);
+    this.content.setMask(this.maskShape.createGeometryMask());
   }
 
   /** Panneau de détail : stats, passif, différence si équipé (ou retiré), boutons. */

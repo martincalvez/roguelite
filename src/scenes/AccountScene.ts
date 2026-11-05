@@ -3,6 +3,7 @@ import { COLORS, GAME_HEIGHT, GAME_WIDTH, SCENES } from '../config';
 import { currentUserEmail, confirmCode, requestCode, signOut } from '../cloud/auth';
 import { cloudEnabled } from '../cloud/client';
 import { isValidCode, isValidEmail } from '../cloud/validation';
+import { clearScene } from '../ui/clearScene';
 
 type View = 'loading' | 'disabled' | 'email' | 'code' | 'signedIn';
 
@@ -45,7 +46,7 @@ export class AccountScene extends Phaser.Scene {
   }
 
   private render(): void {
-    this.children.removeAll(true);
+    clearScene(this);
     const cx = GAME_WIDTH / 2;
     this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.background);
     this.add.text(cx, 60, 'COMPTE', { fontSize: '44px', color: COLORS.gold, fontStyle: 'bold', ...STROKE, strokeThickness: 8 }).setOrigin(0.5);
