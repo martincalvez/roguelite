@@ -146,3 +146,8 @@ export interface SaveData {
   bestWave: number;
   settings: Settings;
 }
+
+/** Réglages de combat communs (modifiables sans toucher au code). */
+export interface CombatConfig {
+  invulnerabilityMs: number; // durée d'invulnérabilité du joueur après un coup ou une esquive
+}

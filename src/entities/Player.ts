@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
+import { COMBAT } from '../data';
 import { GameState } from '../state/GameState';
+import { rollDodge } from '../systems/combat';
 import type { Stats } from '../types';
 import type { VirtualJoystick } from '../ui/VirtualJoystick';
 
@@ -15,6 +17,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   readonly stats: Stats = GameState.heroStats();
   private moveSpeed: number;
   private joystick?: VirtualJoystick;
+  hp: number;
+  readonly maxHp: number;
+  private invulnerableUntil = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'player');
@@ -22,6 +27,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.moveSpeed = this.stats.moveSpeed;
+    this.maxHp = this.stats.maxHp;
+    this.hp = this.maxHp;
     this.setCollideWorldBounds(true);
     this.setCircle(this.width / 2);
 
@@ -58,8 +65,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setRotation(Phaser.Math.Angle.Between(this.x, this.y, x, y));
   }
 
+  /**
+   * Subit un coup, sauf pendant l'invulnérabilité. Une esquive donne la même invulnérabilité
+   * (sinon un contact prolongé relancerait l'esquive à chaque frame).
+   * Événements : 'player-dodged' (x, y), 'player-hp-changed' (hp, maxHp), 'player-died'.
+   */
+  takeDamage(amount: number, time: number): void {
+    if (this.hp <= 0 || time < this.invulnerableUntil) return;
+    this.invulnerableUntil = time + COMBAT.invulnerabilityMs;
+    if (rollDodge(this.stats.dodge)) {
+      this.scene.events.emit('player-dodged', this.x, this.y);
+      return;
+    }
+    this.hp = Math.max(0, this.hp - amount);
+    this.scene.events.emit('player-hp-changed', this.hp, this.maxHp);
+    if (this.hp === 0) this.scene.events.emit('player-died');
+  }
+
   /** À appeler à chaque frame depuis la scène. */
-  updateMovement(): void {
+  updateMovement(time: number): void {
+    // Clignotement pendant l'invulnérabilité.
+    this.setAlpha(time < this.invulnerableUntil && Math.floor(time / 80) % 2 === 0 ? 0.3 : 1);
     const v = this.getMoveVector();
     this.setVelocity(v.x * this.moveSpeed, v.y * this.moveSpeed);
   }

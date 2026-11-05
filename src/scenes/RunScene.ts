@@ -7,6 +7,7 @@ import { Player } from '../entities/Player';
 import { Projectile } from '../entities/Projectile';
 import { GameState } from '../state/GameState';
 import { damageAmount, rollCrit } from '../systems/combat';
+import { Hud } from '../ui/Hud';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
 
 interface RunData {
@@ -23,7 +24,10 @@ export class RunScene extends Phaser.Scene {
   private enemies!: Phaser.Physics.Arcade.Group;
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   private playerProjectiles!: Phaser.Physics.Arcade.Group;
+  private joystick!: VirtualJoystick;
   private nextShotAt = 0;
+  private enemiesAlive = 0;
+  private ended = false;
 
   constructor() {
     super(SCENES.run);
@@ -31,19 +35,36 @@ export class RunScene extends Phaser.Scene {
 
   init(data: RunData): void {
     this.chapterId = data?.chapterId ?? 'ch1';
+    // La scène est réutilisée à chaque partie : on remet l'état à zéro.
+    this.ended = false;
+    this.enemiesAlive = 0;
+    this.nextShotAt = 0;
   }
 
   create(): void {
+    this.physics.resume();
     this.buildArena();
     this.physics.world.setBounds(ARENA.x, ARENA.y, ARENA.width, ARENA.height);
 
     this.player = new Player(this, GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
-    this.player.setJoystick(new VirtualJoystick(this));
+    this.joystick = new VirtualJoystick(this);
+    this.player.setJoystick(this.joystick);
+    new Hud(this, this.player.hp, this.player.maxHp);
 
     this.enemies = this.physics.add.group({ classType: Enemy, maxSize: POOLS.enemies });
     this.enemyProjectiles = this.physics.add.group({ classType: EnemyProjectile, maxSize: POOLS.enemyProjectiles });
     this.playerProjectiles = this.physics.add.group({ classType: Projectile, maxSize: POOLS.playerProjectiles });
     this.physics.add.collider(this.enemies, this.enemies);
+    // Dégâts au joueur : contact avec un ennemi, ou projectile ennemi.
+    this.physics.add.overlap(this.player, this.enemies, (_p, e) =>
+      this.player.takeDamage((e as Enemy).def.damage, this.time.now),
+    );
+    this.physics.add.overlap(this.player, this.enemyProjectiles, (_p, shot) => {
+      const projectile = shot as EnemyProjectile;
+      if (!projectile.active) return;
+      projectile.kill();
+      this.player.takeDamage(projectile.damage, this.time.now);
+    });
     this.physics.add.overlap(this.playerProjectiles, this.enemies, (a, b) => this.onProjectileHit(a as Projectile, b as Enemy));
 
     // Les projectiles ennemis disparaissent en touchant un mur.
@@ -51,7 +72,15 @@ export class RunScene extends Phaser.Scene {
       if (body.gameObject instanceof EnemyProjectile || body.gameObject instanceof Projectile) body.gameObject.kill();
     });
     this.events.on('enemy-shoot', this.onEnemyShoot, this);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off('enemy-shoot', this.onEnemyShoot, this));
+    this.events.on('enemy-died', this.onEnemyDied, this);
+    this.events.on('player-dodged', this.showDodge, this);
+    this.events.on('player-died', this.onPlayerDied, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.events.off('enemy-shoot', this.onEnemyShoot, this);
+      this.events.off('enemy-died', this.onEnemyDied, this);
+      this.events.off('player-dodged', this.showDodge, this);
+      this.events.off('player-died', this.onPlayerDied, this);
+    });
 
     this.spawnRoom(0);
 
@@ -68,7 +97,8 @@ export class RunScene extends Phaser.Scene {
   }
 
   update(time: number): void {
-    this.player.updateMovement();
+    if (this.ended) return;
+    this.player.updateMovement(time);
     const list = this.enemies.getChildren() as Enemy[];
     for (let i = 0; i < list.length; i++) {
       if (list[i].active) list[i].updateAI(time, this.player.x, this.player.y);
@@ -121,6 +151,48 @@ export class RunScene extends Phaser.Scene {
     enemy.takeDamage(projectile.damage);
   }
 
+  private onEnemyDied(): void {
+    this.enemiesAlive--;
+    if (this.enemiesAlive <= 0 && !this.ended) this.endRun('Salle terminée', '#8bd17c');
+  }
+
+  private onPlayerDied(): void {
+    if (!this.ended) this.endRun('Défaite', '#d94b4b');
+  }
+
+  /** Texte « Esquive » qui monte et s'efface au-dessus du héros. */
+  private showDodge(x: number, y: number): void {
+    const text = this.add
+      .text(x, y - 40, 'Esquive', { fontSize: '28px', color: '#ffffff', fontStyle: 'bold' })
+      .setOrigin(0.5)
+      .setDepth(500);
+    this.tweens.add({ targets: text, y: y - 100, alpha: 0, duration: 700, onComplete: () => text.destroy() });
+  }
+
+  /** Écran de fin (défaite ou salle terminée) : fige le jeu et propose de revenir au menu. */
+  private endRun(title: string, color: string): void {
+    this.ended = true;
+    this.physics.pause();
+    this.joystick.setEnabled(false);
+    this.player.setVelocity(0, 0);
+    this.player.setAlpha(1);
+
+    const cx = GAME_WIDTH / 2;
+    this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.65).setDepth(2000);
+    this.add.text(cx, GAME_HEIGHT / 2 - 100, title, { fontSize: '72px', color, fontStyle: 'bold' }).setOrigin(0.5).setDepth(2001);
+    this.add
+      .text(cx, GAME_HEIGHT / 2 + 80, '  MENU  ', {
+        fontSize: '48px',
+        color: '#14111a',
+        backgroundColor: COLORS.gold,
+        padding: { x: 24, y: 20 },
+      })
+      .setOrigin(0.5)
+      .setDepth(2001)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerup', () => this.scene.start(SCENES.menu));
+  }
+
   private onEnemyShoot(x: number, y: number, angle: number, speed: number, damage: number): void {
     const projectile = this.enemyProjectiles.get(x, y) as EnemyProjectile | null;
     projectile?.fire(x, y, angle, speed, damage);
@@ -136,6 +208,7 @@ export class RunScene extends Phaser.Scene {
         const x = Phaser.Math.Between(ARENA.x + margin, ARENA.x + ARENA.width - margin);
         const y = Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
         (this.enemies.get(x, y) as Enemy | null)?.spawn(def, x, y, this.time.now);
+        this.enemiesAlive++;
       }
     }
   }

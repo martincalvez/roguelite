@@ -8,6 +8,7 @@ import { ARENA, JOYSTICK } from '../config';
 export class VirtualJoystick {
   readonly vector = new Phaser.Math.Vector2();
   private pointerId = -1;
+  private enabled = true;
   private readonly origin = new Phaser.Math.Vector2();
   private readonly base: Phaser.GameObjects.Arc;
   private readonly knob: Phaser.GameObjects.Arc;
@@ -35,12 +36,23 @@ export class VirtualJoystick {
     });
   }
 
+  /** Désactivé (écran de fin) : plus aucune entrée et le joystick disparaît. */
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (!enabled) {
+      this.pointerId = -1;
+      this.vector.set(0, 0);
+      this.base.setVisible(false);
+      this.knob.setVisible(false);
+    }
+  }
+
   get active(): boolean {
     return this.pointerId !== -1;
   }
 
   private onDown(pointer: Phaser.Input.Pointer): void {
-    if (this.active) return;
+    if (!this.enabled || this.active) return;
     if (pointer.y < ARENA.y + ARENA.height / 2) return; // moitié basse seulement
     this.pointerId = pointer.id;
     this.origin.set(pointer.x, pointer.y);

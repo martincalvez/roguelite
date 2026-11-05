@@ -9,3 +9,8 @@ export function rollCrit(critChance: number, rng: () => number = Math.random): b
 export function damageAmount(attack: number, isCrit: boolean, critDamage: number): number {
   return Math.round(attack * (isCrit ? critDamage : 1));
 }
+
+/** Vrai si le joueur esquive le coup. */
+export function rollDodge(dodge: number, rng: () => number = Math.random): boolean {
+  return rng() < dodge;
+}

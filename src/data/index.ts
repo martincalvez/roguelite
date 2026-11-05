@@ -1,5 +1,5 @@
 // Point d'entrée unique des données : le code n'importe jamais un JSON directement.
-import type { ChapterDef, EnemyDef, HeroDef, ItemDef, PassiveDef, SkillDef, TalentDef } from '../types';
+import type { ChapterDef, CombatConfig, EnemyDef, HeroDef, ItemDef, PassiveDef, SkillDef, TalentDef } from '../types';
 import itemsJson from './items.json';
 import skillsJson from './skills.json';
 import enemiesJson from './enemies.json';
@@ -7,6 +7,7 @@ import chaptersJson from './chapters.json';
 import heroesJson from './heroes.json';
 import passivesJson from './passives.json';
 import talentsJson from './talents.json';
+import combatJson from './combat.json';
 
 export const ITEMS = itemsJson as ItemDef[];
 export const SKILLS = skillsJson as SkillDef[];
@@ -15,6 +16,7 @@ export const CHAPTERS = chaptersJson as ChapterDef[];
 export const HEROES = heroesJson as HeroDef[];
 export const PASSIVES = passivesJson as PassiveDef[];
 export const TALENTS = talentsJson as TalentDef[];
+export const COMBAT = combatJson as CombatConfig;
 
 function byId<T extends { id: string }>(list: T[], kind: string) {
   const map = new Map(list.map((x) => [x.id, x]));

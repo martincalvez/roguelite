@@ -41,7 +41,7 @@ Tâche 1.4. Crée src/entities/Projectile.ts et un pool de projectiles joueur (t
 ```
 Validation : immobile, le héros tue les gobelins ; en mouvement, il ne tire pas.
 
-### [ ] 1.5 Dégâts au joueur, mort et victoire
+### [x] 1.5 Dégâts au joueur, mort et victoire
 
 ```
 Tâche 1.5. Le joueur subit des dégâts au contact des ennemis et des projectiles ennemis (damage de l'EnemyDef), avec 0,6 s d'invulnérabilité (clignotement) et une chance d'esquive stats.dodge (afficher « Esquive »). Ajoute un HUD (src/ui/Hud.ts) dans le bandeau du haut : barre de PV avec valeur. À 0 PV : écran « Défaite » avec bouton « Menu ». Quand tous les ennemis de la salle sont morts : écran « Salle terminée » avec bouton « Menu » (l'enchaînement des salles viendra en phase 2).
