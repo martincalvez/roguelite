@@ -13,12 +13,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys: Record<'Z' | 'Q' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
   private readonly moveVector = new Phaser.Math.Vector2();
-  /** Stats du héros (équipement + talents). Les compétences du run viendront en phase 2. */
-  readonly stats: Stats = GameState.heroStats();
-  private moveSpeed: number;
+  /** Stats courantes du héros. À remplacer via setStats() quand elles changent (compétences du run). */
+  stats: Stats = GameState.heroStats();
   private joystick?: VirtualJoystick;
   hp: number;
-  readonly maxHp: number;
+  maxHp: number;
   private invulnerableUntil = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -26,7 +25,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.moveSpeed = this.stats.moveSpeed;
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.setCollideWorldBounds(true);
@@ -35,6 +33,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const keyboard = scene.input.keyboard!;
     this.cursors = keyboard.createCursorKeys();
     this.keys = keyboard.addKeys('Z,Q,S,D') as Player['keys'];
+  }
+
+  /** Remplace les stats (résultat de computeStats) ; les PV actuels sont plafonnés au nouveau max. */
+  setStats(stats: Stats): void {
+    this.stats = stats;
+    this.maxHp = stats.maxHp;
+    this.hp = Math.min(this.hp, this.maxHp);
   }
 
   setJoystick(joystick: VirtualJoystick): void {
@@ -87,6 +92,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Clignotement pendant l'invulnérabilité.
     this.setAlpha(time < this.invulnerableUntil && Math.floor(time / 80) % 2 === 0 ? 0.3 : 1);
     const v = this.getMoveVector();
-    this.setVelocity(v.x * this.moveSpeed, v.y * this.moveSpeed);
+    this.setVelocity(v.x * this.stats.moveSpeed, v.y * this.stats.moveSpeed);
   }
 }

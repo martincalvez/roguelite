@@ -206,7 +206,9 @@ export class RunScene extends Phaser.Scene {
       for (let i = 0; i < group.count; i++) {
         const x = Phaser.Math.Between(ARENA.x + margin, ARENA.x + ARENA.width - margin);
         const y = Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
-        (this.enemies.get(x, y) as Enemy | null)?.spawn(def, x, y, this.time.now);
+        const enemy = this.enemies.get(x, y) as Enemy | null;
+        if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
+        enemy.spawn(def, x, y, this.time.now);
         this.enemiesAlive++;
       }
     }
