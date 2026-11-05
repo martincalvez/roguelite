@@ -162,6 +162,7 @@ export interface CombatConfig {
   orbHitCooldownMs: number; // délai entre deux coups d'un orbe protecteur sur un même ennemi
   orbRadius: number; // distance des orbes au héros
   orbSpeedDegPerSec: number; // vitesse de rotation des orbes
+  angelRareMaxWeight: number; // salle de l'ange : une compétence "rare" a un poids d'apparition ≤ à cette valeur
 }
 
 /** Progression pendant un run. */

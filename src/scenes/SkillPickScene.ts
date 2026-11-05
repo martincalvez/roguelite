@@ -3,7 +3,8 @@ import { COLORS, GAME_HEIGHT, GAME_WIDTH, SCENES } from '../config';
 import type { SkillDef, SkillEffect } from '../types';
 
 export interface SkillPickData {
-  level: number;
+  title: string;
+  subtitle: string;
   choices: SkillDef[];
   stacks: Record<string, number>;
   onPick: (skill: SkillDef) => void;
@@ -41,7 +42,7 @@ export class SkillPickScene extends Phaser.Scene {
 
     this.add.rectangle(cx, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.72);
     this.add
-      .text(cx, 150, `Niveau ${data.level} !`, {
+      .text(cx, 150, data.title, {
         fontSize: '72px',
         color: COLORS.gold,
         fontStyle: 'bold',
@@ -49,7 +50,7 @@ export class SkillPickScene extends Phaser.Scene {
         strokeThickness: 10,
       })
       .setOrigin(0.5);
-    this.add.text(cx, 235, 'Choisis une compétence', { fontSize: '30px', color: COLORS.text }).setOrigin(0.5);
+    this.add.text(cx, 235, data.subtitle, { fontSize: '30px', color: COLORS.text }).setOrigin(0.5);
 
     data.choices.forEach((skill, i) => {
       const y = FIRST_CARD_Y + CARD_HEIGHT / 2 + i * (CARD_HEIGHT + CARD_GAP);

@@ -11,5 +11,6 @@
   "statusTickMs": 500,
   "orbHitCooldownMs": 500,
   "orbRadius": 110,
-  "orbSpeedDegPerSec": 220
+  "orbSpeedDegPerSec": 220,
+  "angelRareMaxWeight": 5
 }

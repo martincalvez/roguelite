@@ -8,15 +8,16 @@ const XP_BAR_HEIGHT = 22;
 
 /**
  * Bandeau du haut : barre de PV avec valeur, barre d'XP avec niveau.
- * S'abonne à 'player-hp-changed' (hp, maxHp) et 'xp-changed' (niveau, xp, xpNécessaire).
+ * S'abonne à 'player-hp-changed' (hp, maxHp), 'xp-changed' (niveau, xp, xpNécessaire) et 'room-changed' (salle, total).
  */
 export class Hud {
   private readonly hpFill: Phaser.GameObjects.Rectangle;
   private readonly hpLabel: Phaser.GameObjects.Text;
   private readonly xpFill: Phaser.GameObjects.Rectangle;
   private readonly xpLabel: Phaser.GameObjects.Text;
+  private readonly roomLabel: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, hp: number, maxHp: number, level: number, xp: number, xpNeeded: number) {
+  constructor(scene: Phaser.Scene, hp: number, maxHp: number, level: number, xp: number, xpNeeded: number, room: number, roomCount: number) {
     const hpY = HUD_HEIGHT / 2 - 16;
     const xpY = HUD_HEIGHT / 2 + 26;
     const textStyle = { color: '#ffffff', fontStyle: 'bold', stroke: '#1a1020', strokeThickness: 5 };
@@ -29,20 +30,28 @@ export class Hud {
     this.xpFill = scene.add.rectangle(BAR_X, xpY, BAR_WIDTH, XP_BAR_HEIGHT, COLORS.xp).setOrigin(0, 0.5);
     this.xpLabel = scene.add.text(BAR_X + BAR_WIDTH / 2, xpY, '', { ...textStyle, fontSize: '18px', strokeThickness: 4 }).setOrigin(0.5);
 
+    this.roomLabel = scene.add.text(24, 14, '', { ...textStyle, fontSize: '22px', strokeThickness: 4 });
     this.setHp(hp, maxHp);
     this.setXp(level, xp, xpNeeded);
+    this.setRoom(room, roomCount);
 
     scene.events.on('player-hp-changed', this.setHp, this);
     scene.events.on('xp-changed', this.setXp, this);
+    scene.events.on('room-changed', this.setRoom, this);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       scene.events.off('player-hp-changed', this.setHp, this);
       scene.events.off('xp-changed', this.setXp, this);
+      scene.events.off('room-changed', this.setRoom, this);
     });
   }
 
   private setHp(hp: number, maxHp: number): void {
     this.hpFill.width = BAR_WIDTH * Phaser.Math.Clamp(hp / maxHp, 0, 1);
     this.hpLabel.setText(`${Math.ceil(hp)} / ${Math.round(maxHp)}`);
+  }
+
+  private setRoom(room: number, roomCount: number): void {
+    this.roomLabel.setText(`Salle ${room}/${roomCount}`);
   }
 
   private setXp(level: number, xp: number, xpNeeded: number): void {

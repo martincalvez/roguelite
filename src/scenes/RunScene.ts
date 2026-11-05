@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, FLOOR_TILE, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, SCENES } from '../config';
-import { COMBAT, getChapter, getEnemy, PROGRESSION, SKILLS } from '../data';
+import { COMBAT, getChapter, getEnemy, getSkill, PROGRESSION, SKILLS } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Player } from '../entities/Player';
@@ -35,6 +35,9 @@ export class RunScene extends Phaser.Scene {
   private runState!: RunState;
   private shotEffects!: ShotEffects;
   private orbs!: OrbitOrbs;
+  private door!: Phaser.GameObjects.Rectangle;
+  private doorOpen = false;
+  private angelPending = false; // salle de l'ange : le choix est en cours
   private pendingLevels: number[] = []; // niveaux gagnés dont le choix de compétence est à faire
   private picking = false;
   private collecting = false; // salle vidée : les orbes d'XP sont aspirés vers le héros
@@ -53,6 +56,8 @@ export class RunScene extends Phaser.Scene {
     // La scène est réutilisée à chaque partie : on remet l'état à zéro.
     this.ended = false;
     this.collecting = false;
+    this.doorOpen = false;
+    this.angelPending = false;
     this.pendingLevels = [];
     this.picking = false;
     this.enemiesAlive = 0;
@@ -70,7 +75,7 @@ export class RunScene extends Phaser.Scene {
     this.runState = new RunState();
     this.runState.passives = GameState.startingPassives();
     this.shotEffects = computeShotEffects(this.runState.skills, this.runState.passives);
-    new Hud(this, this.player.hp, this.player.maxHp, this.runState.level, this.runState.xp, this.runState.xpNeeded);
+    new Hud(this, this.player.hp, this.player.maxHp, this.runState.level, this.runState.xp, this.runState.xpNeeded, 1, getChapter(this.chapterId).rooms.length);
     this.fx = new Fx(this);
 
     this.enemies = this.physics.add.group({ classType: Enemy, maxSize: POOLS.enemies });
@@ -84,7 +89,7 @@ export class RunScene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.xpOrbs, (_p, orb) => this.collectOrb(orb as XpOrb));
     // Dégâts au joueur : contact avec un ennemi, ou projectile ennemi.
     this.physics.add.overlap(this.player, this.enemies, (_p, e) =>
-      this.player.takeDamage((e as Enemy).def.damage, this.time.now),
+      this.player.takeDamage((e as Enemy).damage, this.time.now),
     );
     this.physics.add.overlap(this.player, this.enemyProjectiles, (_p, shot) => {
       const projectile = shot as EnemyProjectile;
@@ -111,7 +116,8 @@ export class RunScene extends Phaser.Scene {
       this.events.off(Phaser.Scenes.Events.RESUME, this.onResume, this);
     });
 
-    this.spawnRoom(0);
+    this.buildDoor();
+    this.loadRoom(0);
 
     // Bandeau HUD (vide pour l'instant) : seul le retour au menu y figure.
     this.add
@@ -149,7 +155,7 @@ export class RunScene extends Phaser.Scene {
     }
     if (remaining === 0 && !this.picking && this.pendingLevels.length === 0) {
       this.collecting = false;
-      this.endRun('Salle terminée', '#5cff7a');
+      this.finishRoom();
     }
   }
 
@@ -170,7 +176,8 @@ export class RunScene extends Phaser.Scene {
     this.picking = true;
     this.scene.pause();
     const data: SkillPickData = {
-      level,
+      title: `Niveau ${level} !`,
+      subtitle: 'Choisis une compétence',
       choices,
       stacks: this.runState.skills,
       onPick: (skill) => this.applySkill(skill),
@@ -190,11 +197,16 @@ export class RunScene extends Phaser.Scene {
     }
     this.picking = false;
     this.scene.resume();
+    if (this.angelPending) {
+      this.angelPending = false;
+      this.finishRoom();
+    }
     this.openSkillPick(); // un autre niveau gagné en même temps ?
   }
 
   /** Au retour du choix : le doigt a pu être relevé pendant la pause, on remet le joystick à zéro. */
   private onResume(): void {
+    this.cameras.main.resetFX(); // un fondu interrompu par la pause ne doit pas rester à moitié noir
     this.joystick.setEnabled(false);
     this.joystick.setEnabled(true);
   }
@@ -350,9 +362,80 @@ export class RunScene extends Phaser.Scene {
     projectile?.fire(x, y, angle, speed, damage);
   }
 
+  /** Porte de sortie en haut de l'arène : invisible et inactive tant que la salle n'est pas vidée. */
+  private buildDoor(): void {
+    this.door = this.add.rectangle(GAME_WIDTH / 2, ARENA.y + 30, 150, 60, 0xffc83d).setStrokeStyle(6, COLORS.wallEdge).setDepth(10);
+    this.physics.add.existing(this.door, true);
+    this.door.setVisible(false);
+    (this.door.body as Phaser.Physics.Arcade.StaticBody).enable = false;
+    this.tweens.add({ targets: this.door, alpha: 0.55, duration: 450, yoyo: true, repeat: -1 });
+    this.physics.add.overlap(this.player, this.door, () => this.enterDoor());
+  }
+
+  private openDoor(): void {
+    this.doorOpen = true;
+    this.door.setVisible(true);
+    (this.door.body as Phaser.Physics.Arcade.StaticBody).enable = true;
+  }
+
+  private closeDoor(): void {
+    this.doorOpen = false;
+    this.door.setVisible(false);
+    (this.door.body as Phaser.Physics.Arcade.StaticBody).enable = false;
+  }
+
+  private enterDoor(): void {
+    if (!this.doorOpen || this.ended) return;
+    this.closeDoor();
+    this.loadRoom(this.runState.room + 1);
+  }
+
+  /** Salle vidée (ennemis morts, orbes ramassés, choix faits) : porte ouverte, ou victoire s'il n'y a plus de salle. */
+  private finishRoom(): void {
+    const roomCount = getChapter(this.chapterId).rooms.length;
+    if (this.runState.room >= roomCount - 1) this.endRun('Victoire !', '#ffc83d');
+    else this.openDoor();
+  }
+
+  /** Charge une salle : le héros repart du bas (PV, XP et compétences conservés). */
+  private loadRoom(index: number): void {
+    const chapter = getChapter(this.chapterId);
+    this.runState.room = index;
+    this.enemiesAlive = 0;
+    this.closeDoor();
+    for (const group of [this.enemyProjectiles, this.playerProjectiles]) {
+      for (const shot of group.getChildren() as (EnemyProjectile | Projectile)[]) if (shot.active) shot.kill();
+    }
+    (this.player.body as Phaser.Physics.Arcade.Body).reset(GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
+    this.spawnRoom(index);
+    this.events.emit('room-changed', index + 1, chapter.rooms.length);
+    this.cameras.main.resetFX();
+    this.cameras.main.fadeIn(250);
+    // Le choix de l'ange attend la fin du fondu, pour qu'on voie la salle derrière.
+    if (chapter.rooms[index].type === 'angel') this.time.delayedCall(300, () => this.openAngelChoice());
+  }
+
+  /** Salle de l'ange : pas d'ennemis, soin de 40 % ou une compétence rare. */
+  private openAngelChoice(): void {
+    const rare = SKILLS.filter((s) => s.weight <= COMBAT.angelRareMaxWeight && s.effect.kind !== 'heal');
+    const choices = [getSkill('soin'), ...drawSkills(rare, this.runState.skills, 1)];
+    this.angelPending = true;
+    this.picking = true;
+    this.scene.pause();
+    const data: SkillPickData = {
+      title: 'Ange',
+      subtitle: 'Choisis une bénédiction',
+      choices,
+      stacks: this.runState.skills,
+      onPick: (skill) => this.applySkill(skill),
+    };
+    this.scene.launch(SCENES.skillPick, data);
+  }
+
   /** Fait apparaître les ennemis d'une salle du chapitre, dans la moitié haute de l'arène. */
   private spawnRoom(roomIndex: number): void {
-    const room = getChapter(this.chapterId).rooms[roomIndex];
+    const chapter = getChapter(this.chapterId);
+    const room = chapter.rooms[roomIndex];
     const margin = 60;
     for (const group of room.enemies ?? []) {
       const def = getEnemy(group.id);
@@ -361,7 +444,7 @@ export class RunScene extends Phaser.Scene {
         const y = Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
         const enemy = this.enemies.get(x, y) as Enemy | null;
         if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
-        enemy.spawn(def, x, y, this.time.now);
+        enemy.spawn(def, x, y, this.time.now, chapter.difficulty);
         this.enemiesAlive++;
       }
     }

@@ -16,6 +16,8 @@ const FREEZE_TINT = 0x66ccff;
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
   def!: EnemyDef;
   hp = 0;
+  /** Dégâts de contact et de tir, après multiplication par la difficulté du chapitre. */
+  damage = 0;
   private nextFireAt = 0;
   private flashUntil = 0;
   private knockbackUntil = 0;
@@ -32,9 +34,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, 'player');
   }
 
-  spawn(def: EnemyDef, x: number, y: number, time: number): void {
+  spawn(def: EnemyDef, x: number, y: number, time: number, difficulty: number): void {
     this.def = def;
-    this.hp = def.hp;
+    this.hp = def.hp * difficulty;
+    this.damage = def.damage * difficulty;
     this.enableBody(true, x, y, true, true);
     this.setTexture(`enemy-${def.id}`);
     this.setCircle(def.radius);
@@ -130,7 +133,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const spread = Phaser.Math.DegToRad(def.spreadAngle ?? 0);
     for (let i = 0; i < count; i++) {
       const offset = count > 1 ? (i / (count - 1) - 0.5) * spread : 0;
-      this.scene.events.emit('enemy-shoot', this.x, this.y, angle + offset, speed, def.damage);
+      this.scene.events.emit('enemy-shoot', this.x, this.y, angle + offset, speed, this.damage);
     }
   }
 
