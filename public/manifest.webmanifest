@@ -1,0 +1,16 @@
+{
+  "name": "Roguelite Fantasy",
+  "short_name": "Roguelite",
+  "description": "Roguelite d'action jouable sur PC et téléphone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1f4d35",
+  "theme_color": "#1f4d35",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

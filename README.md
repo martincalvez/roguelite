@@ -13,3 +13,4 @@ Roguelite d'action façon Archero, jouable dans le navigateur sur PC et téléph
 - `CLAUDE.md` : règles du projet, lues automatiquement par Claude Code.
 - `docs/TACHES.md` : les tâches dans l'ordre, chacune avec un prompt prêt à coller.
 - Une tâche à la fois, test, puis `git commit`.
+- `docs/DEPLOIEMENT.md` : mise en ligne sur GitHub Pages et installation sur téléphone.
