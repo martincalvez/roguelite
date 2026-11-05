@@ -132,12 +132,18 @@ export class RunScene extends Phaser.Scene {
   /** Murs (rectangle plein), puis sol en damier par-dessus : il reste une bordure de WALL_THICKNESS. */
   private buildArena(): void {
     const top = HUD_HEIGHT;
-    this.add.rectangle(0, top, GAME_WIDTH, GAME_HEIGHT - top, COLORS.wall).setOrigin(0, 0);
+    const visual = getChapter(this.chapterId).visual;
+    const wall = Phaser.Display.Color.HexStringToColor(visual.wallColor).color;
+    const wallEdge = Phaser.Display.Color.HexStringToColor(visual.wallEdgeColor).color;
+    const floorColor = Phaser.Display.Color.HexStringToColor(visual.floorColor).color;
+    const floorAltColor = Phaser.Display.Color.HexStringToColor(visual.floorAltColor).color;
+    const accent = Phaser.Display.Color.HexStringToColor(visual.accentColor).color;
+    this.add.rectangle(0, top, GAME_WIDTH, GAME_HEIGHT - top, wall).setOrigin(0, 0);
 
     const floor = this.add.graphics();
     for (let row = 0; row * FLOOR_TILE < ARENA.height; row++) {
       for (let col = 0; col * FLOOR_TILE < ARENA.width; col++) {
-        floor.fillStyle((row + col) % 2 === 0 ? COLORS.floor : COLORS.floorAlt, 1);
+        floor.fillStyle((row + col) % 2 === 0 ? floorColor : floorAltColor, 1);
         floor.fillRect(
           ARENA.x + col * FLOOR_TILE,
           ARENA.y + row * FLOOR_TILE,
@@ -150,6 +156,7 @@ export class RunScene extends Phaser.Scene {
     this.add
       .rectangle(ARENA.x, ARENA.y, ARENA.width, ARENA.height)
       .setOrigin(0, 0)
-      .setStrokeStyle(6, COLORS.wallEdge);
+      .setStrokeStyle(8, wallEdge);
+    this.add.rectangle(ARENA.x + ARENA.width / 2, ARENA.y + 4, ARENA.width - 24, 8, accent, 0.9).setDepth(1);
   }
 }

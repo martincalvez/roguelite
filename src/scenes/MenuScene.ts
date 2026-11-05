@@ -72,7 +72,7 @@ export class MenuScene extends Phaser.Scene {
       offReplaced();
     });
 
-    this.menuButton(cx, 610, '  JOUER  ', 52, () => this.scene.start(SCENES.run, { chapterId: 'ch1' }));
+    this.menuButton(cx, 610, '  JOUER  ', 52, () => this.scene.start(SCENES.chapters));
     this.menuButton(cx, 710, '   HÉROS   ', 36, () => this.scene.start(SCENES.heroes), '#ff75d3');
     this.menuButton(cx, 800, ' ÉQUIPEMENT ', 36, () => this.scene.start(SCENES.equipment));
     this.menuButton(cx, 890, '   FAMILIERS   ', 36, () => this.scene.start(SCENES.pets), '#76d9ff');

@@ -265,5 +265,11 @@ Tâche 5.2. Crée un écran HÉROS accessible depuis le menu, dans la direction 
 Validation : sélectionner Aldric, débloquer Seren au prix indiqué, vérifier le nouveau solde et la sélection après rechargement/synchro ; tenter avec un solde insuffisant ; confirmer l'apparence du héros choisi en combat.
 
 - [ ] 5.3 Chapitres 2 et 3, nouveaux ennemis
+
+```
+Tâche 5.3. Ajoute deux chapitres de 20 salles dans chapters.json, avec une identité de décor en couleurs déclarée par chapitre, une difficulté qui suit la progression du chapitre 1 et des compositions d'ennemis variées. Crée de nouveaux ennemis pour les chapitres 2 et 3 (mêlée, tir, éventail et boss) dans enemies.json ; les sprites temporaires sont générés depuis leurs couleurs et utilisent les comportements déjà pris en charge. Respecte le rythme des salles : combats, ange aux salles 5 et 15, mini-boss salle 10, boss final salle 20. Donne aux chapitres un écran de sélection accessible avec JOUER ; chapitre 1 toujours ouvert, chapitre N ouvert après victoire au chapitre N-1. Les thèmes de chapitre doivent différencier les arènes en combat. Tests : références ennemis, structure des chapitres, palettes et règles de déblocage. Pas de nouvelle dépendance.
+```
+Validation : terminer le chapitre 1 pour ouvrir le chapitre 2, puis le chapitre 2 pour ouvrir le chapitre 3 ; jouer au moins une salle de chaque nouveau chapitre et confirmer le décor, les nouveaux ennemis et le comportement des boss.
+
 - [ ] 5.4 Mode Survie (vagues infinies, bestWave)
 - [ ] 5.5 Graphismes fantasy (sprites, décors) et sons

@@ -130,6 +130,13 @@ export interface ChapterDef {
   name: string;
   /** multiplicateur de PV/dégâts des ennemis */
   difficulty: number;
+  visual: {
+    wallColor: string;
+    wallEdgeColor: string;
+    floorColor: string;
+    floorAltColor: string;
+    accentColor: string;
+  };
   rooms: RoomDef[];
 }
 

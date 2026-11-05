@@ -6,6 +6,7 @@ import { Sync } from './cloud/syncManager';
 import { AccountScene } from './scenes/AccountScene';
 import { ConflictScene } from './scenes/ConflictScene';
 import { ChestScene } from './scenes/ChestScene';
+import { ChapterScene } from './scenes/ChapterScene';
 import { EquipmentScene } from './scenes/EquipmentScene';
 import { HeroScene } from './scenes/HeroScene';
 import { PetScene } from './scenes/PetScene';
@@ -32,7 +33,7 @@ new Phaser.Game({
   input: { activePointers: 3 },
   // Champs de saisie HTML (adresse e-mail, code) : Phaser n'a pas de champ texte natif.
   dom: { createContainer: true },
-  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene, HeroScene, PetScene, ChestScene, TalentScene, AccountScene, ConflictScene],
+  scene: [BootScene, MenuScene, RunScene, ChapterScene, SkillPickScene, LootScene, EquipmentScene, HeroScene, PetScene, ChestScene, TalentScene, AccountScene, ConflictScene],
 });
 
 // Synchro cloud (sans effet si le cloud n'est pas configuré ou si personne n'est connecté) :

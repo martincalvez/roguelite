@@ -8,7 +8,7 @@ Roguelite d'action 2D façon Archero, jouable sur navigateur PC et téléphone (
 ## Avancement (voir docs/TACHES.md pour le détail)
 - **Phases 1 à 3 terminées** : combat, run complet de 20 salles (boss, ange, choix de compétences), butin, équipement, amélioration, fusion, coffres, talents, niveau de compte. 3.6 (équilibrage, `docs/EQUILIBRAGE-CH1.md`) **reste à valider par Martin en jouant 5 runs**.
 - **Phase 4 (compte et synchro Supabase)** : 4.0 à 4.4 terminées. 4.2 (connexion par code e-mail) et 4.3 (synchronisation) sont confirmées par Martin sur téléphone et ordinateur. 4.4 : les 14 tests SQL passent, réglages de sécurité confirmés et adresse e-mail dans les anciens commits acceptée (voir `docs/SECURITE.md`).
-- **Phase 5 (contenu)** en cours. 5.1 (familiers) est implémentée et publiée, en attente de validation manuelle par Martin. 5.2 (écran des héros et déblocage contre gemmes) en cours. Direction visuelle souhaitée : interface portrait riche en couleurs, personnage et familier au centre, cartes de rareté et reliefs épais, combats lumineux et choix de compétences illustrés ; détails dans `docs/CIBLE-UI.md`.
+- **Phase 5 (contenu)** en cours. 5.1 (familiers) et 5.2 (héros et déblocage contre gemmes) sont implémentées et publiées, en attente de validation manuelle par Martin. 5.3 (chapitres 2 et 3, nouveaux ennemis) en cours. Direction visuelle souhaitée : interface portrait riche en couleurs, personnage et familier au centre, cartes de rareté et reliefs épais, combats lumineux et choix de compétences illustrés ; détails dans `docs/CIBLE-UI.md`.
 - Martin n'a pas encore tout joué : les cases ne se cochent qu'après sa confirmation.
 
 ## Décisions importantes (et pourquoi)

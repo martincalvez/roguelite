@@ -63,6 +63,18 @@ describe('références entre fichiers', () => {
     }
   });
 
+  it('chaque chapitre a 20 salles, deux salles d’ange, un mini-boss et un boss final', () => {
+    for (const chapter of CHAPTERS) {
+      expect(chapter.rooms, chapter.id).toHaveLength(20);
+      expect(chapter.rooms[4].type, chapter.id).toBe('angel');
+      expect(chapter.rooms[9].type, chapter.id).toBe('miniboss');
+      expect(chapter.rooms[14].type, chapter.id).toBe('angel');
+      expect(chapter.rooms[19].type, chapter.id).toBe('boss');
+      expect(chapter.visual, chapter.id).toBeDefined();
+      for (const color of Object.values(chapter.visual)) expect(color, chapter.id).toMatch(/^#[0-9a-f]{6}$/i);
+    }
+  });
+
   it('la compétence du soin de l\'ange existe', () => {
     expect(ids(SKILLS)).toContain('soin');
   });

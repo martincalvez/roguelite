@@ -95,6 +95,7 @@ export const POOLS = {
 export const SCENES = {
   boot: 'Boot',
   menu: 'Menu',
+  chapters: 'Chapters',
   run: 'Run',
   skillPick: 'SkillPick',
   loot: 'Loot',

@@ -234,6 +234,541 @@
         ],
         "difficulty": 3.2
       }
+    ],
+    "visual": {
+      "wallColor": "#7a5233",
+      "wallEdgeColor": "#4a301c",
+      "floorColor": "#8fd16a",
+      "floorAltColor": "#84c75f",
+      "accentColor": "#ffc83d"
+    }
+  },
+  {
+    "id": "ch2",
+    "name": "Jungle des gemmes",
+    "difficulty": 1.12,
+    "visual": {
+      "wallColor": "#186b73",
+      "wallEdgeColor": "#073b57",
+      "floorColor": "#55d796",
+      "floorAltColor": "#37c8bb",
+      "accentColor": "#ffcf45"
+    },
+    "rooms": [
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "scarabee_dore",
+            "count": 4
+          }
+        ],
+        "difficulty": 1.05
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "scarabee_dore",
+            "count": 5
+          }
+        ],
+        "difficulty": 1.16
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "scarabee_dore",
+            "count": 3
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 2
+          }
+        ],
+        "difficulty": 1.28
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "scarabee_dore",
+            "count": 3
+          },
+          {
+            "id": "esprit_saphir",
+            "count": 2
+          }
+        ],
+        "difficulty": 1.42
+      },
+      {
+        "type": "angel"
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "sentinelle_azur",
+            "count": 4
+          }
+        ],
+        "difficulty": 1.55
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "scarabee_dore",
+            "count": 4
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 2
+          }
+        ],
+        "difficulty": 1.72
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "golem_floral",
+            "count": 2
+          },
+          {
+            "id": "scarabee_dore",
+            "count": 3
+          }
+        ],
+        "difficulty": 1.9
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "esprit_saphir",
+            "count": 3
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.05
+      },
+      {
+        "type": "miniboss",
+        "enemies": [
+          {
+            "id": "gardien_racines",
+            "count": 1
+          }
+        ],
+        "difficulty": 2.25
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "golem_floral",
+            "count": 1
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 3
+          }
+        ],
+        "difficulty": 2.2
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "scarabee_dore",
+            "count": 4
+          },
+          {
+            "id": "esprit_saphir",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.35
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "sentinelle_azur",
+            "count": 3
+          },
+          {
+            "id": "golem_floral",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.5
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "scarabee_dore",
+            "count": 4
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 2
+          },
+          {
+            "id": "esprit_saphir",
+            "count": 1
+          }
+        ],
+        "difficulty": 2.7
+      },
+      {
+        "type": "angel"
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "golem_floral",
+            "count": 2
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 2
+          },
+          {
+            "id": "scarabee_dore",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.75
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "golem_floral",
+            "count": 3
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.95
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "esprit_saphir",
+            "count": 3
+          },
+          {
+            "id": "scarabee_dore",
+            "count": 3
+          }
+        ],
+        "difficulty": 3.05
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "sentinelle_azur",
+            "count": 3
+          },
+          {
+            "id": "golem_floral",
+            "count": 2
+          },
+          {
+            "id": "scarabee_dore",
+            "count": 2
+          }
+        ],
+        "difficulty": 3.2
+      },
+      {
+        "type": "boss",
+        "enemies": [
+          {
+            "id": "roi_ambre",
+            "count": 1
+          }
+        ],
+        "difficulty": 3.25
+      }
+    ]
+  },
+  {
+    "id": "ch3",
+    "name": "Cime des braises",
+    "difficulty": 1.24,
+    "visual": {
+      "wallColor": "#744034",
+      "wallEdgeColor": "#351b35",
+      "floorColor": "#ffb84d",
+      "floorAltColor": "#ff8a59",
+      "accentColor": "#54eaff"
+    },
+    "rooms": [
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "chauve_souris_braise",
+            "count": 4
+          }
+        ],
+        "difficulty": 1.05
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "chauve_souris_braise",
+            "count": 5
+          }
+        ],
+        "difficulty": 1.15
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "chauve_souris_braise",
+            "count": 3
+          },
+          {
+            "id": "mage_ombre",
+            "count": 2
+          }
+        ],
+        "difficulty": 1.3
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "elementaire_lave",
+            "count": 2
+          },
+          {
+            "id": "chauve_souris_braise",
+            "count": 3
+          }
+        ],
+        "difficulty": 1.45
+      },
+      {
+        "type": "angel"
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "mage_ombre",
+            "count": 4
+          }
+        ],
+        "difficulty": 1.6
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "chauve_souris_braise",
+            "count": 4
+          },
+          {
+            "id": "mage_ombre",
+            "count": 2
+          }
+        ],
+        "difficulty": 1.8
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "elementaire_lave",
+            "count": 2
+          },
+          {
+            "id": "chauve_souris_braise",
+            "count": 3
+          }
+        ],
+        "difficulty": 1.95
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "mage_ombre",
+            "count": 3
+          },
+          {
+            "id": "elementaire_lave",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.1
+      },
+      {
+        "type": "miniboss",
+        "enemies": [
+          {
+            "id": "golem_cendre",
+            "count": 1
+          }
+        ],
+        "difficulty": 2.3
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "chauve_souris_braise",
+            "count": 5
+          },
+          {
+            "id": "mage_ombre",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.35
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "elementaire_lave",
+            "count": 2
+          },
+          {
+            "id": "mage_ombre",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.5
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "chauve_souris_braise",
+            "count": 4
+          },
+          {
+            "id": "elementaire_lave",
+            "count": 3
+          }
+        ],
+        "difficulty": 2.65
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "mage_ombre",
+            "count": 3
+          },
+          {
+            "id": "elementaire_lave",
+            "count": 2
+          },
+          {
+            "id": "chauve_souris_braise",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.8
+      },
+      {
+        "type": "angel"
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "elementaire_lave",
+            "count": 2
+          },
+          {
+            "id": "chauve_souris_braise",
+            "count": 3
+          },
+          {
+            "id": "mage_ombre",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.9
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "elementaire_lave",
+            "count": 3
+          },
+          {
+            "id": "mage_ombre",
+            "count": 2
+          }
+        ],
+        "difficulty": 3.05
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "mage_ombre",
+            "count": 3
+          },
+          {
+            "id": "elementaire_lave",
+            "count": 3
+          }
+        ],
+        "difficulty": 3.2
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "chauve_souris_braise",
+            "count": 4
+          },
+          {
+            "id": "mage_ombre",
+            "count": 2
+          },
+          {
+            "id": "elementaire_lave",
+            "count": 2
+          }
+        ],
+        "difficulty": 3.35
+      },
+      {
+        "type": "boss",
+        "enemies": [
+          {
+            "id": "dragon_cendre",
+            "count": 1
+          }
+        ],
+        "difficulty": 3.5
+      }
     ]
   }
 ]
