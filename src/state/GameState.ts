@@ -4,6 +4,7 @@ import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
 import { getHero, getItem } from '../data';
 import { slotAccepts } from '../systems/equipment';
+import { canUpgrade, upgradeCost } from '../systems/upgrade';
 import { accountXpToNext } from '../systems/progression';
 import { computeStats, itemModifiers, talentModifiers } from '../systems/stats';
 
@@ -37,6 +38,20 @@ class GameStateImpl {
     return true;
   }
 
+  /** Améliore un objet d'un niveau (or + parchemins de son type). Renvoie faux si impossible. */
+  upgradeItem(uid: string): boolean {
+    const item = this.data.inventory.find((i) => i.uid === uid);
+    if (!item) return false;
+    const type = getItem(item.defId).slot;
+    if (!canUpgrade(item, this.data.gold, this.data.scrolls[type]).ok) return false;
+    const cost = upgradeCost(item.level);
+    this.data.gold -= cost.gold;
+    this.data.scrolls[type] -= cost.scrolls;
+    item.level++;
+    this.persist();
+    return true;
+  }
+
   unequip(slot: EquipSlot): void {
     delete this.data.equipped[slot];
     this.persist();
@@ -53,6 +68,7 @@ class GameStateImpl {
       d.accountLevel++;
     }
     d.inventory.push(...rewards.items);
+    for (const type of Object.keys(rewards.scrolls) as (keyof typeof rewards.scrolls)[]) d.scrolls[type] += rewards.scrolls[type];
     if (rewards.clearedChapter !== null) d.bestChapter = Math.max(d.bestChapter, rewards.clearedChapter);
     this.persist();
     return { levelBefore, levelAfter: d.accountLevel };

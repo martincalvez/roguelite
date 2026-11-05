@@ -1,5 +1,7 @@
 // Tirage du butin de fin de run (pur, sans Phaser). Le hasard est injecté pour pouvoir tester.
-import type { ItemDef, ItemInstance, LootConfig, Rarity } from '../types';
+import { SCROLL_TYPES } from '../config';
+import type { ItemDef, ItemInstance, ItemSlotType, LootConfig, Rarity } from '../types';
+import { emptyScrolls } from './upgrade';
 
 /** Choisit un index selon des poids. */
 function weightedIndex(weights: number[], rng: () => number): number {
@@ -37,4 +39,12 @@ export function rollLoot(
     drops.push({ uid: makeUid(), defId: def.id, rarity: rarities[weightedIndex(rarityWeights, rng)], level: 1 });
   }
   return drops;
+}
+
+/** Parchemins lâchés à la fin d'un run : nombre au hasard (+ bonus de victoire), type au hasard. */
+export function rollScrolls(config: LootConfig, victory: boolean, rng: () => number = Math.random): Record<ItemSlotType, number> {
+  const out = emptyScrolls();
+  const count = weightedIndex(config.scrollCountWeights, rng) + (victory ? config.victoryScrollBonus : 0);
+  for (let i = 0; i < count; i++) out[SCROLL_TYPES[Math.floor(rng() * SCROLL_TYPES.length)]]++;
+  return out;
 }

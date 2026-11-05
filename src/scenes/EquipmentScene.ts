@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_HEIGHT, GAME_WIDTH, RARITY_COLOR, RARITY_LABEL, RARITY_ORDER, SCENES } from '../config';
+import { COLORS, GAME_HEIGHT, GAME_WIDTH, RARITY_COLOR, RARITY_LABEL, RARITY_ORDER, SCENES, SCROLL_TYPES, SLOT_TYPE_LABEL } from '../config';
 import { getItem, getPassive } from '../data';
 import { GameState } from '../state/GameState';
 import { describeModifier, EQUIP_SLOTS, formatStat, STAT_LABEL, statDiff, targetSlot } from '../systems/equipment';
 import { itemModifiers } from '../systems/stats';
+import { canUpgrade, maxLevel, upgradeCost } from '../systems/upgrade';
 import type { EquipSlot, ItemInstance } from '../types';
 
 const SLOT_LABEL: Record<EquipSlot, string> = {
@@ -14,7 +15,6 @@ const SLOT_LABEL: Record<EquipSlot, string> = {
   amulet: 'Amulette',
   pet: 'Familier',
 };
-const ITEM_TYPE_LABEL: Record<string, string> = { weapon: 'Arme', armor: 'Armure', ring: 'Anneau', amulet: 'Amulette', pet: 'Familier' };
 
 const GREEN = '#5cff7a';
 const RED = '#ff6b7a';
@@ -97,6 +97,7 @@ export class EquipmentScene extends Phaser.Scene {
       .on('pointerup', () => this.scene.start(SCENES.menu));
     this.add.text(GAME_WIDTH - 24, 60, `${d.gold} or`, { fontSize: '26px', color: COLORS.gold, fontStyle: 'bold' }).setOrigin(1, 0.5);
     this.buildStats();
+    this.buildScrolls();
     this.buildSlots();
     this.buildInventory();
     this.setScroll(keepScroll);
@@ -110,6 +111,13 @@ export class EquipmentScene extends Phaser.Scene {
         color: COLORS.text,
       })
       .setOrigin(0.5);
+  }
+
+  /** Rangée des parchemins possédés, par type d'objet. */
+  private buildScrolls(): void {
+    const scrolls = GameState.data.scrolls;
+    const text = SCROLL_TYPES.map((t) => `${SLOT_TYPE_LABEL[t]} ${scrolls[t]}`).join('   ');
+    this.add.text(GAME_WIDTH / 2, 152, `Parchemins : ${text}`, { fontSize: '16px', color: COLORS.textMuted }).setOrigin(0.5);
   }
 
   private buildSlots(): void {
@@ -155,7 +163,7 @@ export class EquipmentScene extends Phaser.Scene {
       const name = this.add
         .text(x, y - 22, def.name, { fontSize: '20px', color: RARITY_COLOR[item.rarity], fontStyle: 'bold', align: 'center', wordWrap: { width: CARD_W - 16 } })
         .setOrigin(0.5);
-      const meta = this.add.text(x, y + 38, `${ITEM_TYPE_LABEL[def.slot]} · Niv. ${item.level}`, { fontSize: '16px', color: COLORS.textMuted }).setOrigin(0.5);
+      const meta = this.add.text(x, y + 38, `${SLOT_TYPE_LABEL[def.slot]} · Niv. ${item.level}`, { fontSize: '16px', color: COLORS.textMuted }).setOrigin(0.5);
       this.content.add([card, name, meta]);
       if (equippedUids.has(item.uid)) {
         this.content.add(this.add.text(x + CARD_W / 2 - 8, y - CARD_H / 2 + 6, 'Équipé', { fontSize: '14px', color: GREEN, fontStyle: 'bold' }).setOrigin(1, 0));
@@ -201,10 +209,16 @@ export class EquipmentScene extends Phaser.Scene {
     };
 
     line(def.name, RARITY_COLOR[item.rarity], 42, true);
-    line(`${RARITY_LABEL[item.rarity]} · ${ITEM_TYPE_LABEL[def.slot]} · Niveau ${item.level}`, COLORS.textMuted, 24);
+    line(`${RARITY_LABEL[item.rarity]} · ${SLOT_TYPE_LABEL[def.slot]} · Niveau ${item.level}`, COLORS.textMuted, 24);
     line(def.description, COLORS.text, 26);
     y += 8;
     for (const m of itemModifiers(item)) line(describeModifier(m), COLORS.text, 28, true);
+    if (item.level < maxLevel(item.rarity)) {
+      const next = itemModifiers({ ...item, level: item.level + 1 }).map(describeModifier).join(' · ');
+      line(`Niveau ${item.level + 1} : ${next}`, GREEN, 22);
+    } else {
+      line('Niveau maximum pour cette rareté', COLORS.textMuted, 22);
+    }
 
     // Passifs de rareté : actifs en vert, à débloquer en gris.
     for (const [rarity, passiveId] of Object.entries(def.rarityPassives ?? {})) {
@@ -235,6 +249,34 @@ export class EquipmentScene extends Phaser.Scene {
     if (changes.length === 0) line('Aucun changement', COLORS.textMuted, 24);
     for (const c of changes) {
       line(`${STAT_LABEL[c.stat]} : ${formatStat(c.stat, c.before)} → ${formatStat(c.stat, c.after)}`, c.after > c.before ? GREEN : RED, 26, true);
+    }
+
+    // Amélioration : or + parchemins du type de l'objet.
+    const scrollsOwned = d.scrolls[def.slot];
+    const check = canUpgrade(item, d.gold, scrollsOwned);
+    const cost = upgradeCost(item.level);
+    let upgradeLabel: string;
+    if (check.ok) upgradeLabel = ` Améliorer · ${cost.gold} or · ${cost.scrolls} parch. `;
+    else if (check.reason === 'max') upgradeLabel = ' Niveau max ';
+    else if (check.reason === 'gold') upgradeLabel = ` Or insuffisant (${cost.gold}) `;
+    else upgradeLabel = ` Parchemins insuffisants (${scrollsOwned}/${cost.scrolls}) `;
+    const upgrade = add(
+      this.add
+        .text(cx, 945, upgradeLabel, {
+          fontSize: '28px',
+          color: '#14111a',
+          backgroundColor: check.ok ? '#8bd17c' : '#9aa5a0',
+          padding: { x: 20, y: 28 },
+        })
+        .setOrigin(0.5)
+        .setDepth(102),
+    );
+    if (check.ok) {
+      upgrade.setInteractive({ useHandCursor: true }).on('pointerup', () => {
+        GameState.upgradeItem(item.uid);
+        this.build();
+        this.openDetail(item);
+      });
     }
 
     // Boutons (≥ 88 px de haut).

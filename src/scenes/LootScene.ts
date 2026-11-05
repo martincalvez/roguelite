@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_HEIGHT, GAME_WIDTH, RARITY_COLOR, RARITY_LABEL, SCENES } from '../config';
+import { COLORS, GAME_HEIGHT, GAME_WIDTH, RARITY_COLOR, RARITY_LABEL, SCENES, SCROLL_TYPES, SLOT_TYPE_LABEL } from '../config';
 import { getItem } from '../data';
-import type { ItemInstance } from '../types';
+import type { ItemInstance, ItemSlotType } from '../types';
 
 export interface LootData {
   victory: boolean;
@@ -12,15 +12,8 @@ export interface LootData {
   levelBefore: number;
   levelAfter: number;
   items: ItemInstance[];
+  scrolls: Record<ItemSlotType, number>;
 }
-
-const SLOT_LABEL: Record<string, string> = {
-  weapon: 'Arme',
-  armor: 'Armure',
-  ring: 'Anneau',
-  amulet: 'Amulette',
-  pet: 'Familier',
-};
 
 /** Écran de butin affiché à la mort ou à la victoire. Les récompenses sont déjà sauvegardées. */
 export class LootScene extends Phaser.Scene {
@@ -47,26 +40,30 @@ export class LootScene extends Phaser.Scene {
       `Or gagné : +${Math.round(data.gold)}`,
       `XP de compte : +${data.accountXp}`,
     ];
+    const scrollText = SCROLL_TYPES.filter((t) => data.scrolls[t] > 0)
+      .map((t) => `${SLOT_TYPE_LABEL[t]} x${data.scrolls[t]}`)
+      .join(' · ');
+    if (scrollText) lines.push(`Parchemins : ${scrollText}`);
     if (data.levelAfter > data.levelBefore) lines.push(`Niveau de compte ${data.levelAfter} !`);
     lines.forEach((line, i) => {
       this.add
-        .text(cx, 330 + i * 56, line, { fontSize: '36px', color: i === 3 ? COLORS.gold : COLORS.text, fontStyle: 'bold', ...stroke, strokeThickness: 6 })
+        .text(cx, 330 + i * 56, line, { fontSize: '36px', color: line.startsWith('Niveau de compte') ? COLORS.gold : COLORS.text, fontStyle: 'bold', ...stroke, strokeThickness: 6 })
         .setOrigin(0.5);
     });
 
-    this.add.text(cx, 600, 'Butin', { fontSize: '40px', color: COLORS.gold, fontStyle: 'bold', ...stroke }).setOrigin(0.5);
+    this.add.text(cx, 640, 'Butin', { fontSize: '40px', color: COLORS.gold, fontStyle: 'bold', ...stroke }).setOrigin(0.5);
     if (data.items.length === 0) {
-      this.add.text(cx, 690, 'Aucun objet cette fois', { fontSize: '30px', color: COLORS.textMuted }).setOrigin(0.5);
+      this.add.text(cx, 730, 'Aucun objet cette fois', { fontSize: '30px', color: COLORS.textMuted }).setOrigin(0.5);
     }
     data.items.forEach((item, i) => {
       const def = getItem(item.defId);
-      const y = 700 + i * 150;
+      const y = 740 + i * 150;
       this.add.rectangle(cx, y, 600, 130, 0x000000, 0.35).setStrokeStyle(6, Phaser.Display.Color.HexStringToColor(RARITY_COLOR[item.rarity]).color);
       this.add
         .text(cx, y - 30, def.name, { fontSize: '36px', color: RARITY_COLOR[item.rarity], fontStyle: 'bold', ...stroke, strokeThickness: 6 })
         .setOrigin(0.5);
       this.add
-        .text(cx, y + 22, `${RARITY_LABEL[item.rarity]} · ${SLOT_LABEL[def.slot] ?? def.slot}`, { fontSize: '26px', color: COLORS.text })
+        .text(cx, y + 22, `${RARITY_LABEL[item.rarity]} · ${SLOT_TYPE_LABEL[def.slot]}`, { fontSize: '26px', color: COLORS.text })
         .setOrigin(0.5);
     });
 

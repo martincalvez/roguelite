@@ -1,8 +1,9 @@
 // Sauvegarde locale versionnée. La synchro cloud (phase 4) se branchera ici, sans toucher au reste.
+import { emptyScrolls } from '../systems/upgrade';
 import type { SaveData } from '../types';
 
 const KEY = 'roguelite-fantasy-save';
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export function defaultSave(): SaveData {
   return {
@@ -13,6 +14,7 @@ export function defaultSave(): SaveData {
     accountLevel: 1,
     accountXp: 0,
     inventory: [{ uid: 'start-bow', defId: 'arc_chasseur', rarity: 'common', level: 1 }],
+    scrolls: emptyScrolls(),
     equipped: { weapon: 'start-bow' },
     talents: {},
     unlockedHeroes: ['aldric'],
@@ -26,7 +28,8 @@ export function defaultSave(): SaveData {
 /** Chaque changement de format = SAVE_VERSION + 1 et une étape ici. Ne jamais casser une vieille sauvegarde. */
 function migrate(raw: Record<string, unknown>): SaveData {
   const data = { ...defaultSave(), ...raw } as SaveData;
-  // exemple futur : if (data.version < 2) { ...; data.version = 2; }
+  // v1 → v2 : parchemins d'amélioration
+  if (Number(raw.version ?? 1) < 2) data.scrolls = emptyScrolls();
   data.version = SAVE_VERSION;
   return data;
 }

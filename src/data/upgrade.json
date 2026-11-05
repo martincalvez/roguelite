@@ -1,0 +1,13 @@
+{
+  "maxLevelByRarity": {
+    "common": 10,
+    "rare": 15,
+    "epic": 20,
+    "legendary": 25,
+    "mythic": 30
+  },
+  "goldBase": 50,
+  "goldGrowth": 1.2,
+  "scrollBase": 1,
+  "scrollPerLevel": 0.5
+}

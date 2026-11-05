@@ -151,6 +151,7 @@ export interface SaveData {
   accountLevel: number;
   accountXp: number;
   inventory: ItemInstance[];
+  scrolls: Record<ItemSlotType, number>; // parchemins d'amélioration par type d'objet
   equipped: Partial<Record<EquipSlot, string>>; // EquipSlot -> uid
   talents: Record<string, number>; // talentId -> niveau
   unlockedHeroes: string[];
@@ -195,6 +196,17 @@ export interface LootConfig {
   itemCountWeights: number[]; // poids du nombre d'objets lâchés (index = nombre : 0, 1, 2…)
   victoryMinItems: number; // nombre minimal d'objets en cas de victoire
   rarityWeights: Record<Rarity, number>;
+  scrollCountWeights: number[]; // poids du nombre de parchemins lâchés (index = nombre : 0, 1, 2…)
+  victoryScrollBonus: number; // parchemins en plus en cas de victoire
+}
+
+/** Amélioration d'objet (or + parchemins du type de l'objet). */
+export interface UpgradeConfig {
+  maxLevelByRarity: Record<Rarity, number>;
+  goldBase: number; // coût en or du passage niveau 1 → 2
+  goldGrowth: number; // multiplicateur du coût en or à chaque niveau
+  scrollBase: number; // parchemins pour le passage niveau 1 → 2
+  scrollPerLevel: number; // parchemins en plus par niveau
 }
 
 /** Récompenses d'un run, ajoutées à la sauvegarde en une fois. */
@@ -202,5 +214,6 @@ export interface RunRewards {
   gold: number;
   accountXp: number;
   items: ItemInstance[];
+  scrolls: Record<ItemSlotType, number>;
   clearedChapter: number | null; // numéro du chapitre terminé (1 = ch1), null si défaite
 }

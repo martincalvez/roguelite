@@ -136,7 +136,7 @@ Détaillée en fin de phase 2 (par Sonnet ; Opus recommandé pour la 3.6). Chaqu
 - **Sauvegarde** : tout nouveau champ de `SaveData` = `SAVE_VERSION + 1` et une étape dans `migrate()`. La 3.2 passe à la version 2.
 - **Dépôt public** : aucune donnée personnelle ni clé dans les fichiers (voir CLAUDE.md).
 
-### [ ] 3.1 Écran équipement
+### [x] 3.1 Écran équipement
 
 ```
 Tâche 3.1. Crée src/scenes/EquipmentScene.ts, accessible par un bouton « ÉQUIPEMENT » du menu (hauteur ≥ 88 px ; réorganise le menu en liste verticale de gros boutons : JOUER, ÉQUIPEMENT). Retire le sélecteur d'arme provisoire du menu (il est remplacé par cet écran). En haut : 6 cases de slot (weapon, armor, ring1, ring2, amulet, pet) avec l'objet équipé (nom, couleur de rareté, niveau) ou vide. Dessous : l'inventaire en grille de cartes (4 par ligne, défilement vertical au doigt si besoin), triée par rareté puis nom. Toucher une carte ouvre un panneau de détail : nom, rareté, niveau, description, stats de l'objet (modifiers avec rareté et niveau via itemModifiers), passif de rareté éventuel, et la DIFFÉRENCE de stats du héros si on l'équipait (vert si mieux, rouge si moins bien, pour chaque stat qui change). Bouton « Équiper » (un anneau va dans ring1 ou ring2, le premier libre sinon ring1) et « Retirer » pour un objet équipé. Logique pure dans src/systems/equipment.ts : slotAccepts(slot, itemSlotType), statDiff(before, after). GameState gagne equipItem(uid, slot), unequip(slot) et heroStatsWith(equipped) pour simuler un équipement sans le sauvegarder. Bouton « Retour » en haut. Rien d'important dans les 60 px du bord bas.

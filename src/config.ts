@@ -1,5 +1,5 @@
 // Constantes globales. Les chiffres d'équilibrage vivent dans src/data/*.json, pas ici.
-import type { Rarity } from './types';
+import type { ItemSlotType, Rarity } from './types';
 
 /** Résolution logique, mode portrait. Phaser met à l'échelle selon l'écran. */
 export const GAME_WIDTH = 720;
@@ -38,6 +38,17 @@ export const COLORS = {
 
 /** Taille d'une case du damier du sol (décor). */
 export const FLOOR_TILE = 85;
+
+/** Types d'objets, donc de parchemins. */
+export const SCROLL_TYPES: ItemSlotType[] = ['weapon', 'armor', 'ring', 'amulet', 'pet'];
+
+export const SLOT_TYPE_LABEL: Record<ItemSlotType, string> = {
+  weapon: 'Arme',
+  armor: 'Armure',
+  ring: 'Anneau',
+  amulet: 'Amulette',
+  pet: 'Familier',
+};
 
 export const RARITY_ORDER: Rarity[] = ['common', 'rare', 'epic', 'legendary', 'mythic'];
 

@@ -11,5 +11,12 @@
     "epic": 6,
     "legendary": 1.8,
     "mythic": 0.2
-  }
+  },
+  "scrollCountWeights": [
+    20,
+    40,
+    30,
+    10
+  ],
+  "victoryScrollBonus": 3
 }

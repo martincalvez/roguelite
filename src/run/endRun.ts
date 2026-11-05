@@ -2,7 +2,7 @@ import { SCENES } from '../config';
 import { CHAPTERS, getChapter, ITEMS, LOOT } from '../data';
 import type { LootData } from '../scenes/LootScene';
 import { GameState } from '../state/GameState';
-import { rollLoot } from '../systems/loot';
+import { rollLoot, rollScrolls } from '../systems/loot';
 import { accountXpForRun } from '../systems/progression';
 import type { RunRewards } from '../types';
 import type { RunContext } from './RunContext';
@@ -27,6 +27,7 @@ export function endRun(ctx: RunContext, victory: boolean): void {
     gold: runState.gold,
     accountXp: accountXpForRun(roomsCleared, victory),
     items: rollLoot(LOOT, ITEMS, victory),
+    scrolls: rollScrolls(LOOT, victory),
     clearedChapter: victory ? CHAPTERS.findIndex((c) => c.id === chapter.id) + 1 : null,
   };
   const { levelBefore, levelAfter } = GameState.applyRunRewards(rewards);
@@ -39,6 +40,7 @@ export function endRun(ctx: RunContext, victory: boolean): void {
     levelBefore,
     levelAfter,
     items: rewards.items,
+    scrolls: rewards.scrolls,
   };
 
   scene.cameras.main.fadeOut(450);
