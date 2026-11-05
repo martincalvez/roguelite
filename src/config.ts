@@ -15,6 +15,14 @@ export const ARENA = {
   height: GAME_HEIGHT - HUD_HEIGHT - WALL_THICKNESS * 2,
 };
 
+/** Joystick virtuel flottant (réglages d'interface, pas d'équilibrage). */
+export const JOYSTICK = {
+  radius: 90,
+  deadZone: 0.1, // fraction du rayon
+  baseAlpha: 0.25,
+  knobAlpha: 0.5,
+};
+
 export const COLORS = {
   background: 0x14111a,
   floor: 0x1f1a26,

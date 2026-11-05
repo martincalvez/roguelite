@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, SCENES, WALL_THICKNESS } from '../config';
 import { Player } from '../entities/Player';
+import { VirtualJoystick } from '../ui/VirtualJoystick';
 
 interface RunData {
   chapterId: string;
@@ -27,6 +28,7 @@ export class RunScene extends Phaser.Scene {
     this.physics.world.setBounds(ARENA.x, ARENA.y, ARENA.width, ARENA.height);
 
     this.player = new Player(this, GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
+    this.player.setJoystick(new VirtualJoystick(this));
 
     // Bandeau HUD (vide pour l'instant) : seul le retour au menu y figure.
     this.add

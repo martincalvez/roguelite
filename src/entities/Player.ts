@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GameState } from '../state/GameState';
+import type { VirtualJoystick } from '../ui/VirtualJoystick';
 
 /**
  * Le héros. Déplacements ZQSD + flèches, diagonale normalisée.
@@ -10,6 +11,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private keys: Record<'Z' | 'Q' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
   private readonly moveVector = new Phaser.Math.Vector2();
   private moveSpeed: number;
+  private joystick?: VirtualJoystick;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'player');
@@ -25,8 +27,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.keys = keyboard.addKeys('Z,Q,S,D') as Player['keys'];
   }
 
-  /** Vecteur d'entrée normalisé (longueur 0 à 1). Sera aussi alimenté par le joystick. */
+  setJoystick(joystick: VirtualJoystick): void {
+    this.joystick = joystick;
+  }
+
+  /** Vecteur d'entrée (longueur 0 à 1) : le joystick prime sur le clavier s'il est actif. */
   getMoveVector(): Phaser.Math.Vector2 {
+    if (this.joystick?.active) {
+      return this.moveVector.copy(this.joystick.vector);
+    }
     const left = this.cursors.left.isDown || this.keys.Q.isDown;
     const right = this.cursors.right.isDown || this.keys.D.isDown;
     const up = this.cursors.up.isDown || this.keys.Z.isDown;

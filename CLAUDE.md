@@ -14,6 +14,15 @@ Roguelite d'action 2D vu de dessus, façon Archero, univers **fantasy classique*
 
 Plan complet et roadmap : `docs/TACHES.md` (une tâche = une demande).
 
+## Direction artistique (décision de Martin, 2026-11-05)
+
+Le style visé est celui d'**Archero** : cartoon, très coloré, vif, lisible, "dopamine" (couleurs saturées et lumineuses, gros retours visuels, récompenses qui claquent). **Pas** de fantasy sombre ni de palette terne. Conséquences :
+
+- Palette : couleurs saturées et claires, sols colorés (pas de violet très sombre), ennemis aux teintes distinctes et vives, contours épais.
+- Game feel prioritaire : flashs, particules, chiffres de dégâts, tremblements, orbes d'XP et pièces brillants (tâche 1.6).
+- Les formes générées dans `BootScene` doivent déjà suivre ce style (couleurs vives, contour net).
+- La palette actuelle de `config.ts` (`COLORS`) est sombre : à rafraîchir quand Martin le demande, pas avant.
+
 ## Stack
 
 - Phaser 3 + TypeScript strict + Vite. Pas d'autre framework, pas de dépendance sans demande explicite.

@@ -13,14 +13,14 @@ Mode d'emploi : dans Claude Code (modèle **Sonnet**), colle le bloc « Prompt �
 
 ## Phase 1 — Combat (porte : une salle reste fun 5 parties de suite)
 
-### [ ] 1.1 Joueur et déplacements clavier
+### [x] 1.1 Joueur et déplacements clavier
 
 ```
 Tâche 1.1. Crée src/entities/Player.ts : un sprite Arcade (texture 'player') dont la vitesse vient de stats.moveSpeed (GameState.heroStats()). Déplacements ZQSD + flèches, diagonale normalisée. Dans RunScene, remplace le placeholder : arène rectangulaire avec murs (bords) que le joueur ne peut pas traverser, bandeau HUD de 120 px en haut laissé vide. Expose sur Player une méthode getMoveVector() qui renvoie le vecteur d'entrée normalisé (sera aussi alimenté par le joystick à la tâche suivante) et un getter isMoving.
 ```
 Validation : le cercle bleu se déplace à vitesse constante, y compris en diagonale, et reste dans l'arène.
 
-### [ ] 1.2 Joystick virtuel flottant
+### [x] 1.2 Joystick virtuel flottant
 
 ```
 Tâche 1.2. Crée src/ui/VirtualJoystick.ts : joystick flottant qui apparaît là où le doigt touche la moitié basse de l'arène, base + manette, rayon max 90 px, zone morte 10 %. Il produit un vecteur normalisé (0 à 1 en intensité). Player.getMoveVector() combine clavier et joystick (le joystick prime s'il est actif). Le joystick ne s'affiche que sur écran tactile ou au clic souris maintenu. Pas de dépendance externe.
