@@ -67,6 +67,12 @@ export const ITEM_GROWTH_PER_LEVEL = 0.08;
 /** Nombre d'objets identiques (même def, même rareté) pour une fusion */
 export const FUSION_COUNT = 3;
 
+/** Taille maximale des pools d'objets (réglage technique, pas d'équilibrage). */
+export const POOLS = {
+  enemies: 40,
+  enemyProjectiles: 120,
+};
+
 export const SCENES = {
   boot: 'Boot',
   menu: 'Menu',

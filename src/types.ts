@@ -82,6 +82,8 @@ export interface EnemyDef {
   fireRate?: number; // tirs par seconde
   projectileSpeed?: number;
   projectileCount?: number;
+  keepDistance?: number; // px : distance que garde un tireur par rapport au joueur
+  spreadAngle?: number; // degrés : ouverture de l'éventail d'un 'spreader'
 }
 
 export type RoomType = 'combat' | 'angel' | 'miniboss' | 'boss';

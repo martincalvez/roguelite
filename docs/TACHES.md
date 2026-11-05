@@ -27,7 +27,7 @@ Tâche 1.2. Crée src/ui/VirtualJoystick.ts : joystick flottant qui apparaît l�
 ```
 Validation : sur téléphone (`npm run dev`, même Wi-Fi), le héros se pilote au pouce, sans scroll ni zoom de la page.
 
-### [ ] 1.3 Ennemis et pool
+### [x] 1.3 Ennemis et pool
 
 ```
 Tâche 1.3. Crée src/entities/Enemy.ts et un groupe Phaser poolé dans RunScene. Chaque ennemi est configuré par un EnemyDef (src/data/enemies.json) : texture cercle générée dans BootScene à sa couleur et son rayon. Comportements selon behavior : 'melee' fonce vers le joueur ; 'shooter' garde ses distances (≈300 px) et tire un projectile vers le joueur selon fireRate ; 'spreader' tire projectileCount projectiles en éventail. Projectiles ennemis dans leur propre pool (texture 'enemy-projectile'), détruits sur les murs. Fais apparaître les ennemis de la salle 1 du chapitre ch1 à des positions aléatoires dans la moitié haute. Pas encore de dégâts au joueur.

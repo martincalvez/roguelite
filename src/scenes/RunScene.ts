@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
-import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, SCENES, WALL_THICKNESS } from '../config';
+import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, POOLS, SCENES, WALL_THICKNESS } from '../config';
+import { getChapter, getEnemy } from '../data';
+import { Enemy } from '../entities/Enemy';
+import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Player } from '../entities/Player';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
 
@@ -14,6 +17,8 @@ interface RunData {
 export class RunScene extends Phaser.Scene {
   chapterId = 'ch1'; // utilisé dès la tâche 1.3 (ennemis du chapitre)
   private player!: Player;
+  private enemies!: Phaser.Physics.Arcade.Group;
+  private enemyProjectiles!: Phaser.Physics.Arcade.Group;
 
   constructor() {
     super(SCENES.run);
@@ -30,6 +35,19 @@ export class RunScene extends Phaser.Scene {
     this.player = new Player(this, GAME_WIDTH / 2, ARENA.y + ARENA.height * 0.75);
     this.player.setJoystick(new VirtualJoystick(this));
 
+    this.enemies = this.physics.add.group({ classType: Enemy, maxSize: POOLS.enemies });
+    this.enemyProjectiles = this.physics.add.group({ classType: EnemyProjectile, maxSize: POOLS.enemyProjectiles });
+    this.physics.add.collider(this.enemies, this.enemies);
+
+    // Les projectiles ennemis disparaissent en touchant un mur.
+    this.physics.world.on('worldbounds', (body: Phaser.Physics.Arcade.Body) => {
+      if (body.gameObject instanceof EnemyProjectile) body.gameObject.kill();
+    });
+    this.events.on('enemy-shoot', this.onEnemyShoot, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off('enemy-shoot', this.onEnemyShoot, this));
+
+    this.spawnRoom(0);
+
     // Bandeau HUD (vide pour l'instant) : seul le retour au menu y figure.
     this.add
       .text(24, HUD_HEIGHT / 2, '← Menu', {
@@ -42,8 +60,31 @@ export class RunScene extends Phaser.Scene {
       .on('pointerup', () => this.scene.start(SCENES.menu));
   }
 
-  update(): void {
+  update(time: number): void {
     this.player.updateMovement();
+    const list = this.enemies.getChildren() as Enemy[];
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].active) list[i].updateAI(time, this.player.x, this.player.y);
+    }
+  }
+
+  private onEnemyShoot(x: number, y: number, angle: number, speed: number, damage: number): void {
+    const projectile = this.enemyProjectiles.get(x, y) as EnemyProjectile | null;
+    projectile?.fire(x, y, angle, speed, damage);
+  }
+
+  /** Fait apparaître les ennemis d'une salle du chapitre, dans la moitié haute de l'arène. */
+  private spawnRoom(roomIndex: number): void {
+    const room = getChapter(this.chapterId).rooms[roomIndex];
+    const margin = 60;
+    for (const group of room.enemies ?? []) {
+      const def = getEnemy(group.id);
+      for (let i = 0; i < group.count; i++) {
+        const x = Phaser.Math.Between(ARENA.x + margin, ARENA.x + ARENA.width - margin);
+        const y = Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
+        (this.enemies.get(x, y) as Enemy | null)?.spawn(def, x, y, this.time.now);
+      }
+    }
   }
 
   /** Murs (rectangle plein) puis sol par-dessus : il reste une bordure de WALL_THICKNESS. */
