@@ -13,6 +13,7 @@ declare
   r integer;
   rev_after integer;
   upd timestamptz;
+  owner_after uuid;
   ok boolean;
   no_rls text;
 begin
@@ -26,11 +27,12 @@ begin
   insert into public.saves (user_id, data, save_version) values (a, '{"gold": 1}', 2);
   select revision into r from public.saves where user_id = a;
 
-  -- T1 : un visiteur non connecté (rôle anon) ne peut rien lire
+  -- T1 : anon ne peut lire aucune sauvegarde (refus de permission ou zéro ligne)
   begin
     set local role anon;
-    perform 1 from public.saves limit 1;
-    res := res || E'T1  visiteur non connecté ne peut pas lire : ECHEC\n';
+    select count(*) into n from public.saves;
+    res := res || case when n = 0 then E'T1  visiteur non connecté ne peut rien lire : OK\n'
+                       else E'T1  visiteur non connecté voit des sauvegardes : ECHEC\n' end;
   exception when others then
     res := res || case when sqlstate = '42501' then E'T1  visiteur non connecté ne peut pas lire : OK\n'
                        else E'T1  visiteur : ECHEC (code ' || sqlstate || E')\n' end;
@@ -87,12 +89,12 @@ begin
 
   -- T10 : le client ne peut pas donner sa ligne à quelqu'un d'autre
   begin
-    update public.saves set user_id = b where user_id = a;
+    update public.saves set user_id = b where user_id = a returning user_id into owner_after;
+    res := res || case when owner_after = a then E'T10 la ligne ne peut pas changer de propriétaire : OK\n'
+                       else E'T10 changement de propriétaire possible : ECHEC\n' end;
   exception when others then
-    null; -- un refus est acceptable aussi
+    res := res || E'T10 la ligne ne peut pas changer de propriétaire : OK (refusée)\n';
   end;
-  select count(*) into n from public.saves where user_id = b;
-  res := res || case when n = 0 then E'T10 la ligne ne peut pas changer de propriétaire : OK\n' else E'T10 changement de propriétaire possible : ECHEC\n' end;
 
   -- T11 : limite de taille (200 Ko)
   begin

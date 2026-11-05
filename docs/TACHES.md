@@ -234,12 +234,14 @@ Tâche 4.3. Logique pure dans src/systems/cloudSync.ts, avec tests Vitest couvra
 ```
 Validation : une progression faite sur PC apparaît sur le téléphone, et inversement ; deux appareils modifiés hors ligne provoquent l'écran de choix ; hors ligne, le jeu fonctionne et la synchro reprend au lancement suivant.
 
-### [ ] 4.4 Revue de sécurité (Opus recommandé)
+### [x] 4.4 Revue de sécurité (Opus recommandé)
 
 ```
 Tâche 4.4. Revue de sécurité de la phase 4, par ordre de gravité : (1) RLS : test avec un second compte de test (créé à la main puis supprimé) : B ne voit ni ne modifie la ligne de A ; test du rôle anon ; test d'une sauvegarde de plus de 200 Ko ; test qu'un client ne peut pas imposer revision ni updated_at ; (2) inscriptions fermées : un e-mail inconnu est refusé par le jeu et par l'API ; (3) recherche de secrets dans tout l'historique git (clé service_role, mots de passe, jetons, .env) ; (4) Content-Security-Policy dans index.html (meta) limitant les connexions au seul domaine Supabase du projet et aux ressources du site (le script de service worker inline devra être déplacé dans un fichier ou signé) ; (5) limitation des envois de codes (réglages Supabase), expiration du code, et clé d'envoi Resend (permission minimale, révocable, absente du dépôt) ; (6) comportement si le code est faux plusieurs fois ; (7) suppression de sauvegarde ; (8) projet en pause : le jeu ne se bloque pas ; (9) RGPD : l'e-mail est la seule donnée personnelle, où elle est stockée, comment la supprimer.
 ```
 Validation : liste de problèmes par gravité, tous corrigés ou acceptés explicitement par Martin.
+
+Validation effectuée le 5 novembre 2026 : les tests SQL T1–T14 sont tous OK ; les contrôles de sécurité et réglages listés dans `docs/SECURITE.md` ont été vérifiés ; Martin accepte explicitement que son e-mail figure dans les métadonnées des commits publics. Le script SQL n'a créé aucun compte de test et sa transaction a été annulée.
 
 **Porte de phase 4 → revue Opus.**
 
