@@ -113,7 +113,7 @@ Validation : recharger la page conserve l'or et les objets.
 Tâche 2.8. Dans le menu, ajoute un sélecteur simple d'arme parmi les armes de l'inventaire. Le champ weapon de l'ItemDef change le tir : 'arrow' normal, 'bolt' gros projectile lent perçant (pierce), 'shuriken' petit et rapide. Les stats de l'arme passent par heroStats().
 ```
 
-### [ ] 2.9 Mise en ligne et installation sur téléphone
+### [x] 2.9 Mise en ligne et installation sur téléphone
 
 ```
 Tâche 2.9. Prépare le déploiement GitHub Pages via une GitHub Action (build Vite, publication de dist/). Ajoute un manifest PWA (nom, icône simple générée, mode standalone, orientation portrait) et un service worker minimal pour que le jeu s'installe sur l'écran d'accueil. Explique-moi les réglages à faire sur GitHub.
