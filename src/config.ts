@@ -101,4 +101,5 @@ export const SCENES = {
   equipment: 'Equipment',
   chests: 'Chests',
   talents: 'Talents',
+  account: 'Account',
 } as const;

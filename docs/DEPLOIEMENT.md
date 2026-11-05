@@ -30,3 +30,13 @@ Le jeu s'ouvre alors en plein écran, en portrait, avec son icône. Après une p
 - Le service worker ne s'active qu'en HTTPS : il est donc absent en local (`npm run dev`), ce qui évite de servir une vieille version pendant le développement.
 - Réseau d'abord : quand tu es en ligne, tu as toujours la dernière version. Hors ligne, c'est la copie en cache.
 - La sauvegarde (`localStorage`) est propre à chaque appareil et à chaque adresse : PC et téléphone n'ont pas la même progression avant la synchro de la phase 4.
+
+## Compte cloud (Supabase)
+
+Le compte est facultatif : sans configuration, le jeu fonctionne comme avant, et le bouton COMPTE est grisé.
+
+- **En local :** le fichier `.env.local` (jamais commité, modèle : `.env.example`) contient `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`. Après l'avoir modifié, relance `npm run dev`.
+- **En ligne :** les deux mêmes valeurs sont dans les **Variables** du dépôt GitHub (Settings → Secrets and variables → Actions → Variables). Le workflow les lit au moment du build.
+- **Sécurité :** la clé utilisée est la clé *publique* (« publishable » ou « anon »), visible dans le jeu publié par conception. Les données sont protégées par les règles RLS de `docs/supabase/001_saves.sql`. La clé « secret » ou « service_role » ne doit jamais être utilisée.
+- **Connexion :** par code à 6 chiffres reçu par e-mail, sans mot de passe. Les inscriptions sont fermées : seule l'adresse créée à la main dans Supabase (Authentication → Users) peut se connecter.
+- **Projet en pause :** le plan gratuit met le projet en pause après environ une semaine sans activité. Le jeu continue alors en local ; relance le projet dans le tableau de bord Supabase.

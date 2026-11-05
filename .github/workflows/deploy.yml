@@ -27,6 +27,11 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+        env:
+          # Variables du dépôt (Settings → Secrets and variables → Actions → Variables). La clé publique est
+          # visible dans le jeu publié par conception ; la sécurité vient de la RLS Supabase, pas de son secret.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

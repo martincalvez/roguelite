@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from './config';
 import { BootScene } from './scenes/BootScene';
+import { AccountScene } from './scenes/AccountScene';
 import { ChestScene } from './scenes/ChestScene';
 import { EquipmentScene } from './scenes/EquipmentScene';
 import { LootScene } from './scenes/LootScene';
@@ -24,5 +25,7 @@ new Phaser.Game({
     arcade: { debug: false },
   },
   input: { activePointers: 3 },
-  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene, ChestScene, TalentScene],
+  // Champs de saisie HTML (adresse e-mail, code) : Phaser n'a pas de champ texte natif.
+  dom: { createContainer: true },
+  scene: [BootScene, MenuScene, RunScene, SkillPickScene, LootScene, EquipmentScene, ChestScene, TalentScene, AccountScene],
 });

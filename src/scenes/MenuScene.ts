@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_WIDTH, SCENES } from '../config';
+import { cloudEnabled } from '../cloud/client';
 import { getHero } from '../data';
 import { accountXpToNext } from '../systems/progression';
 import { GameState } from '../state/GameState';
@@ -48,19 +49,21 @@ export class MenuScene extends Phaser.Scene {
       .text(cx, 548, `Niveau de compte ${d.accountLevel}`, { fontSize: '16px', color: '#ffffff', fontStyle: 'bold', stroke: '#1a1020', strokeThickness: 4 })
       .setOrigin(0.5);
 
-    this.menuButton(cx, 680, '  JOUER  ', 56, () => this.scene.start(SCENES.run, { chapterId: 'ch1' }));
-    this.menuButton(cx, 815, ' ÉQUIPEMENT ', 40, () => this.scene.start(SCENES.equipment));
-    this.menuButton(cx, 930, '   COFFRES   ', 40, () => this.scene.start(SCENES.chests));
-    this.menuButton(cx, 1045, '   TALENTS   ', 40, () => this.scene.start(SCENES.talents));
+    this.menuButton(cx, 640, '  JOUER  ', 56, () => this.scene.start(SCENES.run, { chapterId: 'ch1' }));
+    this.menuButton(cx, 765, ' ÉQUIPEMENT ', 40, () => this.scene.start(SCENES.equipment));
+    this.menuButton(cx, 870, '   COFFRES   ', 40, () => this.scene.start(SCENES.chests));
+    this.menuButton(cx, 975, '   TALENTS   ', 40, () => this.scene.start(SCENES.talents));
+    // Grisé si le cloud n'est pas configuré (l'écran explique alors pourquoi).
+    this.menuButton(cx, 1080, '   COMPTE   ', 40, () => this.scene.start(SCENES.account), cloudEnabled ? COLORS.gold : '#9aa5a0');
   }
 
   /** Gros bouton doré (hauteur ≥ 88 px, règle mobile d'abord). */
-  private menuButton(x: number, y: number, label: string, fontSize: number, onClick: () => void): void {
+  private menuButton(x: number, y: number, label: string, fontSize: number, onClick: () => void, background: string = COLORS.gold): void {
     this.add
       .text(x, y, label, {
         fontSize: `${fontSize}px`,
         color: '#14111a',
-        backgroundColor: COLORS.gold,
+        backgroundColor: background,
         padding: { x: 28, y: 24 },
       })
       .setOrigin(0.5)
