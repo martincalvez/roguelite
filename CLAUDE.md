@@ -74,6 +74,15 @@ src/
 - https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick : joystick virtuel de référence pour Phaser 3 (tâche 1.2 : on code le nôtre, mais on peut s'inspirer de son API).
 - https://phaser.io/examples : exemples officiels Phaser 3 (pools, Arcade physics, particules, caméra, entrées tactiles).
 
+## Sécurité : le dépôt GitHub est PUBLIC
+
+Tout ce qui est commité est visible par tout le monde, y compris dans l'historique (supprimer un fichier plus tard ne l'efface pas).
+
+- Ne jamais commiter : clés d'API, tokens, mots de passe, fichiers `.env`, données personnelles (e-mail, adresse, téléphone, noms de proches), captures ou sauvegardes contenant des infos privées.
+- Avant chaque `git add`/`git commit` : relire `git status` et `git diff --staged`. En cas de doute, ne pas commiter et demander.
+- Phase 4 (Supabase) : seule la clé **anon** (publique par conception) peut apparaître côté client, et uniquement avec les règles RLS actives. La clé **service_role** ne doit jamais entrer dans ce dépôt ni dans le code du jeu.
+- Si un secret est commité par erreur : le révoquer immédiatement chez le fournisseur (le réécrire dans l'historique ne suffit pas), puis prévenir Martin.
+
 ## Commandes
 
 - `npm run dev` → jeu sur http://localhost:5173 (et sur le téléphone via l'IP locale affichée, même Wi-Fi)

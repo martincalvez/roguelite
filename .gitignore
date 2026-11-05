@@ -1,3 +1,12 @@
 node_modules
 dist
 .DS_Store
+
+# Secrets et fichiers locaux : ne jamais les commiter (le dépôt est public)
+.env
+.env.*
+*.pem
+*.key
+*.p12
+.claude/
+.vscode/
