@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, GAME_WIDTH, PLAYER_SPAWN, POOLS } from '../config';
-import { COMBAT, getChapter, getEnemy, PROGRESSION } from '../data';
+import { COMBAT, getChapter, getEnemy, HEROES, PROGRESSION } from '../data';
 import type { Enemy } from '../entities/Enemy';
 import type { EnemyProjectile } from '../entities/EnemyProjectile';
 import type { Projectile } from '../entities/Projectile';
 import { XpOrb } from '../entities/XpOrb';
+import { GameState } from '../state/GameState';
 import { pickEnemySpawn } from '../systems/arenaLayout';
 import type { EnemyDef } from '../types';
 import type { RunContext } from './RunContext';
@@ -74,14 +75,19 @@ export class RoomFlow {
 
   /** Fait apparaître les ennemis d'une salle du chapitre, dans la moitié haute de l'arène, hors des blocs. */
   private spawnRoom(roomIndex: number): void {
-    const { scene, enemies, arena } = this.ctx;
+    const { scene, enemies, arena, player } = this.ctx;
     const chapter = getChapter(this.ctx.chapterId);
     const room = chapter.rooms[roomIndex];
     const margin = 60;
     // Les PV suivent le multiplicateur de la salle ; les dégâts n'en suivent qu'une partie.
     const roomScale = room.difficulty ?? 1;
-    const hpScale = chapter.difficulty * roomScale;
-    const damageScale = chapter.difficulty * (1 + (roomScale - 1) * COMBAT.roomDamageShare);
+    const base = HEROES.find((hero) => hero.id === GameState.data.selectedHero)?.base ?? HEROES[0].base;
+    const offenseRatio = Math.sqrt((player.stats.attack / (base.attack + COMBAT.baselineWeaponAttack)) * (player.stats.attackSpeed / base.attackSpeed));
+    const powerRatio = Math.max(offenseRatio, player.stats.maxHp / base.maxHp);
+    const excessPower = Phaser.Math.Clamp(powerRatio - 1, 0, COMBAT.gearScalingCap);
+    const hpScale = chapter.difficulty * roomScale * (1 + excessPower * COMBAT.gearHpScalePerPower);
+    const damageScale = chapter.difficulty * (1 + (roomScale - 1) * COMBAT.roomDamageShare)
+      * (1 + excessPower * COMBAT.gearDamageScalePerPower);
     for (const group of room.enemies ?? []) {
       const def = getEnemy(group.id);
       for (let i = 0; i < group.count; i++) {

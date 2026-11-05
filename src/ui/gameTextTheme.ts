@@ -16,11 +16,13 @@ export function installGameTextTheme(): void {
   const originalText = factory.text;
   factory.text = function (x, y, text, style) {
     return originalText.call(this, x, y, text, {
-      fontFamily: FONT_FAMILY,
       stroke: INK,
       strokeThickness: 2,
       shadow: { offsetX: 0, offsetY: 3, color: '#100b1b', blur: 1, fill: true },
       ...style,
+      // Certains menus forçaient encore Arial : les références utilisent une seule
+      // typographie ronde et épaisse sur tout le jeu.
+      fontFamily: FONT_FAMILY,
     });
   };
 }

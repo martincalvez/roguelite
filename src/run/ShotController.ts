@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { ARENA } from '../config';
 import { COMBAT } from '../data';
 import type { Enemy } from '../entities/Enemy';
 import { OrbitOrbs } from '../entities/OrbitOrbs';
@@ -6,6 +7,7 @@ import type { Projectile } from '../entities/Projectile';
 import { GameState } from '../state/GameState';
 import { damageAmount, rollCrit } from '../systems/combat';
 import { computeShotEffects, type ShotEffects } from '../systems/skills';
+import { arenaLineOfSight } from '../systems/navigation';
 import type { RunContext } from './RunContext';
 
 /**
@@ -75,10 +77,14 @@ export class ShotController {
     let bestDist = Infinity;
     for (let i = 0; i < list.length; i++) {
       if (!list[i].active || projectile?.hasHit(list[i])) continue;
-      const d = Phaser.Math.Distance.Squared(x, y, list[i].x, list[i].y);
+      const enemy = list[i];
+      if (!arenaLineOfSight(this.ctx.arena,
+        { x: x - ARENA.x, y: y - ARENA.y },
+        { x: enemy.x - ARENA.x, y: enemy.y - ARENA.y })) continue;
+      const d = Phaser.Math.Distance.Squared(x, y, enemy.x, enemy.y);
       if (d < bestDist) {
         bestDist = d;
-        best = list[i];
+        best = enemy;
       }
     }
     return best;

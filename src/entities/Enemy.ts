@@ -12,13 +12,13 @@ const FREEZE_TINT = 0x66ccff;
 const ENEMY_ART: Record<string, string> = {
   gobelin: 'enemy-art-crystal-green',
   archer_squelette: 'enemy-art-turret',
-  shaman: 'enemy-art-crystal-green',
+  shaman: 'enemy-art-crystal-pink',
   ogre: 'enemy-art-crystal-pink',
   liche: 'enemy-art-blue-knight',
   golem_floral: 'enemy-art-crystal-green',
   gardien_racines: 'enemy-art-crystal-green',
   chauve_souris_braise: 'enemy-art-crystal-pink',
-  mage_ombre: 'enemy-art-crystal-green',
+  mage_ombre: 'enemy-art-crystal-pink',
   elementaire_lave: 'enemy-art-crystal-pink',
   golem_cendre: 'enemy-art-crystal-pink',
 };
@@ -69,7 +69,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const art = ENEMY_ART[def.id];
     if (art && this.scene.textures.exists(art)) {
       this.setTexture(art);
-      const targetHeight = def.radius * (def.boss ? 4.8 : 3.3);
+      const targetHeight = def.radius * (def.boss ? 5.2 : 4.2);
       this.setScale(targetHeight / Math.max(this.frame.width, this.frame.height));
     } else {
       this.setTexture(`enemy-${def.id}`).setScale(1);
@@ -77,7 +77,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     // Garde la collision gameplay à la taille définie, même si l'illustration est agrandie.
     const scaleX = Math.max(Math.abs(this.scaleX), 0.001);
     const scaleY = Math.max(Math.abs(this.scaleY), 0.001);
-    const radius = Math.min(def.radius / scaleX, def.radius / scaleY);
+    const radius = Math.min(def.radius * 1.1 / scaleX, def.radius * 1.1 / scaleY);
     this.setCircle(radius, (this.frame.width - radius * 2) / 2, (this.frame.height - radius * 2) / 2);
     this.stationary = def.id === 'archer_squelette';
     this.setCollideWorldBounds(true);
@@ -103,31 +103,33 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /** Appelé à chaque frame par la scène, avec la position de la cible. */
-  updateAI(time: number, targetX: number, targetY: number): void {
+  updateAI(time: number, targetX: number, targetY: number, moveX = targetX, moveY = targetY, targetVisible = true): void {
     if (this.updateStatus(time)) return; // mort de brûlure
     if (time < this.knockbackUntil) return; // en plein recul
 
     const def = this.def;
     const speed = time < this.freezeUntil ? def.speed * (1 - this.freezeSlow) : def.speed;
     const angle = Phaser.Math.Angle.Between(this.x, this.y, targetX, targetY);
+    const moveAngle = Phaser.Math.Angle.Between(this.x, this.y, moveX, moveY);
 
     if (def.behavior === 'boss') {
-      this.updateBoss(time, angle, speed);
+      this.updateBoss(time, angle, speed, moveAngle);
     } else if (def.behavior === 'shooter' || def.behavior === 'spreader') {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
       const keep = def.keepDistance ?? 0;
       if (this.stationary) this.setVelocity(0, 0);
+      else if (!targetVisible) this.moveAlong(moveAngle, speed);
       else if (dist > keep) this.moveAlong(angle, speed);
       else if (dist < keep * TOO_CLOSE_RATIO) this.moveAlong(angle, -speed);
       else this.setVelocity(0, 0);
 
-      if (time >= this.nextFireAt) {
+      if (targetVisible && time >= this.nextFireAt) {
         this.nextFireAt = time + this.fireDelay();
         this.shoot(angle);
       }
     } else {
       // 'melee' : fonce sur le joueur.
-      this.moveAlong(angle, speed);
+      this.moveAlong(moveAngle, speed);
     }
   }
 
@@ -135,7 +137,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
    * Boss : poursuit le joueur, puis toutes les cycleMs prépare une attaque (clignotement pendant
    * warnMs, pour qu'on puisse l'esquiver) et enchaîne ruée → cercle → salve visée.
    */
-  private updateBoss(time: number, angleToTarget: number, speed: number): void {
+  private updateBoss(time: number, angleToTarget: number, speed: number, angleToRoute: number): void {
     const cfg = this.def.boss!;
     if (time < this.chargeUntil) return; // en pleine ruée : la vitesse est déjà réglée
 
@@ -164,7 +166,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.setVelocity(0, 0);
       return;
     }
-    this.moveAlong(angleToTarget, speed);
+    this.moveAlong(angleToRoute, speed);
   }
 
   private executePattern(time: number, angleToTarget: number): void {

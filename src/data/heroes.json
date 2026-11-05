@@ -3,7 +3,7 @@
     "id": "aldric",
     "name": "Aldric",
     "description": "Rôdeur polyvalent.",
-    "base": { "maxHp": 200, "attack": 20, "attackSpeed": 1.6, "moveSpeed": 300, "critChance": 0.05, "critDamage": 2, "projectileSpeed": 650, "dodge": 0 },
+    "base": { "maxHp": 200, "attack": 20, "attackSpeed": 1.6, "moveSpeed": 340, "critChance": 0.05, "critDamage": 2, "projectileSpeed": 650, "dodge": 0 },
     "unlockCostGems": 0,
     "appearance": { "form": "ranger", "outfitColor": "#257a48", "accentColor": "#f5bf39", "hairColor": "#8b4b2e", "eyeColor": "#55dfff" }
   },
@@ -11,7 +11,7 @@
     "id": "seren",
     "name": "Seren",
     "description": "Mage de feu : ses projectiles brûlent dès le départ.",
-    "base": { "maxHp": 170, "attack": 22, "attackSpeed": 1.5, "moveSpeed": 290, "critChance": 0.05, "critDamage": 2, "projectileSpeed": 600, "dodge": 0 },
+    "base": { "maxHp": 170, "attack": 22, "attackSpeed": 1.5, "moveSpeed": 330, "critChance": 0.05, "critDamage": 2, "projectileSpeed": 600, "dodge": 0 },
     "passive": "feu_inne",
     "unlockCostGems": 300,
     "appearance": { "form": "mage", "outfitColor": "#7a38b5", "accentColor": "#ff713e", "hairColor": "#ff9c34", "eyeColor": "#67efff" }

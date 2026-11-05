@@ -79,7 +79,10 @@ export class VirtualJoystick {
       this.vector.set(0, 0);
       return;
     }
-    const intensity = (raw - JOYSTICK.deadZone) / (1 - JOYSTICK.deadZone);
+    const precision = (raw - JOYSTICK.deadZone) / (1 - JOYSTICK.deadZone);
+    // Un petit glissement donne déjà une vraie impulsion : la course ne dépend pas d'un
+    // grand mouvement du pouce et le héros paraît immédiatement plus nerveux.
+    const intensity = 0.68 + precision * 0.32;
     this.vector.set(Math.cos(angle) * intensity, Math.sin(angle) * intensity);
   }
 

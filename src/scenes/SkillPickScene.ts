@@ -78,7 +78,7 @@ export class SkillPickScene extends Phaser.Scene {
 
       this.add
         .text(x, CARD_TOP + 39, skill.name, {
-          fontSize: skill.name.length > 16 ? '22px' : '27px',
+          fontSize: skill.name.length > 14 ? '26px' : '31px',
           color: '#ffffff',
           fontStyle: 'bold',
           align: 'center',
@@ -92,11 +92,11 @@ export class SkillPickScene extends Phaser.Scene {
       this.add.rectangle(x, CARD_TOP + 323, CARD_WIDTH - 26, 3, 0xcda56e, 0.8);
       this.add
         .text(x, CARD_TOP + 408, skill.description, {
-          fontSize: '24px',
+          fontSize: '30px',
           color: '#55351f',
           align: 'center',
           wordWrap: { width: CARD_WIDTH - 34 },
-          lineSpacing: 4,
+          lineSpacing: 1,
         })
         .setOrigin(0.5);
 

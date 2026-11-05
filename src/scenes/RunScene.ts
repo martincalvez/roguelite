@@ -13,13 +13,23 @@ import { ShotController } from '../run/ShotController';
 import { SkillFlow } from '../run/SkillFlow';
 import { GameState } from '../state/GameState';
 import { RunState } from '../state/RunState';
-import { buildArenaLayout, type ArenaLayout } from '../systems/arenaLayout';
+import { buildArenaLayout, type ArenaLayout, type ArenaPoint } from '../systems/arenaLayout';
+import { arenaLineOfSight, findArenaPath } from '../systems/navigation';
 import { Fx } from '../ui/Fx';
 import { Hud } from '../ui/Hud';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
 
 interface RunData {
   chapterId: string;
+}
+
+interface EnemyRoute {
+  refreshAt: number;
+  playerX: number;
+  playerY: number;
+  enemyX: number;
+  enemyY: number;
+  waypoint: ArenaPoint;
 }
 
 /**
@@ -35,6 +45,7 @@ export class RunScene extends Phaser.Scene {
   private shots!: ShotController;
   private rooms!: RoomFlow;
   private pet?: PetFollower;
+  private enemyRoutes = new WeakMap<Enemy, EnemyRoute>();
 
   constructor() {
     super(SCENES.run);
@@ -103,6 +114,7 @@ export class RunScene extends Phaser.Scene {
       this.events.off('enemy-shoot', this.onEnemyShoot, this);
       this.events.off('player-died', this.onPlayerDied, this);
     });
+    this.events.on('room-changed', () => { this.enemyRoutes = new WeakMap<Enemy, EnemyRoute>(); });
 
     this.rooms.load(0);
 
@@ -120,14 +132,21 @@ export class RunScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     this.fx.update(time);
-    const { player, runState, enemies } = this.ctx;
+    const { player, runState, enemies, arena } = this.ctx;
     if (runState.ended) return;
     player.updateMovement(time);
     this.pet?.update(time, delta, player.x, player.y);
     this.shots.updateOrbs(time);
     const list = enemies.getChildren() as Enemy[];
     for (let i = 0; i < list.length; i++) {
-      if (list[i].active) list[i].updateAI(time, player.x, player.y);
+      if (!list[i].active) continue;
+      const enemy = list[i];
+      const from = { x: enemy.x - ARENA.x, y: enemy.y - ARENA.y };
+      const target = { x: player.x - ARENA.x, y: player.y - ARENA.y };
+      const visible = arenaLineOfSight(arena, from, target, enemy.def.radius * 1.1);
+      let waypoint = target;
+      if (!visible) waypoint = this.enemyWaypoint(enemy, from, target, time);
+      enemy.updateAI(time, player.x, player.y, waypoint.x + ARENA.x, waypoint.y + ARENA.y, visible);
     }
     this.shots.updateAutoFire(time);
     this.rooms.update();
@@ -140,6 +159,27 @@ export class RunScene extends Phaser.Scene {
 
   private onPlayerDied(): void {
     endRun(this.ctx, false);
+  }
+
+  /** Calcule un détour uniquement lorsque la pierre coupe la route directe ; le résultat est réutilisé. */
+  private enemyWaypoint(enemy: Enemy, from: ArenaPoint, target: ArenaPoint, time: number): ArenaPoint {
+    let route = this.enemyRoutes.get(enemy);
+    const movedEnough = route && (Math.hypot(route.playerX - target.x, route.playerY - target.y) > this.ctx.arena.cell * 0.7
+      || Math.hypot(route.enemyX - from.x, route.enemyY - from.y) > this.ctx.arena.cell * 0.7);
+    const reachedWaypoint = route && Math.hypot(route.waypoint.x - from.x, route.waypoint.y - from.y) < enemy.def.radius + 18;
+    if (!route || time >= route.refreshAt || movedEnough || reachedWaypoint) {
+      const path = findArenaPath(this.ctx.arena, from, target, enemy.def.radius * 1.1 + 8);
+      route = {
+        refreshAt: time + 280,
+        playerX: target.x,
+        playerY: target.y,
+        enemyX: from.x,
+        enemyY: from.y,
+        waypoint: path[1] ?? target,
+      };
+      this.enemyRoutes.set(enemy, route);
+    }
+    return route.waypoint;
   }
 
   /**
@@ -198,7 +238,7 @@ export class RunScene extends Phaser.Scene {
       this.add.ellipse(x + 3, y + 7, block.width * 0.9, block.height * 0.55, 0x000000, 0.24).setDepth(-6);
       if (this.textures.exists('stone-pillar')) {
         // L'illustration a un bord transparent : la hitbox correspond à la silhouette visible.
-        const collider = this.add.rectangle(x, y, block.width * 0.7, block.height, 0xffffff, 0).setVisible(false);
+        const collider = this.add.rectangle(x, y, block.width * 0.9, block.height * 0.95, 0xffffff, 0).setVisible(false);
         blocks.add(collider);
         this.add
           .image(x, y, 'stone-pillar')

@@ -208,6 +208,10 @@ export interface CombatConfig {
   orbSpeedDegPerSec: number; // vitesse de rotation des orbes
   projectileSpeedMultiplier: Record<WeaponProjectile, number>; // vitesse du tir selon l'arme (bolt lent, shuriken rapide)
   roomDamageShare: number; // part du multiplicateur de salle appliquée aux dégâts des ennemis (0 = aucun, 1 = autant que les PV)
+  baselineWeaponAttack: number;
+  gearHpScalePerPower: number;
+  gearDamageScalePerPower: number;
+  gearScalingCap: number;
   angelRareMaxWeight: number; // salle de l'ange : une compétence "rare" a un poids d'apparition ≤ à cette valeur
 }
 

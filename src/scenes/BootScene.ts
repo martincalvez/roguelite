@@ -34,10 +34,10 @@ export class BootScene extends Phaser.Scene {
     for (const hero of HEROES) {
       if (!this.textures.exists(`hero-${hero.id}`)) this.makeHeroTexture(hero);
     }
-    this.makeCircle('projectile', 7, 0xffe14a);
-    this.makeCircle('projectile-bolt', 11, 0xff9d2e);
-    this.makeCircle('projectile-shuriken', 5, 0xd9e6ff);
-    this.makeCircle('enemy-projectile', 8, 0xff3b6b);
+    this.makeArrow('projectile', 0xffd33f, 0xfff4a3);
+    this.makeEnergyOrb('projectile-bolt', 0x36d8ff);
+    this.makeShuriken('projectile-shuriken');
+    this.makeEnergyOrb('enemy-projectile', 0xff3b6b);
     this.makeCircle('particle', 5, 0xffffff);
     this.makeCircle('orbit-orb', 14, 0xb35cff);
     if (!this.textures.exists('xp-orb')) this.makeCircle('xp-orb', 6, 0x5cff7a);
@@ -152,6 +152,50 @@ export class BootScene extends Phaser.Scene {
     g.lineStyle(outline, 0x1a1020, 0.7).strokeCircle(radius, radius, radius - outline / 2);
     if (facingMark) g.fillStyle(0xffffff, 1).fillCircle(radius * 2 - 8, radius, 5);
     g.generateTexture(key, radius * 2, radius * 2);
+    g.destroy();
+  }
+
+  /** Flèche directionnelle épaisse, bord sombre et reflets dorés lisibles en mouvement. */
+  private makeArrow(key: string, color: number, highlight: number): void {
+    const g = this.add.graphics();
+    g.fillStyle(0x143c5c, 0.24).fillEllipse(30, 33, 48, 8);
+    g.lineStyle(10, 0x38210d, 1).lineBetween(9, 20, 45, 20);
+    g.lineStyle(6, color, 1).lineBetween(9, 20, 45, 20);
+    g.lineStyle(6, 0x38210d, 1).strokeTriangle(59, 20, 41, 5, 41, 35);
+    g.fillStyle(color, 1).fillTriangle(59, 20, 41, 5, 41, 35);
+    g.lineStyle(4, 0x38210d, 1).lineBetween(10, 20, 2, 10).lineBetween(10, 20, 2, 30);
+    g.lineStyle(2, highlight, 1).lineBetween(12, 18, 43, 18);
+    g.generateTexture(key, 64, 40);
+    g.destroy();
+  }
+
+  /** Orbe d'énergie brillant, teinté selon le camp et le type de projectile. */
+  private makeEnergyOrb(key: string, color: number): void {
+    const g = this.add.graphics();
+    g.fillStyle(color, 0.18).fillCircle(24, 24, 23);
+    g.fillStyle(color, 0.45).fillCircle(24, 24, 17);
+    g.lineStyle(4, 0x172b49, 1).strokeCircle(24, 24, 12);
+    g.fillStyle(color, 1).fillCircle(24, 24, 10);
+    g.fillStyle(0xffffff, 0.9).fillCircle(20, 19, 4);
+    g.generateTexture(key, 48, 48);
+    g.destroy();
+  }
+
+  /** Shuriken à quatre branches qui pivote dans la direction de son tir. */
+  private makeShuriken(key: string): void {
+    const g = this.add.graphics();
+    g.fillStyle(0x263551, 1).fillPoints([
+      new Phaser.Geom.Point(32, 2), new Phaser.Geom.Point(38, 24), new Phaser.Geom.Point(62, 32),
+      new Phaser.Geom.Point(38, 38), new Phaser.Geom.Point(32, 62), new Phaser.Geom.Point(26, 38),
+      new Phaser.Geom.Point(2, 32), new Phaser.Geom.Point(26, 26),
+    ], true);
+    g.fillStyle(0xb9f5ff, 1).fillPoints([
+      new Phaser.Geom.Point(32, 6), new Phaser.Geom.Point(36, 26), new Phaser.Geom.Point(58, 32),
+      new Phaser.Geom.Point(36, 36), new Phaser.Geom.Point(32, 58), new Phaser.Geom.Point(28, 36),
+      new Phaser.Geom.Point(6, 32), new Phaser.Geom.Point(28, 28),
+    ], true);
+    g.fillStyle(0x289fff, 1).fillCircle(32, 32, 7);
+    g.generateTexture(key, 64, 64);
     g.destroy();
   }
 }

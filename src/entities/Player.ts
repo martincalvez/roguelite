@@ -35,7 +35,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.setCollideWorldBounds(true);
-    this.setCenteredHitbox(20);
+    this.setCenteredHitbox(24);
 
     const keyboard = scene.input.keyboard!;
     this.cursors = keyboard.createCursorKeys();

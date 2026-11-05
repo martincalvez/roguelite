@@ -18,5 +18,9 @@
     "bolt": 0.7,
     "shuriken": 1.3
   },
-  "roomDamageShare": 0.35
+  "roomDamageShare": 0.35,
+  "baselineWeaponAttack": 10,
+  "gearHpScalePerPower": 0.32,
+  "gearDamageScalePerPower": 0.12,
+  "gearScalingCap": 1.5
 }
