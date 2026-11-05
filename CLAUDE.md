@@ -59,7 +59,7 @@ src/
 5. **Sauvegarde** : uniquement via `GameState` / `SaveManager`. Tout changement de format → `SAVE_VERSION + 1` et une étape dans `migrate()`. Ne jamais casser une ancienne sauvegarde.
 6. **Mobile d'abord** : tout bouton fait au moins 88 px de haut, rien d'important dans les 60 px du bord bas, multitouch activé. Tester mentalement chaque écran au doigt.
 7. **Performance** : pools d'objets (groupes Phaser) pour projectiles et ennemis, pas de `new` dans `update()`. Viser 60 fps sur un téléphone moyen.
-8. **Graphismes** : formes générées dans `BootScene` tant que la phase 5 n'a pas commencé. Ne pas chercher d'assets.
+8. **Graphismes** : la phase 5 est en cours ; utiliser les assets validés par Martin. Les images JPG avec un damier simulé doivent être traitées avec `scripts/remove_checkerboard.py` : détourage des pixels neutres reliés au bord, planches traitées cellule par cellule. Un JPG ne contient pas de canal alpha ; vérifier le PNG final sur un fond uni. Les textures de sol et d'eau restent opaques.
 9. Textes du jeu et commentaires en **français**. Noms de variables et fonctions en anglais.
 
 ## Méthode de travail

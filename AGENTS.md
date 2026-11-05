@@ -9,5 +9,6 @@ Rappels essentiels (détails dans CLAUDE.md) :
 - Une tâche à la fois. Après chaque modification : `npm run build` et `npm test` doivent passer. Ne coche une tâche dans `docs/TACHES.md` que quand Martin a confirmé qu'elle marche.
 - Aucun chiffre d'équilibrage en dur dans le code (JSON dans `src/data/`), logique pure dans `src/systems/` avec tests, pas de nouvelle dépendance sans accord explicite de Martin.
 - Phaser : `scene.children.removeAll(true)` ne détruit rien. Utilise `clearScene(this)` (`src/ui/clearScene.ts`) pour reconstruire un écran.
+- Images générées avec damier : le damier d’un JPG est imprimé dans l’image. Utilise `scripts/remove_checkerboard.py` et traite les planches par cellules ; garde les textures de sol/eau opaques.
 
 Commandes : `npm run dev` (jeu sur http://localhost:5173), `npm run build`, `npm test`.

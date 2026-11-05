@@ -35,3 +35,11 @@ Roguelite d'action 2D façon Archero, jouable sur navigateur PC et téléphone (
 
 ## Méthode de travail de Martin
 Une tâche à la fois, prompt détaillé dans `docs/TACHES.md`, test à la main, puis commit. Le code est commité et poussé à chaque étape (le déploiement GitHub Pages est automatique et lance `npm test` avant le build).
+
+## Assets reçus et préparation (5 novembre 2026)
+
+Martin a fourni 11 images Gemini pour le décor et le combat. Les JPG qui montrent un damier n'ont pas de transparence réelle. Les PNG préparés sont dans `public/assets/generated/gemini-transparent/` : gemme d'XP, pièce, tourelle rouge, pilier, chevalier bleu, golems vert/rose, planche d'Aldric en 4×4 et ses 16 cases, planche de chouette en 1×4 et ses 4 poses. Les textures de mur et d'eau ont été converties en PNG opaques, car le motif fait partie de l'image.
+
+La méthode qui a fonctionné : script Python/Pillow `scripts/remove_checkerboard.py`, qui rend transparents les pixels neutres reliés au bord. Chaque cellule des planches est détourée séparément pour que les séparateurs ne piègent pas le damier. Les halos très lumineux de la gemme et de la pièce nécessitent un seuil plus large ; leur bord lumineux est donc un peu atténué. Relancer la conversion complète avec : `python3 scripts/remove_checkerboard.py --manifest scripts/gemini-assets-manifest.json --source-dir ~/Downloads --output-dir public/assets/generated/gemini-transparent` (Pillow requis, aucune dépendance ajoutée au jeu).
+
+**État :** fichiers locaux préparés, mais pas encore branchés dans le jeu. Le script/manifest et les PNG de référence ont été enregistrés dans Git. Les modifications de gameplay présentes dans l'arbre de travail au moment de cette sauvegarde ne font pas partie de cette étape.

@@ -1,0 +1,15 @@
+{
+  "assets": [
+    { "source": "Gemini_Generated_Image_2rinvf2rinvf2rin.jpg", "output": "xp-gem.png", "chroma_tolerance": 90 },
+    { "source": "Gemini_Generated_Image_8iox078iox078iox.jpg", "output": "gold-coin.png", "chroma_tolerance": 90 },
+    { "source": "Gemini_Generated_Image_efx49cefx49cefx4.jpg", "output": "red-turret.png" },
+    { "source": "Gemini_Generated_Image_ig5hc4ig5hc4ig5h.jpg", "output": "stone-wall-texture.png", "mode": "texture" },
+    { "source": "Gemini_Generated_Image_ilqcqdilqcqdilqc.jpg", "output": "aldric-sheet.png", "grid": [4, 4], "frame_prefix": "aldric-view" },
+    { "source": "Gemini_Generated_Image_j2kftuj2kftuj2kf.jpg", "output": "stone-pillar.png" },
+    { "source": "Gemini_Generated_Image_m370khm370khm370.jpg", "output": "blue-knight-boss.png" },
+    { "source": "Gemini_Generated_Image_nmostknmostknmos.jpg", "output": "crystal-golem-green.png" },
+    { "source": "Gemini_Generated_Image_oql5d4oql5d4oql5.jpg", "output": "crystal-golem-pink.png" },
+    { "source": "Gemini_Generated_Image_qo5iecqo5iecqo5i.jpg", "output": "owl-sheet.png", "grid": [1, 4], "frame_prefix": "owl-pose" },
+    { "source": "Gemini_Generated_Image_w8dgq4w8dgq4w8dg.jpg", "output": "water-texture.png", "mode": "texture" }
+  ]
+}
