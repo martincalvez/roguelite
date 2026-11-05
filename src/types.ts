@@ -103,6 +103,8 @@ export type RoomType = 'combat' | 'angel' | 'miniboss' | 'boss';
 
 export interface RoomDef {
   type: RoomType;
+  /** Multiplicateur de PV des ennemis de la salle (en plus de celui du chapitre) ; les dégâts suivent en partie (COMBAT.roomDamageShare). */
+  difficulty?: number;
   enemies?: { id: string; count: number }[];
 }
 
@@ -178,6 +180,7 @@ export interface CombatConfig {
   orbRadius: number; // distance des orbes au héros
   orbSpeedDegPerSec: number; // vitesse de rotation des orbes
   projectileSpeedMultiplier: Record<WeaponProjectile, number>; // vitesse du tir selon l'arme (bolt lent, shuriken rapide)
+  roomDamageShare: number; // part du multiplicateur de salle appliquée aux dégâts des ennemis (0 = aucun, 1 = autant que les PV)
   angelRareMaxWeight: number; // salle de l'ange : une compétence "rare" a un poids d'apparition ≤ à cette valeur
 }
 

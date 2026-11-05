@@ -8,6 +8,6 @@
   },
   "goldBase": 50,
   "goldGrowth": 1.2,
-  "scrollBase": 1,
-  "scrollPerLevel": 0.5
+  "scrollBase": 0.5,
+  "scrollPerLevel": 0.25
 }

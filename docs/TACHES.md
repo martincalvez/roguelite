@@ -164,7 +164,7 @@ Tâche 3.4. Les gemmes sont gagnées en fin de run (ajoute-les à loot.json, Run
 ```
 Validation : ouvrir un coffre débite le bon montant et ajoute l'objet ; l'animation est fluide sur téléphone.
 
-### [ ] 3.5 Talents et niveau de compte
+### [x] 3.5 Talents et niveau de compte
 
 ```
 Tâche 3.5. Ajoute requiredAccountLevel à TalentDef (types.ts) et dans talents.json. Crée src/scenes/TalentScene.ts, accessible par un bouton « TALENTS » du menu : liste verticale de gros boutons (nom, niveau actuel/max, effet par niveau, coût en or du prochain niveau, ou « Niveau de compte N requis »). Acheter un niveau débite l'or, incrémente GameState.data.talents[id] et sauvegarde ; les stats suivent déjà par talentModifiers(). Affiche le niveau de compte et la barre d'XP de compte (accountXpToNext) dans le menu et dans cet écran.

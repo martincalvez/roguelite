@@ -2,7 +2,7 @@
   {
     "id": "coffre_bois",
     "name": "Coffre de bois",
-    "costGold": 500,
+    "costGold": 700,
     "rarityWeights": {
       "common": 78,
       "rare": 18,
@@ -13,7 +13,7 @@
   },
   {
     "id": "coffre_dore",
-    "name": "Coffre dor\u00e9",
+    "name": "Coffre doré",
     "costGems": 50,
     "minRarity": "rare",
     "rarityWeights": {

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, GAME_WIDTH, POOLS } from '../config';
-import { getChapter, getEnemy, PROGRESSION } from '../data';
+import { COMBAT, getChapter, getEnemy, PROGRESSION } from '../data';
 import type { Enemy } from '../entities/Enemy';
 import type { EnemyProjectile } from '../entities/EnemyProjectile';
 import type { Projectile } from '../entities/Projectile';
@@ -77,6 +77,10 @@ export class RoomFlow {
     const chapter = getChapter(this.ctx.chapterId);
     const room = chapter.rooms[roomIndex];
     const margin = 60;
+    // Les PV suivent le multiplicateur de la salle ; les dégâts n'en suivent qu'une partie.
+    const roomScale = room.difficulty ?? 1;
+    const hpScale = chapter.difficulty * roomScale;
+    const damageScale = chapter.difficulty * (1 + (roomScale - 1) * COMBAT.roomDamageShare);
     for (const group of room.enemies ?? []) {
       const def = getEnemy(group.id);
       for (let i = 0; i < group.count; i++) {
@@ -84,7 +88,7 @@ export class RoomFlow {
         const y = Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
         const enemy = enemies.get(x, y) as Enemy | null;
         if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
-        enemy.spawn(def, x, y, scene.time.now, chapter.difficulty);
+        enemy.spawn(def, x, y, scene.time.now, hpScale, damageScale);
         this.enemiesAlive++;
       }
     }

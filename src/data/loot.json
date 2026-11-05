@@ -13,12 +13,14 @@
     "mythic": 0.2
   },
   "scrollCountWeights": [
-    20,
-    40,
+    0,
+    10,
+    25,
     30,
+    25,
     10
   ],
-  "victoryScrollBonus": 3,
-  "gemsPerBoss": 5,
-  "gemsVictoryBonus": 20
+  "victoryScrollBonus": 4,
+  "gemsPerBoss": 8,
+  "gemsVictoryBonus": 30
 }

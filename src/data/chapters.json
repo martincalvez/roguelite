@@ -4,26 +4,236 @@
     "name": "Forêt maudite",
     "difficulty": 1,
     "rooms": [
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 3 }] },
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 4 }] },
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 2 }, { "id": "archer_squelette", "count": 1 }] },
-      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 3 }] },
-      { "type": "angel" },
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 4 }, { "id": "archer_squelette", "count": 2 }] },
-      { "type": "combat", "enemies": [{ "id": "shaman", "count": 2 }] },
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 3 }, { "id": "shaman", "count": 1 }] },
-      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 3 }, { "id": "shaman", "count": 1 }] },
-      { "type": "miniboss", "enemies": [{ "id": "ogre", "count": 1 }] },
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 6 }] },
-      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 2 }, { "id": "shaman", "count": 2 }] },
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 4 }, { "id": "shaman", "count": 2 }] },
-      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 4 }, { "id": "gobelin", "count": 2 }] },
-      { "type": "angel" },
-      { "type": "combat", "enemies": [{ "id": "shaman", "count": 3 }, { "id": "gobelin", "count": 3 }] },
-      { "type": "combat", "enemies": [{ "id": "ogre", "count": 1 }, { "id": "gobelin", "count": 2 }] },
-      { "type": "combat", "enemies": [{ "id": "archer_squelette", "count": 4 }, { "id": "shaman", "count": 2 }] },
-      { "type": "combat", "enemies": [{ "id": "gobelin", "count": 6 }, { "id": "archer_squelette", "count": 2 }] },
-      { "type": "boss", "enemies": [{ "id": "liche", "count": 1 }] }
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 4
+          }
+        ],
+        "difficulty": 1.05
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 4
+          }
+        ],
+        "difficulty": 1.25
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 3
+          },
+          {
+            "id": "archer_squelette",
+            "count": 2
+          }
+        ],
+        "difficulty": 1.3
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "archer_squelette",
+            "count": 6
+          }
+        ],
+        "difficulty": 1.55
+      },
+      {
+        "type": "angel"
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 4
+          },
+          {
+            "id": "archer_squelette",
+            "count": 2
+          }
+        ],
+        "difficulty": 1.8
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "shaman",
+            "count": 3
+          }
+        ],
+        "difficulty": 2.85
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 4
+          },
+          {
+            "id": "shaman",
+            "count": 1
+          }
+        ],
+        "difficulty": 2.45
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "archer_squelette",
+            "count": 5
+          },
+          {
+            "id": "shaman",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.45
+      },
+      {
+        "type": "miniboss",
+        "enemies": [
+          {
+            "id": "ogre",
+            "count": 1
+          }
+        ],
+        "difficulty": 2.35
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 7
+          }
+        ],
+        "difficulty": 2.85
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "archer_squelette",
+            "count": 4
+          },
+          {
+            "id": "shaman",
+            "count": 3
+          }
+        ],
+        "difficulty": 3.0
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 5
+          },
+          {
+            "id": "shaman",
+            "count": 2
+          }
+        ],
+        "difficulty": 3.1
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "archer_squelette",
+            "count": 6
+          },
+          {
+            "id": "gobelin",
+            "count": 3
+          }
+        ],
+        "difficulty": 3.9
+      },
+      {
+        "type": "angel"
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "shaman",
+            "count": 3
+          },
+          {
+            "id": "gobelin",
+            "count": 4
+          }
+        ],
+        "difficulty": 3.95
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "ogre",
+            "count": 1
+          },
+          {
+            "id": "gobelin",
+            "count": 2
+          }
+        ],
+        "difficulty": 2.7
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "archer_squelette",
+            "count": 6
+          },
+          {
+            "id": "shaman",
+            "count": 3
+          }
+        ],
+        "difficulty": 4.45
+      },
+      {
+        "type": "combat",
+        "enemies": [
+          {
+            "id": "gobelin",
+            "count": 8
+          },
+          {
+            "id": "archer_squelette",
+            "count": 2
+          }
+        ],
+        "difficulty": 4.9
+      },
+      {
+        "type": "boss",
+        "enemies": [
+          {
+            "id": "liche",
+            "count": 1
+          }
+        ],
+        "difficulty": 3.2
+      }
     ]
   }
 ]

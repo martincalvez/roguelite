@@ -17,7 +17,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   def!: EnemyDef;
   hp = 0;
   maxHp = 0;
-  /** Dégâts de contact et de tir, après multiplication par la difficulté du chapitre. */
+  /** Dégâts de contact et de tir, après multiplication par la difficulté du chapitre et de la salle. */
   damage = 0;
   private nextFireAt = 0;
   private flashUntil = 0;
@@ -43,11 +43,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, 'player');
   }
 
-  spawn(def: EnemyDef, x: number, y: number, time: number, difficulty: number): void {
+  /** `hpScale` et `damageScale` : multiplicateurs de PV et de dégâts (chapitre × salle). */
+  spawn(def: EnemyDef, x: number, y: number, time: number, hpScale: number, damageScale: number): void {
     this.def = def;
-    this.hp = def.hp * difficulty;
+    this.hp = def.hp * hpScale;
     this.maxHp = this.hp;
-    this.damage = def.damage * difficulty;
+    this.damage = def.damage * damageScale;
     this.enableBody(true, x, y, true, true);
     this.setTexture(`enemy-${def.id}`);
     this.setCircle(def.radius);
