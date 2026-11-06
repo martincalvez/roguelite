@@ -1,5 +1,18 @@
 import Phaser from 'phaser';
 
+/**
+ * Taille de rendu et rayon de gameplay sont volontairement séparés : les nouvelles
+ * illustrations restent lisibles sur téléphone sans rendre un tir plus facile à toucher.
+ */
+const PROJECTILE_VISUALS: Record<string, { width: number; height: number; worldRadius: number }> = {
+  projectile: { width: 40, height: 24, worldRadius: 8 },
+  'projectile-bolt': { width: 24, height: 24, worldRadius: 9 },
+  'projectile-shuriken': { width: 28, height: 28, worldRadius: 10 },
+  'vfx-arcane-arrow': { width: 44, height: 24, worldRadius: 8 },
+  'vfx-fireball': { width: 30, height: 30, worldRadius: 9 },
+  'vfx-ice-shard': { width: 28, height: 28, worldRadius: 8 },
+};
+
 /** Projectile du joueur, recyclé via un groupe poolé. */
 export class Projectile extends Phaser.Physics.Arcade.Sprite {
   damage = 0;
@@ -17,18 +30,15 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   fire(x: number, y: number, angle: number, speed: number, damage: number, isCrit: boolean, pierce: number, ricochet: number, texture: string): void {
     this.enableBody(true, x, y, true, true);
     this.setTexture(texture);
-    const isArrow = texture === 'projectile';
-    const isShuriken = texture === 'projectile-shuriken';
-    const size = isArrow ? 40 : isShuriken ? 28 : 24;
-    this.setDisplaySize(size, isArrow ? 24 : size);
+    const visual = PROJECTILE_VISUALS[texture] ?? PROJECTILE_VISUALS['projectile-bolt'];
+    this.setDisplaySize(visual.width, visual.height);
     this.damage = damage;
     this.isCrit = isCrit;
     this.speed = speed;
     this.pierceLeft = pierce;
     this.ricochetLeft = ricochet;
     this.hits.length = 0;
-    const worldRadius = isArrow ? 8 : isShuriken ? 10 : 9;
-    const radius = worldRadius / Math.max(Math.abs(this.scaleX), 0.001);
+    const radius = visual.worldRadius / Math.max(Math.abs(this.scaleX), 0.001);
     this.setCircle(radius, (this.frame.width - radius * 2) / 2, (this.frame.height - radius * 2) / 2);
     this.setCollideWorldBounds(true);
     (this.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;

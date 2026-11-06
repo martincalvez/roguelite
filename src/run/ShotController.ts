@@ -112,6 +112,7 @@ export class ShotController {
   private shoot(x: number, y: number, angle: number, damage: number, isCrit: boolean): void {
     const projectile = this.ctx.playerProjectiles.get(x, y) as Projectile | null;
     if (!projectile) return;
+    const texture = this.projectileVisual();
     projectile.fire(
       x,
       y,
@@ -121,9 +122,20 @@ export class ShotController {
       isCrit,
       this.effects.pierce,
       this.effects.ricochet,
-      this.projectileTexture,
+      texture,
     );
     this.ctx.scene.events.emit('player-shot', isCrit);
+  }
+
+  /**
+   * Les effets de statut se lisent aussi dans le tir : un joueur qui prend Feu ou
+   * Givre voit immédiatement son build évoluer. Si les deux coexistent, la flèche
+   * arcanique reste neutre plutôt que de faire croire qu'un statut a écrasé l'autre.
+   */
+  private projectileVisual(): string {
+    if (this.effects.burn && !this.effects.freeze) return 'vfx-fireball';
+    if (this.effects.freeze && !this.effects.burn) return 'vfx-ice-shard';
+    return this.projectileTexture === 'projectile' ? 'vfx-arcane-arrow' : this.projectileTexture;
   }
 
   /** Un orbe touche un ennemi : dégâts, avec un délai avant de pouvoir le retoucher. */
@@ -149,6 +161,7 @@ export class ShotController {
       const { burn, freeze } = this.effects;
       if (burn) enemy.applyBurn(burn.dps, burn.duration, time);
       if (freeze) enemy.applyFreeze(freeze.slow, freeze.duration, time);
+      this.ctx.scene.events.emit('player-projectile-impact', enemy.x, enemy.y, projectile.isCrit, Boolean(burn), Boolean(freeze));
     }
 
     if (projectile.pierceLeft > 0) {

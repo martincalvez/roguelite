@@ -29,6 +29,9 @@ export class Fx {
   private readonly telegraphDuration: number[] = [];
   private readonly telegraphRadius: number[] = [];
   private nextTelegraphReuse = 0;
+  /** Petits impacts illustrés, réutilisés pour que les tirs rapides restent légers sur mobile. */
+  private readonly playerImpacts: Phaser.GameObjects.Image[] = [];
+  private nextImpactReuse = 0;
   private readonly feedback = new ArcadeFeedback();
 
   constructor(private readonly scene: Phaser.Scene) {
@@ -65,9 +68,14 @@ export class Fx {
       this.telegraphRadius.push(0);
     }
 
+    for (let i = 0; i < 18; i++) {
+      this.playerImpacts.push(scene.add.image(0, 0, 'particle').setVisible(false).setDepth(405));
+    }
+
     scene.events.on('enemy-hit', this.onEnemyHit, this);
     scene.events.on('enemy-died', this.onEnemyDied, this);
     scene.events.on('player-shot', this.onPlayerShot, this);
+    scene.events.on('player-projectile-impact', this.onPlayerProjectileImpact, this);
     scene.events.on('player-dodged', this.onPlayerDodged, this);
     scene.events.on('player-hp-changed', this.onPlayerHurt, this);
     scene.events.on('level-up', this.onLevelUp, this);
@@ -81,6 +89,7 @@ export class Fx {
       scene.events.off('enemy-hit', this.onEnemyHit, this);
       scene.events.off('enemy-died', this.onEnemyDied, this);
       scene.events.off('player-shot', this.onPlayerShot, this);
+      scene.events.off('player-projectile-impact', this.onPlayerProjectileImpact, this);
       scene.events.off('player-dodged', this.onPlayerDodged, this);
       scene.events.off('player-hp-changed', this.onPlayerHurt, this);
       scene.events.off('level-up', this.onLevelUp, this);
@@ -139,6 +148,36 @@ export class Fx {
 
   private onPlayerShot(isCrit: boolean): void {
     this.feedback.shot(isCrit);
+  }
+
+  /** Impact bref et codé par élément : feu, givre ou étincelle arcanique. */
+  private onPlayerProjectileImpact(x: number, y: number, isCrit: boolean, burn: boolean, freeze: boolean): void {
+    const key = burn && !freeze
+      ? 'vfx-fire-explosion'
+      : freeze && !burn
+        ? 'vfx-ice-shard'
+        : 'vfx-lightning-impact';
+    if (!this.scene.textures.exists(key)) return;
+
+    const impact = this.playerImpacts[this.nextImpactReuse++ % this.playerImpacts.length];
+    this.scene.tweens.killTweensOf(impact);
+    const size = key === 'vfx-fire-explosion' ? 38 : key === 'vfx-ice-shard' ? 28 : 30;
+    impact
+      .setTexture(key)
+      .setPosition(x, y)
+      .setDisplaySize(size, size)
+      .setScale(isCrit ? 1.14 : 0.9)
+      .setAlpha(isCrit ? 0.98 : 0.74)
+      .setVisible(true);
+    this.scene.tweens.add({
+      targets: impact,
+      scaleX: isCrit ? 1.46 : 1.16,
+      scaleY: isCrit ? 1.46 : 1.16,
+      alpha: 0,
+      duration: isCrit ? 190 : 140,
+      ease: 'Cubic.Out',
+      onComplete: () => impact.setVisible(false),
+    });
   }
 
   private onEnemyDied(def: EnemyDef, x: number, y: number, elite = false): void {
