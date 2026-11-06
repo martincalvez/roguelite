@@ -24,6 +24,11 @@ export class Fx {
   private readonly lootStartX: number[] = [];
   private readonly lootStartY: number[] = [];
   private nextLootReuse = 0;
+  private readonly telegraphs: Phaser.GameObjects.Arc[] = [];
+  private readonly telegraphBornAt: number[] = [];
+  private readonly telegraphDuration: number[] = [];
+  private readonly telegraphRadius: number[] = [];
+  private nextTelegraphReuse = 0;
   private readonly feedback = new ArcadeFeedback();
 
   constructor(private readonly scene: Phaser.Scene) {
@@ -52,6 +57,14 @@ export class Fx {
       }
     }
 
+    // Marqueurs réutilisés : les tirs ennemis restent dangereux, mais sont lisibles au premier regard.
+    for (let i = 0; i < 12; i++) {
+      this.telegraphs.push(scene.add.circle(0, 0, 1, 0xffffff, 0.08).setVisible(false).setDepth(-1));
+      this.telegraphBornAt.push(0);
+      this.telegraphDuration.push(0);
+      this.telegraphRadius.push(0);
+    }
+
     scene.events.on('enemy-hit', this.onEnemyHit, this);
     scene.events.on('enemy-died', this.onEnemyDied, this);
     scene.events.on('player-shot', this.onPlayerShot, this);
@@ -62,6 +75,7 @@ export class Fx {
     scene.events.on('wheel-reward', this.onWheelReward, this);
     scene.events.on('enemy-explosion', this.onEnemyExplosion, this);
     scene.events.on('enemy-dash', this.onEnemyDash, this);
+    scene.events.on('enemy-telegraph', this.onEnemyTelegraph, this);
     scene.input.once('pointerdown', () => this.feedback.unlock());
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       scene.events.off('enemy-hit', this.onEnemyHit, this);
@@ -74,6 +88,7 @@ export class Fx {
       scene.events.off('wheel-reward', this.onWheelReward, this);
       scene.events.off('enemy-explosion', this.onEnemyExplosion, this);
       scene.events.off('enemy-dash', this.onEnemyDash, this);
+      scene.events.off('enemy-telegraph', this.onEnemyTelegraph, this);
       this.feedback.dispose();
     });
   }
@@ -103,6 +118,17 @@ export class Fx {
       loot.setPosition(this.lootStartX[i] + side * 24 * t, this.lootStartY[i] - 46 * t + 32 * t * t);
       loot.setScale(0.72 + Math.sin(t * Math.PI) * 0.28);
       loot.setAngle(t * 300 + side * 22).setAlpha(1 - t * t);
+    }
+    for (let i = 0; i < this.telegraphs.length; i++) {
+      const telegraph = this.telegraphs[i];
+      if (!telegraph.visible) continue;
+      const t = (time - this.telegraphBornAt[i]) / this.telegraphDuration[i];
+      if (t >= 1) {
+        telegraph.setVisible(false);
+        continue;
+      }
+      const radius = this.telegraphRadius[i] * (0.72 + t * 0.28);
+      telegraph.setRadius(radius).setAlpha(0.4 + Math.sin(t * Math.PI) * 0.34);
     }
   }
 
@@ -160,6 +186,24 @@ export class Fx {
   /** Éclat très bref au départ d'une charge, sans nouvel émetteur ni surcharge mobile. */
   private onEnemyDash(def: EnemyDef, x: number, y: number): void {
     this.emitters.get(def.id)?.explode(Math.max(5, Math.round(COMBAT.deathParticles * 0.45)), x, y);
+  }
+
+  /** Cercle pulsant sous un tireur : le mouvement s'arrête brièvement avant que le projectile parte. */
+  private onEnemyTelegraph(x: number, y: number, radius: number, duration: number, color: string): void {
+    let index = this.telegraphs.findIndex((telegraph) => !telegraph.visible);
+    if (index === -1) index = this.nextTelegraphReuse++ % this.telegraphs.length;
+    const telegraph = this.telegraphs[index];
+    const tint = Phaser.Display.Color.HexStringToColor(color).color;
+    telegraph
+      .setPosition(x, y + radius * 0.22)
+      .setRadius(radius * 0.72)
+      .setFillStyle(tint, 0.12)
+      .setStrokeStyle(4, tint, 0.96)
+      .setAlpha(0.48)
+      .setVisible(true);
+    this.telegraphBornAt[index] = this.scene.time.now;
+    this.telegraphDuration[index] = duration;
+    this.telegraphRadius[index] = radius;
   }
 
   /** Prend un texte libre du pool (ou en crée un, ou recycle le plus ancien). */

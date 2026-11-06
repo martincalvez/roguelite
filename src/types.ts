@@ -121,6 +121,8 @@ export interface EnemyDef {
   projectileCount?: number;
   keepDistance?: number; // px : distance que garde un tireur par rapport au joueur
   spreadAngle?: number; // degrés : ouverture de l'éventail d'un 'spreader'
+  /** Préparation visible avant le tir d'un ennemi à distance. */
+  attackWarnMs?: number;
   /** Rayon de l'explosion d'une boule de feu ou de l'impact d'un tir en cloche. */
   explosionRadius?: number;
   /** Durée du vol d'un projectile en cloche : il passe au-dessus des blocs. */

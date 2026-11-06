@@ -37,6 +37,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   /** Dégâts de contact et de tir, après multiplication par la difficulté du chapitre et de la salle. */
   damage = 0;
   private nextFireAt = 0;
+  private attackWarnUntil = 0;
+  private attackPending = false;
+  private attackAngle = 0;
+  private attackTargetX = 0;
+  private attackTargetY = 0;
   private flashUntil = 0;
   private knockbackUntil = 0;
   private burnUntil = 0;
@@ -95,6 +100,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.freezeUntil = 0;
     this.tintState = 0;
     this.nextOrbHitAt = 0;
+    this.attackWarnUntil = 0;
+    this.attackPending = false;
     this.pattern = undefined;
     this.patternIndex = 0;
     this.warnUntil = 0;
@@ -128,6 +135,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     } else if (def.behavior === 'dasher') {
       this.updateDasher(time, speed, moveAngle);
     } else if (def.behavior === 'shooter' || def.behavior === 'spreader' || def.behavior === 'fireball' || def.behavior === 'lobber') {
+      if (this.attackPending) {
+        this.setVelocity(0, 0);
+        if (time >= this.attackWarnUntil) {
+          this.attackPending = false;
+          this.firePreparedAttack();
+        }
+        return;
+      }
       const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
       const keep = def.keepDistance ?? 0;
       if (this.stationary) this.setVelocity(0, 0);
@@ -138,23 +153,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       // Le tir en cloche passe au-dessus des murs : il n'exige donc pas de ligne de vue.
       if ((targetVisible || def.behavior === 'lobber') && time >= this.nextFireAt) {
-        this.nextFireAt = time + this.fireDelay();
-        if (def.behavior === 'fireball') {
-          this.scene.events.emit('enemy-fireball', this.x, this.y, angle, def.projectileSpeed ?? 0, this.damage, def.explosionRadius ?? 64);
-        } else if (def.behavior === 'lobber') {
-          this.scene.events.emit(
-            'enemy-lob',
-            this.x,
-            this.y,
-            targetX,
-            targetY,
-            this.damage,
-            def.explosionRadius ?? 72,
-            def.lobDurationMs ?? 760,
-          );
-        } else {
-          this.shoot(angle);
-        }
+        this.prepareRangedAttack(time, angle, targetX, targetY);
       }
     } else {
       // 'melee' : fonce sur le joueur.
@@ -192,6 +191,45 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
     this.moveAlong(moveAngle, speed);
+  }
+
+  /** Immobilise brièvement le tireur, fige sa cible et affiche une zone colorée avant le départ du tir. */
+  private prepareRangedAttack(time: number, angle: number, targetX: number, targetY: number): void {
+    const def = this.def;
+    const warnMs = def.attackWarnMs ?? 0;
+    this.nextFireAt = time + this.fireDelay();
+    this.attackAngle = angle;
+    this.attackTargetX = targetX;
+    this.attackTargetY = targetY;
+    if (warnMs <= 0) {
+      this.firePreparedAttack();
+      return;
+    }
+    this.attackPending = true;
+    this.attackWarnUntil = time + warnMs;
+    this.setVelocity(0, 0);
+    this.scene.events.emit('enemy-telegraph', this.x, this.y, def.radius * 1.9, warnMs, def.color);
+  }
+
+  /** Déclenche l'attaque dont la direction et la cible ont été figées pendant la télégraphie. */
+  private firePreparedAttack(): void {
+    const def = this.def;
+    if (def.behavior === 'fireball') {
+      this.scene.events.emit('enemy-fireball', this.x, this.y, this.attackAngle, def.projectileSpeed ?? 0, this.damage, def.explosionRadius ?? 64);
+    } else if (def.behavior === 'lobber') {
+      this.scene.events.emit(
+        'enemy-lob',
+        this.x,
+        this.y,
+        this.attackTargetX,
+        this.attackTargetY,
+        this.damage,
+        def.explosionRadius ?? 72,
+        def.lobDurationMs ?? 760,
+      );
+    } else {
+      this.shoot(this.attackAngle);
+    }
   }
 
   /**
@@ -286,7 +324,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.nextBurnTick = time + COMBAT.statusTickMs;
       if (this.takeDotDamage((this.burnDps * COMBAT.statusTickMs) / 1000)) return true;
     }
-    const warning = (this.warnUntil > time || (this.dashPending && this.dashWarnUntil > time)) && Math.floor(time / 90) % 2 === 0;
+    const warning = (
+      this.warnUntil > time
+      || (this.dashPending && this.dashWarnUntil > time)
+      || (this.attackPending && this.attackWarnUntil > time)
+    ) && Math.floor(time / 90) % 2 === 0;
     const state = warning || this.flashUntil > time ? 3 : this.freezeUntil > time ? 2 : this.burnUntil > time ? 1 : 0;
     if (state !== this.tintState) {
       this.tintState = state;

@@ -181,11 +181,16 @@ describe('cohérence des valeurs', () => {
       expect(e.radius, e.id).toBeGreaterThan(0);
       expect(e.color, e.id).toMatch(/^#[0-9a-f]{6}$/i);
       expect(enemyBehaviors, e.id).toContain(e.behavior);
-      if (e.behavior === 'shooter' || e.behavior === 'spreader') {
+      if (e.behavior === 'shooter' || e.behavior === 'spreader' || e.behavior === 'fireball' || e.behavior === 'lobber') {
         expect(e.keepDistance, e.id).toBeGreaterThan(0);
         expect(e.fireRate, e.id).toBeGreaterThan(0);
+        expect(e.attackWarnMs, e.id).toBeGreaterThan(0);
+      }
+      if (e.behavior === 'shooter' || e.behavior === 'spreader' || e.behavior === 'fireball') {
         expect(e.projectileSpeed, e.id).toBeGreaterThan(0);
       }
+      if (e.behavior === 'fireball' || e.behavior === 'lobber') expect(e.explosionRadius, e.id).toBeGreaterThan(0);
+      if (e.behavior === 'lobber') expect(e.lobDurationMs, e.id).toBeGreaterThan(0);
       if (e.behavior === 'boss') {
         expect(e.boss, e.id).toBeDefined();
         const boss = e.boss!;
