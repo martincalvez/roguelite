@@ -35,6 +35,20 @@ describe('drawSkills', () => {
     expect(drawSkills(pool, { a: 3, b: 3, c: 3, d: 3 }, 3)).toEqual([]);
   });
 
+  it('garde trois choix avec les améliorations rejouables une fois le pool normal épuisé', () => {
+    const endless: SkillDef[] = [
+      { ...skill('potion', 1, 99), effect: { kind: 'heal', value: 0.4 } },
+      { ...skill('force', 1, 1), repeatable: true, effect: { kind: 'stat', modifiers: [{ stat: 'attack', type: 'percent', value: 0.1 }] } },
+      { ...skill('vitesse', 1, 1), repeatable: true, effect: { kind: 'stat', modifiers: [{ stat: 'attackSpeed', type: 'percent', value: 0.1 }] } },
+      { ...skill('vie', 1, 1), repeatable: true, effect: { kind: 'stat', modifiers: [{ stat: 'maxHp', type: 'percent', value: 0.1 }] } },
+    ];
+    const picked = drawSkills(endless, { force: 1, vitesse: 1, vie: 1 }, 3, fixedRng(0));
+
+    expect(picked).toHaveLength(3);
+    expect(picked.filter((choice) => choice.effect.kind === 'stat')).toHaveLength(2);
+    expect(picked.map((choice) => choice.id)).toEqual(expect.arrayContaining(['force', 'vitesse']));
+  });
+
   it('respecte les poids : un tirage bas prend la première, un tirage haut la dernière', () => {
     expect(drawSkills(pool, {}, 1, fixedRng(0))[0].id).toBe('a');
     expect(drawSkills(pool, {}, 1, fixedRng(0.999))[0].id).toBe('d');

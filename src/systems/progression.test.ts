@@ -10,12 +10,14 @@ describe('XP du run', () => {
     expect(xpToNextLevel(table.length)).toBe(table[table.length - 1]);
   });
 
-  it('au-delà de la table, la dernière valeur se répète', () => {
-    expect(xpToNextLevel(table.length + 5)).toBe(table[table.length - 1]);
+  it('au-delà de la table, le coût continue d’augmenter', () => {
+    expect(xpToNextLevel(table.length + 1)).toBe(Math.round(table[table.length - 1] * PROGRESSION.xpGrowthAfterTable));
+    expect(xpToNextLevel(table.length + 5)).toBeGreaterThan(xpToNextLevel(table.length + 1));
   });
 
   it('la courbe ne baisse jamais', () => {
     for (let i = 1; i < table.length; i++) expect(table[i]).toBeGreaterThanOrEqual(table[i - 1]);
+    expect(PROGRESSION.xpGrowthAfterTable).toBeGreaterThan(1);
   });
 });
 

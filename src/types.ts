@@ -81,6 +81,8 @@ export interface SkillDef {
   name: string;
   description: string;
   maxStacks: number;
+  /** Revient après son maximum normal pour éviter un choix vide dans les longues runs. */
+  repeatable?: boolean;
   weight: number; // probabilité relative d'apparition
   effect: SkillEffect;
 }
@@ -261,8 +263,10 @@ export interface ArenaDecorConfig {
 
 /** Progression pendant un run. */
 export interface ProgressionConfig {
-  /** XP nécessaire pour passer du niveau n+1 au suivant (index 0 : niveau 1 → 2). Au-delà : dernière valeur. */
+  /** XP nécessaire pour passer du niveau n+1 au suivant (index 0 : niveau 1 → 2). */
   xpPerLevel: number[];
+  /** Multiplicateur appliqué à chaque niveau après la table ; strictement supérieur à 1. */
+  xpGrowthAfterTable: number;
   orbMagnetSpeed: number; // px/s : vitesse des orbes d'XP aspirés vers le héros
   accountXpPerRoom: number; // XP de compte gagnée par salle terminée
   accountXpVictoryBonus: number; // bonus d'XP de compte si le chapitre est terminé

@@ -158,6 +158,7 @@ describe('cohérence des valeurs', () => {
     for (const s of SKILLS) {
       expect(s.weight, s.id).toBeGreaterThan(0);
       expect(s.maxStacks, s.id).toBeGreaterThanOrEqual(1);
+      if (s.repeatable) expect(s.effect.kind, s.id).toBe('stat');
     }
   });
 
@@ -169,6 +170,7 @@ describe('cohérence des valeurs', () => {
 
   it('progression, amélioration et combat : valeurs sensées', () => {
     expect(PROGRESSION.xpPerLevel.every((x) => x > 0)).toBe(true);
+    expect(PROGRESSION.xpGrowthAfterTable).toBeGreaterThan(1);
     expect(PROGRESSION.accountXpPerLevel.every((x) => x > 0)).toBe(true);
     expect(UPGRADE.goldBase).toBeGreaterThan(0);
     expect(UPGRADE.goldGrowth).toBeGreaterThanOrEqual(1);

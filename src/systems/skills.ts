@@ -4,7 +4,8 @@ import type { SkillDef, SkillEffect, StatModifier } from '../types';
 
 /**
  * Tire `count` compétences distinctes, pondérées par `weight`, en excluant celles qui ont
- * atteint maxStacks. Renvoie moins de `count` si le choix est épuisé.
+ * atteint maxStacks. À la toute fin d'une longue run, les améliorations marquées
+ * repeatable prennent le relais pour garder un vrai choix de progression.
  */
 export function drawSkills(
   all: SkillDef[],
@@ -14,6 +15,17 @@ export function drawSkills(
 ): SkillDef[] {
   const pool = all.filter((s) => (stacks[s.id] ?? 0) < s.maxStacks);
   const picked: SkillDef[] = [];
+  pickWeighted(pool, picked, count, rng);
+  // La potion ne doit jamais rester seule : Force, Frénésie et Vitalité gardent
+  // trois améliorations disponibles une fois que le reste du pool est épuisé.
+  if (picked.length < count) {
+    const fallback = all.filter((s) => s.repeatable && !picked.some((choice) => choice.id === s.id));
+    pickWeighted(fallback, picked, count, rng);
+  }
+  return picked;
+}
+
+function pickWeighted(pool: SkillDef[], picked: SkillDef[], count: number, rng: () => number): void {
   while (picked.length < count && pool.length > 0) {
     const total = pool.reduce((sum, s) => sum + s.weight, 0);
     let roll = rng() * total;
@@ -24,7 +36,6 @@ export function drawSkills(
     }
     picked.push(pool.splice(index, 1)[0]);
   }
-  return picked;
 }
 
 /** Modificateurs de stats donnés par les compétences 'stat' prises, multipliés par leurs stacks. */
