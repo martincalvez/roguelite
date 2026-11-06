@@ -18,6 +18,11 @@ export class Fx {
   private readonly startY: number[] = [];
   private nextReuse = 0;
   private readonly emitters = new Map<string, Phaser.GameObjects.Particles.ParticleEmitter>();
+  private readonly lootSprites: Phaser.GameObjects.Image[] = [];
+  private readonly lootBornAt: number[] = [];
+  private readonly lootStartX: number[] = [];
+  private readonly lootStartY: number[] = [];
+  private nextLootReuse = 0;
 
   constructor(private readonly scene: Phaser.Scene) {
     // Un émetteur par type d'ennemi, teinté à sa couleur.
@@ -33,6 +38,16 @@ export class Fx {
         })
         .setDepth(400);
       this.emitters.set(def.id, emitter);
+    }
+
+    // Pièces réutilisées : chaque élimination doit être satisfaisante, sans créer d'objets en boucle.
+    if (scene.textures.exists('coin-gold')) {
+      for (let i = 0; i < 24; i++) {
+        this.lootSprites.push(scene.add.image(0, 0, 'coin-gold').setDisplaySize(26, 26).setVisible(false).setDepth(430));
+        this.lootBornAt.push(0);
+        this.lootStartX.push(0);
+        this.lootStartY.push(0);
+      }
     }
 
     scene.events.on('enemy-hit', this.onEnemyHit, this);
@@ -60,6 +75,19 @@ export class Fx {
         text.setAlpha(1 - t * t);
       }
     }
+    for (let i = 0; i < this.lootSprites.length; i++) {
+      const loot = this.lootSprites[i];
+      if (!loot.visible) continue;
+      const t = (time - this.lootBornAt[i]) / 520;
+      if (t >= 1) {
+        loot.setVisible(false);
+        continue;
+      }
+      const side = (i % 3) - 1;
+      loot.setPosition(this.lootStartX[i] + side * 34 * t, this.lootStartY[i] - 58 * t + 42 * t * t);
+      loot.setScale(0.82 + Math.sin(t * Math.PI) * 0.38);
+      loot.setAngle(t * 300 + side * 22).setAlpha(1 - t * t);
+    }
   }
 
   private onEnemyHit(x: number, y: number, amount: number, isCrit: boolean): void {
@@ -68,6 +96,8 @@ export class Fx {
 
   private onEnemyDied(def: EnemyDef, x: number, y: number): void {
     this.emitters.get(def.id)?.explode(COMBAT.deathParticles, x, y);
+    this.showCoinBurst(x, y, def.boss ? 7 : def.gold >= 12 ? 3 : 2);
+    if (def.gold >= 12 || def.boss) this.showText(x, y - def.radius - 18, `+${def.gold}`, '#ffe14a', def.boss ? 34 : 24);
   }
 
   private onPlayerDodged(x: number, y: number): void {
@@ -108,5 +138,16 @@ export class Fx {
       .setVisible(true);
     this.bornAt[index] = this.scene.time.now;
     this.startY[index] = y;
+  }
+
+  private showCoinBurst(x: number, y: number, count: number): void {
+    for (let j = 0; j < count && this.lootSprites.length > 0; j++) {
+      const i = this.nextLootReuse++ % this.lootSprites.length;
+      const loot = this.lootSprites[i];
+      this.lootBornAt[i] = this.scene.time.now - j * 36;
+      this.lootStartX[i] = x + Phaser.Math.Between(-14, 14);
+      this.lootStartY[i] = y + Phaser.Math.Between(-8, 12);
+      loot.setPosition(this.lootStartX[i], this.lootStartY[i]).setScale(0.8).setAlpha(1).setVisible(true);
+    }
   }
 }

@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, PLAYER_SPAWN, POOLS, SCENES } from '../config';
-import { ARENA_DECOR, getChapter, SURVIVAL } from '../data';
+import { ARENA_DECOR, getChapter, LUCKY_WHEEL, SURVIVAL } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { PetFollower } from '../entities/PetFollower';
 import { Player } from '../entities/Player';
 import { Projectile } from '../entities/Projectile';
 import { endRun } from '../run/endRun';
+import { LuckyWheel } from '../run/LuckyWheel';
 import { RoomFlow } from '../run/RoomFlow';
 import { SurvivalHazards } from '../run/SurvivalHazards';
 import type { RunContext } from '../run/RunContext';
@@ -49,6 +50,7 @@ export class RunScene extends Phaser.Scene {
   private rooms!: RoomFlow;
   private hazards?: SurvivalHazards;
   private pet?: PetFollower;
+  private startBonusLocked = false;
   private enemyRoutes = new WeakMap<Enemy, EnemyRoute>();
 
   constructor() {
@@ -124,6 +126,7 @@ export class RunScene extends Phaser.Scene {
     this.events.on('room-changed', () => { this.enemyRoutes = new WeakMap<Enemy, EnemyRoute>(); });
 
     this.rooms.load(0);
+    this.openStartWheel();
 
     // Bandeau HUD : retour au menu.
     this.add
@@ -140,7 +143,7 @@ export class RunScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     this.fx.update(time);
     const { player, runState, enemies, arena } = this.ctx;
-    if (runState.ended) return;
+    if (runState.ended || this.startBonusLocked) return;
     player.updateMovement(time);
     this.hazards?.update(time);
     this.pet?.update(time, delta, player.x, player.y);
@@ -167,6 +170,27 @@ export class RunScene extends Phaser.Scene {
 
   private onPlayerDied(): void {
     endRun(this.ctx, false);
+  }
+
+  /** Une courte récompense au lancement, comme dans la référence, puis combat immédiatement. */
+  private openStartWheel(): void {
+    if (LUCKY_WHEEL.rewards.length === 0) return;
+    this.startBonusLocked = true;
+    this.physics.pause();
+    new LuckyWheel(this.ctx, (reward) => {
+      if (reward.kind === 'gold') this.ctx.runState.gold += reward.value;
+      if (reward.kind === 'heal') this.ctx.player.heal(reward.value);
+      if (reward.kind === 'xp') {
+        const gained = this.ctx.runState.addXp(reward.value);
+        const { level, xp, xpNeeded } = this.ctx.runState;
+        this.events.emit('xp-changed', level, xp, xpNeeded);
+        for (let i = gained - 1; i >= 0; i--) this.events.emit('level-up', level - i);
+      }
+      this.time.delayedCall(880, () => {
+        this.startBonusLocked = false;
+        this.physics.resume();
+      });
+    });
   }
 
   /** Calcule un détour uniquement lorsque la pierre coupe la route directe ; le résultat est réutilisé. */
@@ -198,18 +222,42 @@ export class RunScene extends Phaser.Scene {
     const visual = getChapter(this.chapterId).visual;
     const color = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
     const top = HUD_HEIGHT;
-    // Fond des murs, sous le sol : il reste visible comme bordure de l'arène.
+    // Fond des murs, sous le sol : une bordure sombre et chaude détache vraiment l'arène du HUD.
     this.add
       .tileSprite(0, top, GAME_WIDTH, GAME_HEIGHT - top, 'stone-wall-texture')
       .setOrigin(0, 0)
       .setTint(color(visual.wallColor))
       .setDepth(-30);
+    this.add.rectangle(ARENA.x - 7, ARENA.y - 7, ARENA.width + 14, ARENA.height + 14)
+      .setOrigin(0, 0)
+      .setStrokeStyle(10, color(visual.wallEdgeColor))
+      .setDepth(-24);
 
     // Sol : tuile d'herbe fournie par Martin, répétée et teintée par chapitre.
     this.add
       .tileSprite(ARENA.x + ARENA.width / 2, ARENA.y + ARENA.height / 2, ARENA.width, ARENA.height, 'tile-grass')
       .setTint(color(visual.floorTint))
       .setDepth(-20);
+
+    // Herbes, paillettes et petites feuilles dessinent un sol vivant sans gêner les collisions.
+    const flora = this.add.graphics().setDepth(-17);
+    const grassAccent = color(visual.accentColor);
+    for (let row = 0; row < layout.rows; row++) {
+      for (let col = 0; col < layout.cols; col++) {
+        const index = row * layout.cols + col;
+        if (layout.tiles[index] !== 'grass' || (row * 7 + col * 11) % 3 !== 0) continue;
+        const x = ARENA.x + (col + 0.34 + ((row + col) % 2) * 0.18) * layout.cell;
+        const y = ARENA.y + (row + 0.7) * layout.cell;
+        flora.lineStyle(3, grassAccent, 0.24);
+        flora.lineBetween(x - 7, y + 5, x - 3, y - 7);
+        flora.lineBetween(x, y + 6, x + 3, y - 9);
+        flora.lineBetween(x + 7, y + 5, x + 10, y - 5);
+        if ((row * 13 + col * 5) % 11 === 0) {
+          flora.fillStyle(0xffffff, 0.56).fillCircle(x + 12, y - 8, 3);
+          flora.fillStyle(grassAccent, 0.8).fillCircle(x + 16, y - 3, 4);
+        }
+      }
+    }
 
     // Plaques de pierre et canaux d'eau, plats, posés sur l'herbe : ce sont des décors de sol,
     // pas des obstacles (seuls les blocs ci-dessous arrêtent le héros).
@@ -238,19 +286,21 @@ export class RunScene extends Phaser.Scene {
       }
     }
 
-    // Blocs de pierre : ombre portée, bloc taillé, arête claire. Le groupe porte la collision.
+    // Blocs de pierre : base solide visible, ombre portée et illustration au-dessus.
+    // Le volume visible est proche du collider : fini les corps qui semblent traverser la pierre.
     const blocks = this.physics.add.staticGroup();
     for (const block of layout.obstacles) {
       const x = ARENA.x + block.x + block.width / 2;
       const y = ARENA.y + block.y + block.height / 2;
       this.add.ellipse(x + 3, y + 7, block.width * 0.9, block.height * 0.55, 0x000000, 0.24).setDepth(-6);
       if (this.textures.exists('stone-pillar')) {
-        // L'illustration a un bord transparent : la hitbox correspond à la silhouette visible.
-        const collider = this.add.rectangle(x, y, block.width * 0.9, block.height * 0.95, 0xffffff, 0).setVisible(false);
+        this.add.rectangle(x, y + 5, block.width, block.height, stone).setStrokeStyle(5, color(visual.stoneEdgeColor)).setDepth(-5);
+        // L'illustration a un bord transparent : son socle peint ci-dessus maintient le contact visuel.
+        const collider = this.add.rectangle(x, y, block.width, block.height, 0xffffff, 0).setVisible(false);
         blocks.add(collider);
         this.add
           .image(x, y, 'stone-pillar')
-          .setDisplaySize(block.width * 1.25, block.height * 1.35)
+          .setDisplaySize(block.width * 1.12, block.height * 1.16)
           .setTint(stone)
           .setDepth(-5);
       } else {

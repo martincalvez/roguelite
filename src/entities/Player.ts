@@ -30,12 +30,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (GameState.data.selectedHero === 'aldric' && scene.textures.exists('hero-aldric-sheet')) {
       this.setTexture('hero-aldric-sheet', 0);
     }
-    // Aldric est plus grand comme dans la référence ; le rayon de collision reste inchangé.
-    this.setDisplaySize(GameState.data.selectedHero === 'aldric' ? 170 : 128, GameState.data.selectedHero === 'aldric' ? 170 : 160);
+    // Aldric doit dominer clairement l'action sur téléphone : l'ancienne taille écrasait son illustration.
+    this.setDisplaySize(GameState.data.selectedHero === 'aldric' ? 230 : 148, GameState.data.selectedHero === 'aldric' ? 230 : 180);
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.setCollideWorldBounds(true);
-    this.setCenteredHitbox(24);
+    this.setCenteredHitbox(30);
 
     const keyboard = scene.input.keyboard!;
     this.cursors = keyboard.createCursorKeys();

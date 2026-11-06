@@ -1,5 +1,5 @@
 // Point d'entrée unique des données : le code n'importe jamais un JSON directement.
-import type { ArenaDecorConfig, ChapterDef, ChestDef, CombatConfig, LootConfig, ProgressionConfig, SurvivalConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, PassiveDef, SkillDef, TalentDef } from '../types';
+import type { ArenaDecorConfig, ChapterDef, ChestDef, CombatConfig, LootConfig, ProgressionConfig, SurvivalConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, LuckyWheelConfig, PassiveDef, SkillDef, TalentDef } from '../types';
 import itemsJson from './items.json';
 import skillsJson from './skills.json';
 import enemiesJson from './enemies.json';
@@ -14,6 +14,7 @@ import upgradeJson from './upgrade.json';
 import chestsJson from './chests.json';
 import arenaJson from './arena.json';
 import survivalJson from './survival.json';
+import luckyWheelJson from './luckyWheel.json';
 
 export const ITEMS = itemsJson as ItemDef[];
 export const SKILLS = skillsJson as SkillDef[];
@@ -29,6 +30,7 @@ export const UPGRADE = upgradeJson as UpgradeConfig;
 export const CHESTS = chestsJson as ChestDef[];
 export const ARENA_DECOR = arenaJson as ArenaDecorConfig;
 export const SURVIVAL = survivalJson as SurvivalConfig;
+export const LUCKY_WHEEL = luckyWheelJson as LuckyWheelConfig;
 
 function byId<T extends { id: string }>(list: T[], kind: string) {
   const map = new Map(list.map((x) => [x.id, x]));

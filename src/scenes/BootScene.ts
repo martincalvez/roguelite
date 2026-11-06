@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { SCENES } from '../config';
 import { ENEMIES, HEROES, ITEMS } from '../data';
-import type { ItemDef } from '../types';
+import type { EnemyDef, ItemDef } from '../types';
 
-/** Charge les assets. Tant qu'il n'y a pas de sprites, génère des formes simples. */
+/** Charge les assets et dessine les éléments qui n'ont pas besoin d'un fichier image. */
 export class BootScene extends Phaser.Scene {
   constructor() {
     super(SCENES.boot);
@@ -41,9 +41,9 @@ export class BootScene extends Phaser.Scene {
     this.makeCircle('particle', 5, 0xffffff);
     this.makeCircle('orbit-orb', 14, 0xb35cff);
     if (!this.textures.exists('xp-orb')) this.makeCircle('xp-orb', 6, 0x5cff7a);
-    // Un cercle par type d'ennemi, à sa couleur et son rayon (EnemyDef).
+    // Chaque silhouette est produite ici pour garder les combats variés sans alourdir le jeu mobile.
     for (const def of ENEMIES) {
-      this.makeCircle(`enemy-${def.id}`, def.radius, Phaser.Display.Color.HexStringToColor(def.color).color);
+      this.makeEnemyTexture(def);
     }
     for (const item of ITEMS) {
       if (item.slot === 'pet' && item.petAppearance && !this.textures.exists(`pet-${item.id}`)) this.makePetTexture(item);
@@ -139,6 +139,220 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0x172139, 1).fillEllipse(64, 77, 8, 4);
     g.fillStyle(0xffffff, 0.38).fillCircle(44, 49, 9);
     g.generateTexture(`hero-${hero.id}`, 128, 160);
+    g.destroy();
+  }
+
+  /**
+   * Silhouettes de combat originales : un rôle = une couleur, une forme et un détail de lecture.
+   * Les textures ont toutes le même cadre afin que Enemy puisse harmoniser leur taille à partir du rayon gameplay.
+   */
+  private makeEnemyTexture(def: EnemyDef): void {
+    const g = this.add.graphics();
+    const outline = 0x172039;
+    const ink = 0x10182a;
+    const c = 80;
+    const shadow = () => g.fillStyle(0x0d1830, 0.28).fillEllipse(c, 143, 106, 23);
+    const ring = (x: number, y: number, radius: number, color: number, width = 6) => {
+      g.fillStyle(color, 1).fillCircle(x, y, radius);
+      g.lineStyle(width, outline, 1).strokeCircle(x, y, radius - width / 2);
+    };
+    const eye = (x: number, y: number, color: number, radius = 8) => {
+      ring(x, y, radius, 0xf8f6e8, 3);
+      g.fillStyle(color, 1).fillCircle(x + 1, y + 1, radius * 0.48);
+      g.fillStyle(0xffffff, 0.92).fillCircle(x - 2, y - 2, radius * 0.2);
+    };
+    const gem = (x: number, y: number, size: number, color: number) => {
+      g.fillStyle(color, 1).fillPoints([
+        new Phaser.Geom.Point(x, y - size), new Phaser.Geom.Point(x + size * 0.78, y),
+        new Phaser.Geom.Point(x, y + size), new Phaser.Geom.Point(x - size * 0.78, y),
+      ], true);
+      g.lineStyle(4, outline, 1).strokePoints([
+        new Phaser.Geom.Point(x, y - size), new Phaser.Geom.Point(x + size * 0.78, y),
+        new Phaser.Geom.Point(x, y + size), new Phaser.Geom.Point(x - size * 0.78, y),
+      ], true);
+      g.fillStyle(0xffffff, 0.5).fillTriangle(x - size * 0.28, y - size * 0.55, x + size * 0.38, y - size * 0.1, x - size * 0.2, y - size * 0.04);
+    };
+
+    shadow();
+    switch (def.id) {
+      case 'gobelin': {
+        g.fillStyle(0x2b743f, 1).fillTriangle(46, 62, 19, 42, 42, 90).fillTriangle(114, 62, 141, 42, 118, 90);
+        g.lineStyle(7, outline, 1).strokeTriangle(46, 62, 19, 42, 42, 90).strokeTriangle(114, 62, 141, 42, 118, 90);
+        g.fillStyle(0x4ecb61, 1).fillEllipse(c, 101, 72, 78);
+        g.lineStyle(7, outline, 1).strokeEllipse(c, 101, 72, 78);
+        ring(56, 80, 17, 0x8bea64);
+        ring(104, 80, 17, 0x8bea64);
+        eye(57, 79, 0xffd84b, 7);
+        eye(103, 79, 0xffd84b, 7);
+        g.fillStyle(0x2c5131, 1).fillTriangle(69, 102, 91, 102, 80, 112);
+        g.fillStyle(0xb9f47f, 1).fillTriangle(48, 124, 61, 115, 58, 135).fillTriangle(102, 124, 112, 115, 113, 135);
+        break;
+      }
+      case 'archer_squelette': {
+        g.lineStyle(10, 0x65462e, 1).lineBetween(121, 54, 128, 122).lineBetween(128, 54, 138, 121);
+        g.lineStyle(3, 0xf8e8c2, 1).lineBetween(121, 54, 138, 121);
+        g.fillStyle(0x8d6a4a, 1).fillTriangle(61, 95, 38, 139, 84, 139).fillTriangle(99, 95, 76, 139, 122, 139);
+        g.lineStyle(7, outline, 1).strokeTriangle(61, 95, 38, 139, 84, 139).strokeTriangle(99, 95, 76, 139, 122, 139);
+        ring(c, 72, 37, 0xffecc4, 7);
+        g.fillStyle(ink, 1).fillEllipse(65, 73, 18, 22).fillEllipse(95, 73, 18, 22);
+        g.fillStyle(0x55ddff, 1).fillCircle(65, 72, 5).fillCircle(95, 72, 5);
+        g.fillStyle(0x8f5b43, 1).fillTriangle(70, 92, 90, 92, 80, 103);
+        g.fillStyle(0x704a33, 1).fillRect(64, 109, 32, 7);
+        break;
+      }
+      case 'shaman': {
+        g.fillStyle(0x57258e, 1).fillTriangle(80, 37, 35, 136, 125, 136);
+        g.lineStyle(8, outline, 1).strokeTriangle(80, 37, 35, 136, 125, 136);
+        g.fillStyle(0x9e4dff, 1).fillTriangle(80, 45, 48, 126, 112, 126);
+        ring(c, 80, 27, 0xe6a9ff, 5);
+        g.fillStyle(0x4c2568, 1).fillEllipse(63, 79, 13, 18).fillEllipse(97, 79, 13, 18);
+        g.fillStyle(0x69f6ff, 1).fillCircle(64, 80, 5).fillCircle(96, 80, 5);
+        g.lineStyle(8, 0x724631, 1).lineBetween(122, 78, 132, 137);
+        gem(121, 66, 13, 0xff48db);
+        g.fillStyle(0xd960ff, 1).fillTriangle(53, 123, 80, 104, 107, 123);
+        break;
+      }
+      case 'ogre': {
+        g.fillStyle(0x6b2834, 1).fillTriangle(50, 72, 34, 36, 64, 59).fillTriangle(110, 72, 126, 36, 96, 59);
+        g.lineStyle(8, outline, 1).strokeTriangle(50, 72, 34, 36, 64, 59).strokeTriangle(110, 72, 126, 36, 96, 59);
+        g.fillStyle(0xe75446, 1).fillEllipse(c, 99, 102, 88);
+        g.lineStyle(9, outline, 1).strokeEllipse(c, 99, 102, 88);
+        ring(59, 80, 17, 0xff7450, 5);
+        ring(101, 80, 17, 0xff7450, 5);
+        eye(60, 79, 0xfff05b, 8);
+        eye(100, 79, 0xfff05b, 8);
+        g.fillStyle(0xf9e6ba, 1).fillTriangle(64, 107, 74, 107, 69, 120).fillTriangle(86, 107, 96, 107, 91, 120);
+        g.fillStyle(0x843333, 1).fillRoundedRect(45, 125, 70, 20, 8);
+        break;
+      }
+      case 'scarabee_dore': {
+        g.fillStyle(0x6d4222, 1).fillEllipse(c, 108, 92, 61);
+        g.lineStyle(8, outline, 1).strokeEllipse(c, 108, 92, 61);
+        g.fillStyle(0xefa92b, 1).fillEllipse(c, 93, 58, 78);
+        g.lineStyle(7, outline, 1).strokeEllipse(c, 93, 58, 78);
+        g.lineStyle(6, 0x6f421c, 1).lineBetween(80, 55, 80, 132).lineBetween(52, 83, 108, 83);
+        g.fillStyle(0xffe36c, 1).fillEllipse(61, 78, 15, 28).fillEllipse(99, 78, 15, 28);
+        eye(66, 104, 0x55eaff, 6);
+        eye(94, 104, 0x55eaff, 6);
+        g.lineStyle(7, 0x6d4222, 1).lineBetween(44, 118, 22, 134).lineBetween(116, 118, 138, 134);
+        break;
+      }
+      case 'sentinelle_azur': {
+        g.fillStyle(0x123d84, 1).fillTriangle(42, 117, 80, 30, 118, 117);
+        g.lineStyle(8, outline, 1).strokeTriangle(42, 117, 80, 30, 118, 117);
+        g.fillStyle(0x2d8ee8, 1).fillTriangle(52, 111, 80, 47, 108, 111);
+        ring(c, 86, 28, 0x1ed3ff, 6);
+        ring(c, 86, 14, 0x172c53, 4);
+        g.fillStyle(0xc6fbff, 1).fillCircle(76, 81, 5);
+        g.fillStyle(0x69eeff, 1).fillTriangle(52, 124, 42, 145, 69, 133).fillTriangle(108, 124, 118, 145, 91, 133);
+        break;
+      }
+      case 'esprit_saphir': {
+        g.fillStyle(0x4938a8, 1).fillTriangle(80, 29, 39, 122, 65, 113).fillTriangle(80, 29, 121, 122, 95, 113);
+        g.lineStyle(8, outline, 1).strokeTriangle(80, 29, 39, 122, 65, 113).strokeTriangle(80, 29, 121, 122, 95, 113);
+        g.fillStyle(0x755bff, 1).fillCircle(c, 81, 39).fillTriangle(43, 104, 59, 137, 72, 108).fillTriangle(88, 108, 101, 137, 117, 104);
+        g.fillStyle(0xb8f4ff, 1).fillEllipse(80, 99, 37, 25);
+        eye(65, 75, 0x54e9ff, 7);
+        eye(95, 75, 0x54e9ff, 7);
+        g.fillStyle(0xffffff, 0.42).fillCircle(63, 53, 13);
+        break;
+      }
+      case 'golem_floral': {
+        g.fillStyle(0x356c42, 1).fillCircle(49, 111, 25).fillCircle(111, 111, 25);
+        ring(c, 92, 47, 0x5eac56, 8);
+        g.fillStyle(0x83d95c, 1).fillCircle(80, 83, 32);
+        g.lineStyle(6, 0x356c42, 1).lineBetween(80, 52, 80, 126).lineBetween(54, 92, 106, 92);
+        eye(66, 80, 0xfff35a, 8);
+        eye(94, 80, 0xfff35a, 8);
+        g.fillStyle(0xf06aac, 1).fillCircle(80, 48, 13).fillCircle(58, 58, 9).fillCircle(102, 58, 9);
+        break;
+      }
+      case 'gardien_racines': {
+        g.fillStyle(0x2f5a3e, 1).fillTriangle(80, 24, 24, 134, 58, 124).fillTriangle(80, 24, 136, 134, 102, 124);
+        g.lineStyle(9, outline, 1).strokeTriangle(80, 24, 24, 134, 58, 124).strokeTriangle(80, 24, 136, 134, 102, 124);
+        ring(c, 90, 52, 0x79a948, 8);
+        g.fillStyle(0xa4d654, 1).fillEllipse(80, 86, 73, 67);
+        eye(60, 80, 0xffe963, 9);
+        eye(100, 80, 0xffe963, 9);
+        g.lineStyle(7, 0x5d3626, 1).lineBetween(44, 123, 116, 123);
+        g.fillStyle(0xff75b5, 1).fillCircle(80, 39, 16);
+        break;
+      }
+      case 'roi_ambre': {
+        g.fillStyle(0x75371f, 1).fillEllipse(c, 105, 114, 84);
+        g.lineStyle(9, outline, 1).strokeEllipse(c, 105, 114, 84);
+        g.fillStyle(0xf4a321, 1).fillEllipse(c, 83, 78, 67);
+        g.lineStyle(7, outline, 1).strokeEllipse(c, 83, 78, 67);
+        g.fillStyle(0xffe766, 1).fillTriangle(49, 61, 61, 25, 75, 56).fillTriangle(85, 56, 99, 25, 111, 61);
+        g.lineStyle(6, outline, 1).strokeTriangle(49, 61, 61, 25, 75, 56).strokeTriangle(85, 56, 99, 25, 111, 61);
+        eye(64, 81, 0x57efff, 9);
+        eye(96, 81, 0x57efff, 9);
+        g.lineStyle(7, 0x7c361d, 1).lineBetween(80, 51, 80, 117);
+        gem(80, 51, 12, 0xff5adb);
+        break;
+      }
+      case 'chauve_souris_braise': {
+        g.fillStyle(0x662857, 1).fillTriangle(67, 88, 10, 61, 42, 120).fillTriangle(93, 88, 150, 61, 118, 120);
+        g.lineStyle(8, outline, 1).strokeTriangle(67, 88, 10, 61, 42, 120).strokeTriangle(93, 88, 150, 61, 118, 120);
+        g.fillStyle(0xf15483, 1).fillTriangle(62, 77, 50, 40, 73, 63).fillTriangle(98, 77, 110, 40, 87, 63);
+        ring(c, 91, 30, 0xff5f8f, 6);
+        eye(68, 88, 0xffe457, 8);
+        eye(92, 88, 0xffe457, 8);
+        g.fillStyle(0xffcc55, 1).fillTriangle(74, 105, 86, 105, 80, 115);
+        break;
+      }
+      case 'mage_ombre': {
+        g.fillStyle(0x35105f, 1).fillTriangle(80, 30, 31, 139, 129, 139);
+        g.lineStyle(8, outline, 1).strokeTriangle(80, 30, 31, 139, 129, 139);
+        g.fillStyle(0x7d3bd9, 1).fillTriangle(80, 42, 47, 130, 113, 130);
+        ring(c, 77, 31, 0x231340, 5);
+        eye(66, 78, 0x68f2ff, 7);
+        eye(94, 78, 0x68f2ff, 7);
+        g.lineStyle(8, 0x653c2d, 1).lineBetween(124, 81, 132, 136);
+        gem(122, 69, 12, 0xef55ff);
+        break;
+      }
+      case 'elementaire_lave': {
+        g.fillStyle(0x85322a, 1).fillTriangle(80, 25, 25, 133, 59, 121).fillTriangle(80, 25, 135, 133, 101, 121);
+        g.lineStyle(9, outline, 1).strokeTriangle(80, 25, 25, 133, 59, 121).strokeTriangle(80, 25, 135, 133, 101, 121);
+        g.fillStyle(0xf26335, 1).fillCircle(c, 87, 47);
+        g.lineStyle(8, outline, 1).strokeCircle(c, 87, 43);
+        g.lineStyle(6, 0xffd149, 1).lineBetween(52, 74, 76, 93).lineBetween(82, 52, 83, 122).lineBetween(107, 73, 86, 94);
+        eye(63, 81, 0xfff263, 8);
+        eye(97, 81, 0xfff263, 8);
+        g.fillStyle(0xffde58, 1).fillTriangle(75, 109, 85, 109, 80, 119);
+        break;
+      }
+      case 'golem_cendre': {
+        g.fillStyle(0x55383e, 1).fillCircle(46, 111, 28).fillCircle(114, 111, 28);
+        ring(c, 90, 54, 0x8b5960, 9);
+        g.fillStyle(0x555d70, 1).fillEllipse(80, 84, 81, 72);
+        g.lineStyle(7, 0x343747, 1).lineBetween(80, 47, 80, 127).lineBetween(42, 92, 118, 92);
+        eye(61, 80, 0xff8d47, 10);
+        eye(99, 80, 0xff8d47, 10);
+        gem(80, 112, 15, 0xff633d);
+        break;
+      }
+      case 'dragon_cendre': {
+        g.fillStyle(0x6a2635, 1).fillTriangle(47, 91, 13, 50, 29, 126).fillTriangle(113, 91, 147, 50, 131, 126);
+        g.lineStyle(9, outline, 1).strokeTriangle(47, 91, 13, 50, 29, 126).strokeTriangle(113, 91, 147, 50, 131, 126);
+        g.fillStyle(0xe65537, 1).fillEllipse(c, 94, 90, 88);
+        g.lineStyle(9, outline, 1).strokeEllipse(c, 94, 90, 88);
+        g.fillStyle(0xff9f3f, 1).fillTriangle(52, 64, 58, 24, 74, 59).fillTriangle(86, 59, 102, 24, 108, 64);
+        eye(63, 82, 0x5af4ff, 10);
+        eye(97, 82, 0x5af4ff, 10);
+        g.fillStyle(0xffdc58, 1).fillEllipse(80, 110, 33, 23);
+        g.fillStyle(0x4b1f2b, 1).fillTriangle(68, 108, 92, 108, 80, 128);
+        break;
+      }
+      default:
+        ring(c, 87, 43, Phaser.Display.Color.HexStringToColor(def.color).color, 8);
+        eye(64, 82, 0x54e9ff, 8);
+        eye(96, 82, 0x54e9ff, 8);
+    }
+
+    g.fillStyle(0xffffff, 0.28).fillCircle(57, 54, 13);
+    g.generateTexture(`enemy-${def.id}`, 160, 160);
     g.destroy();
   }
 

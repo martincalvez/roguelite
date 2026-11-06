@@ -1,0 +1,9 @@
+{
+  "spinMs": 1100,
+  "rewards": [
+    { "id": "or_25", "kind": "gold", "value": 25, "weight": 42, "label": "+25 OR", "color": "#ffd34d" },
+    { "id": "xp_6", "kind": "xp", "value": 6, "weight": 28, "label": "+6 XP", "color": "#61f88d" },
+    { "id": "soin_35", "kind": "heal", "value": 0.35, "weight": 20, "label": "SOIN", "color": "#ff6c7e" },
+    { "id": "or_80", "kind": "gold", "value": 80, "weight": 10, "label": "+80 OR", "color": "#ff9f29" }
+  ]
+}

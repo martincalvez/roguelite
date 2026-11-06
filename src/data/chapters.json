@@ -248,7 +248,7 @@
   {
     "id": "ch2",
     "name": "Jungle des gemmes",
-    "difficulty": 1.12,
+    "difficulty": 1.28,
     "visual": {
       "wallColor": "#186b73",
       "wallEdgeColor": "#073b57",
@@ -274,7 +274,11 @@
         "enemies": [
           {
             "id": "scarabee_dore",
-            "count": 5
+            "count": 4
+          },
+          {
+            "id": "sentinelle_azur",
+            "count": 1
           }
         ],
         "difficulty": 1.16
@@ -302,7 +306,7 @@
           },
           {
             "id": "esprit_saphir",
-            "count": 2
+            "count": 3
           }
         ],
         "difficulty": 1.42
@@ -315,7 +319,7 @@
         "enemies": [
           {
             "id": "sentinelle_azur",
-            "count": 4
+            "count": 5
           }
         ],
         "difficulty": 1.55
@@ -329,7 +333,7 @@
           },
           {
             "id": "sentinelle_azur",
-            "count": 2
+            "count": 3
           }
         ],
         "difficulty": 1.72
@@ -357,7 +361,7 @@
           },
           {
             "id": "sentinelle_azur",
-            "count": 2
+            "count": 3
           }
         ],
         "difficulty": 2.05
@@ -395,7 +399,7 @@
           },
           {
             "id": "esprit_saphir",
-            "count": 2
+            "count": 3
           }
         ],
         "difficulty": 2.35
@@ -427,7 +431,7 @@
           },
           {
             "id": "esprit_saphir",
-            "count": 1
+            "count": 2
           }
         ],
         "difficulty": 2.7
@@ -448,7 +452,7 @@
           },
           {
             "id": "scarabee_dore",
-            "count": 2
+            "count": 3
           }
         ],
         "difficulty": 2.75
@@ -514,7 +518,7 @@
   {
     "id": "ch3",
     "name": "Cime des braises",
-    "difficulty": 1.24,
+    "difficulty": 1.52,
     "visual": {
       "wallColor": "#744034",
       "wallEdgeColor": "#351b35",
@@ -540,7 +544,11 @@
         "enemies": [
           {
             "id": "chauve_souris_braise",
-            "count": 5
+            "count": 4
+          },
+          {
+            "id": "mage_ombre",
+            "count": 1
           }
         ],
         "difficulty": 1.15
@@ -550,7 +558,7 @@
         "enemies": [
           {
             "id": "chauve_souris_braise",
-            "count": 3
+            "count": 4
           },
           {
             "id": "mage_ombre",
@@ -581,7 +589,7 @@
         "enemies": [
           {
             "id": "mage_ombre",
-            "count": 4
+            "count": 5
           }
         ],
         "difficulty": 1.6
@@ -619,7 +627,7 @@
         "enemies": [
           {
             "id": "mage_ombre",
-            "count": 3
+            "count": 4
           },
           {
             "id": "elementaire_lave",
@@ -647,7 +655,7 @@
           },
           {
             "id": "mage_ombre",
-            "count": 2
+            "count": 3
           }
         ],
         "difficulty": 2.35
@@ -685,11 +693,11 @@
         "enemies": [
           {
             "id": "mage_ombre",
-            "count": 3
+            "count": 4
           },
           {
             "id": "elementaire_lave",
-            "count": 2
+            "count": 3
           },
           {
             "id": "chauve_souris_braise",
@@ -752,15 +760,15 @@
         "enemies": [
           {
             "id": "chauve_souris_braise",
-            "count": 4
+            "count": 5
           },
           {
             "id": "mage_ombre",
-            "count": 2
+            "count": 3
           },
           {
             "id": "elementaire_lave",
-            "count": 2
+            "count": 3
           }
         ],
         "difficulty": 3.35

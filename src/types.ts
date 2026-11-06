@@ -231,6 +231,21 @@ export interface SurvivalConfig {
   bosses: { room: number; enemyId: string }[];
 }
 
+/** Bonus de démarrage : une roue courte, généreuse, sans monnaie premium. */
+export interface LuckyWheelReward {
+  id: string;
+  kind: 'gold' | 'xp' | 'heal';
+  value: number;
+  weight: number;
+  label: string;
+  color: string;
+}
+
+export interface LuckyWheelConfig {
+  spinMs: number;
+  rewards: LuckyWheelReward[];
+}
+
 /** Décor de l'arène (tuiles, plaques et blocs de pierre) : rendu, pas d'équilibrage. */
 export interface ArenaDecorConfig {
   cell: number; // côté d'une case en px logiques

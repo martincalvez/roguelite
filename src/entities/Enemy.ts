@@ -8,19 +8,20 @@ const TOO_CLOSE_RATIO = 0.8;
 const BURN_TINT = 0xff5a1f;
 const FREEZE_TINT = 0x66ccff;
 
-/** Visuels Gemini déjà détourés ; les autres ennemis gardent leurs textures de secours. */
+/** Le chevalier bleu reste le portrait illustré du boss Liche ; les autres ennemis sont dessinés par BootScene. */
 const ENEMY_ART: Record<string, string> = {
-  gobelin: 'enemy-art-crystal-green',
-  archer_squelette: 'enemy-art-turret',
-  shaman: 'enemy-art-crystal-pink',
-  ogre: 'enemy-art-crystal-pink',
   liche: 'enemy-art-blue-knight',
-  golem_floral: 'enemy-art-crystal-green',
-  gardien_racines: 'enemy-art-crystal-green',
-  chauve_souris_braise: 'enemy-art-crystal-pink',
-  mage_ombre: 'enemy-art-crystal-pink',
-  elementaire_lave: 'enemy-art-crystal-pink',
-  golem_cendre: 'enemy-art-crystal-pink',
+};
+
+/** Les ailes, capes et armes dépassent volontairement du collider : seule la masse du monstre touche le héros. */
+const HITBOX_FACTORS: Record<string, number> = {
+  archer_squelette: 0.82,
+  shaman: 0.8,
+  sentinelle_azur: 0.78,
+  esprit_saphir: 0.78,
+  chauve_souris_braise: 0.7,
+  mage_ombre: 0.8,
+  dragon_cendre: 0.9,
 };
 
 /**
@@ -67,18 +68,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.damage = def.damage * damageScale;
     this.enableBody(true, x, y, true, true);
     const art = ENEMY_ART[def.id];
-    if (art && this.scene.textures.exists(art)) {
-      this.setTexture(art);
-      const targetHeight = def.radius * (def.boss ? 5.2 : 4.2);
-      this.setScale(targetHeight / Math.max(this.frame.width, this.frame.height));
-    } else {
-      this.setTexture(`enemy-${def.id}`).setScale(1);
-    }
-    // Garde la collision gameplay à la taille définie, même si l'illustration est agrandie.
+    this.setTexture(art && this.scene.textures.exists(art) ? art : `enemy-${def.id}`);
+    // Les silhouettes font volontairement 3 à 5 fois le rayon de gameplay : elles restent lisibles au pouce.
+    const targetHeight = def.radius * (def.boss ? 4.9 : def.id === 'chauve_souris_braise' ? 3.9 : 4.25);
+    this.setScale(targetHeight / Math.max(this.frame.width, this.frame.height));
+    this.setOrigin(0.5, 0.57);
+    // Centre le collider sur le torse, pas sur les ailes, la cape, l'ombre ou l'arme.
     const scaleX = Math.max(Math.abs(this.scaleX), 0.001);
     const scaleY = Math.max(Math.abs(this.scaleY), 0.001);
-    const radius = Math.min(def.radius * 1.1 / scaleX, def.radius * 1.1 / scaleY);
-    this.setCircle(radius, (this.frame.width - radius * 2) / 2, (this.frame.height - radius * 2) / 2);
+    const hitboxFactor = HITBOX_FACTORS[def.id] ?? (def.boss ? 0.92 : 0.9);
+    const radius = Math.min(def.radius * hitboxFactor / scaleX, def.radius * hitboxFactor / scaleY);
+    this.setCircle(radius, (this.frame.width - radius * 2) / 2, this.frame.height * 0.54 - radius);
     this.stationary = def.id === 'archer_squelette';
     this.setCollideWorldBounds(true);
     this.setVelocity(0, 0);
@@ -111,6 +111,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const speed = time < this.freezeUntil ? def.speed * (1 - this.freezeSlow) : def.speed;
     const angle = Phaser.Math.Angle.Between(this.x, this.y, targetX, targetY);
     const moveAngle = Phaser.Math.Angle.Between(this.x, this.y, moveX, moveY);
+    this.setFlipX(Math.cos(targetVisible ? angle : moveAngle) < -0.12);
 
     if (def.behavior === 'boss') {
       this.updateBoss(time, angle, speed, moveAngle);
