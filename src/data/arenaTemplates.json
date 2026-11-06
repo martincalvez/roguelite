@@ -1,0 +1,146 @@
+[
+  {
+    "id": "clairiere-ambre",
+    "weight": 1,
+    "tiles": [
+      { "kind": "water", "col": 0, "row": 2, "width": 2, "height": 2 },
+      { "kind": "water", "col": 6, "row": 6, "width": 2, "height": 2 },
+      { "kind": "stone", "col": 3, "row": 3, "width": 2, "height": 1 }
+    ],
+    "blocks": [
+      { "col": 2, "row": 4, "width": 1, "height": 1 },
+      { "col": 5, "row": 4, "width": 1, "height": 1 },
+      { "col": 3, "row": 6, "width": 2, "height": 1 }
+    ]
+  },
+  {
+    "id": "rive-azur",
+    "weight": 1,
+    "tiles": [
+      { "kind": "water", "col": 0, "row": 3, "width": 8, "height": 2 },
+      { "kind": "stone", "col": 2, "row": 5, "width": 4, "height": 1 }
+    ],
+    "blocks": [
+      { "col": 1, "row": 3, "width": 1, "height": 2 },
+      { "col": 6, "row": 3, "width": 1, "height": 2 },
+      { "col": 3, "row": 6, "width": 1, "height": 1 },
+      { "col": 4, "row": 6, "width": 1, "height": 1 }
+    ]
+  },
+  {
+    "id": "colonnes-jumelles",
+    "weight": 1,
+    "tiles": [
+      { "kind": "stone", "col": 1, "row": 2, "width": 1, "height": 6 },
+      { "kind": "stone", "col": 6, "row": 2, "width": 1, "height": 6 },
+      { "kind": "water", "col": 3, "row": 4, "width": 2, "height": 2 }
+    ],
+    "blocks": [
+      { "col": 1, "row": 3, "width": 1, "height": 1 },
+      { "col": 6, "row": 3, "width": 1, "height": 1 },
+      { "col": 1, "row": 6, "width": 1, "height": 1 },
+      { "col": 6, "row": 6, "width": 1, "height": 1 }
+    ]
+  },
+  {
+    "id": "zigzag-solaire",
+    "weight": 1,
+    "tiles": [
+      { "kind": "stone", "col": 0, "row": 2, "width": 3, "height": 2 },
+      { "kind": "water", "col": 5, "row": 5, "width": 3, "height": 2 },
+      { "kind": "stone", "col": 0, "row": 8, "width": 2, "height": 1 }
+    ],
+    "blocks": [
+      { "col": 0, "row": 3, "width": 3, "height": 1 },
+      { "col": 5, "row": 6, "width": 3, "height": 1 },
+      { "col": 0, "row": 8, "width": 2, "height": 1 }
+    ]
+  },
+  {
+    "id": "zigzag-lunaire",
+    "weight": 1,
+    "tiles": [
+      { "kind": "stone", "col": 5, "row": 2, "width": 3, "height": 2 },
+      { "kind": "water", "col": 0, "row": 5, "width": 3, "height": 2 },
+      { "kind": "stone", "col": 6, "row": 8, "width": 2, "height": 1 }
+    ],
+    "blocks": [
+      { "col": 5, "row": 3, "width": 3, "height": 1 },
+      { "col": 0, "row": 6, "width": 3, "height": 1 },
+      { "col": 6, "row": 8, "width": 2, "height": 1 }
+    ]
+  },
+  {
+    "id": "croix-de-cristal",
+    "weight": 1,
+    "tiles": [
+      { "kind": "water", "col": 3, "row": 2, "width": 2, "height": 5 },
+      { "kind": "stone", "col": 1, "row": 5, "width": 6, "height": 1 }
+    ],
+    "blocks": [
+      { "col": 3, "row": 4, "width": 2, "height": 1 },
+      { "col": 2, "row": 5, "width": 1, "height": 1 },
+      { "col": 5, "row": 5, "width": 1, "height": 1 },
+      { "col": 3, "row": 6, "width": 2, "height": 1 }
+    ]
+  },
+  {
+    "id": "jardin-des-arches",
+    "weight": 1,
+    "tiles": [
+      { "kind": "water", "col": 0, "row": 2, "width": 2, "height": 6 },
+      { "kind": "water", "col": 6, "row": 2, "width": 2, "height": 6 },
+      { "kind": "stone", "col": 2, "row": 5, "width": 4, "height": 2 }
+    ],
+    "blocks": [
+      { "col": 2, "row": 3, "width": 1, "height": 1 },
+      { "col": 5, "row": 3, "width": 1, "height": 1 },
+      { "col": 2, "row": 7, "width": 1, "height": 1 },
+      { "col": 5, "row": 7, "width": 1, "height": 1 }
+    ]
+  },
+  {
+    "id": "passage-brise",
+    "weight": 1,
+    "tiles": [
+      { "kind": "stone", "col": 0, "row": 3, "width": 8, "height": 1 },
+      { "kind": "water", "col": 2, "row": 5, "width": 4, "height": 2 },
+      { "kind": "stone", "col": 0, "row": 8, "width": 8, "height": 1 }
+    ],
+    "blocks": [
+      { "col": 0, "row": 4, "width": 2, "height": 1 },
+      { "col": 6, "row": 4, "width": 2, "height": 1 },
+      { "col": 0, "row": 7, "width": 2, "height": 1 },
+      { "col": 6, "row": 7, "width": 2, "height": 1 }
+    ]
+  },
+  {
+    "id": "sanctuaire-central",
+    "weight": 1,
+    "tiles": [
+      { "kind": "stone", "col": 2, "row": 3, "width": 4, "height": 4 },
+      { "kind": "water", "col": 0, "row": 6, "width": 2, "height": 2 },
+      { "kind": "water", "col": 6, "row": 6, "width": 2, "height": 2 }
+    ],
+    "blocks": [
+      { "col": 3, "row": 4, "width": 2, "height": 2 },
+      { "col": 1, "row": 6, "width": 1, "height": 1 },
+      { "col": 6, "row": 6, "width": 1, "height": 1 }
+    ]
+  },
+  {
+    "id": "bosquet-des-brumes",
+    "weight": 1,
+    "tiles": [
+      { "kind": "water", "col": 0, "row": 3, "width": 3, "height": 2 },
+      { "kind": "stone", "col": 5, "row": 2, "width": 3, "height": 3 },
+      { "kind": "water", "col": 3, "row": 7, "width": 2, "height": 1 }
+    ],
+    "blocks": [
+      { "col": 1, "row": 3, "width": 1, "height": 1 },
+      { "col": 5, "row": 3, "width": 1, "height": 1 },
+      { "col": 3, "row": 6, "width": 1, "height": 1 },
+      { "col": 4, "row": 7, "width": 1, "height": 1 }
+    ]
+  }
+]

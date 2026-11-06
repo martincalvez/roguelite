@@ -1,9 +1,9 @@
-// Disposition du décor de combat (pur, sans Phaser) : tuiles de sol et blocs de pierre.
-// Le hasard est injecté pour pouvoir tester. Les nombres viennent de src/data/arena.json.
+// Disposition du décor de combat (pur, sans Phaser) : plans de salle, tuiles et blocs.
+// Le hasard est injecté pour pouvoir tester. Les données viennent de src/data/.
 
-import type { ArenaDecorConfig } from '../types';
+import type { ArenaDecorConfig, ArenaTemplateDef, ArenaTemplateRect, ArenaTileKind } from '../types';
 
-export type ArenaTileKind = 'grass' | 'stone' | 'water';
+export type { ArenaTileKind } from '../types';
 
 export interface ArenaPoint {
   x: number;
@@ -31,6 +31,15 @@ export interface ArenaLayout {
   obstacles: ArenaRect[];
   /** Point de départ du héros (coordonnées locales à l'arène). */
   spawn: ArenaPoint;
+  /** Identifiant du plan de salle retenu, utile pour éviter une répétition immédiate. */
+  templateId?: string;
+}
+
+export interface ArenaLayoutBuildOptions {
+  rng?: () => number;
+  templates?: readonly ArenaTemplateDef[];
+  /** Le plan de la salle précédente, écarté lorsqu'il existe une autre option. */
+  excludedTemplateId?: string;
 }
 
 export interface EnemySpawnOptions {
@@ -46,17 +55,18 @@ export interface EnemySpawnOptions {
 const MIN_OBSTACLE_SIZE = 8;
 
 /**
- * Grille de cases, plaques de pierre et d'eau (décor pur), puis blocs de pierre disposés
- * au hasard. Garanties : le départ du héros et la porte restent dégagés, et un chemin
- * praticable relie toujours le départ à la porte.
+ * Grille de cases et plan de salle. Garanties : le départ du héros et la porte restent
+ * dégagés, et un chemin praticable relie toujours le départ à la porte.
  */
 export function buildArenaLayout(
   config: ArenaDecorConfig,
   width: number,
   height: number,
   spawn: ArenaPoint,
-  rng: () => number = Math.random,
+  options: ArenaLayoutBuildOptions | (() => number) = {},
 ): ArenaLayout {
+  const buildOptions = typeof options === 'function' ? { rng: options } : options;
+  const rng = buildOptions.rng ?? Math.random;
   const cell = config.cell;
   const cols = Math.max(1, Math.ceil(width / cell));
   const rows = Math.max(1, Math.ceil(height / cell));
@@ -72,11 +82,36 @@ export function buildArenaLayout(
     spawn: { x: spawn.x, y: spawn.y },
   };
 
+  const template = selectArenaTemplate(buildOptions.templates ?? [], buildOptions.excludedTemplateId, rng);
   paintPatches(layout, 'stone', config.stonePatchChance, rng);
   paintPatches(layout, 'water', config.waterPatchChance, rng);
-  placeObstacles(layout, config, rng);
+  if (template) {
+    layout.templateId = template.id;
+    paintTemplateTiles(layout, template.tiles);
+    if (config.obstacleCoverage > 0) placeTemplateObstacles(layout, config, template.blocks);
+  } else {
+    placeObstacles(layout, config, rng);
+  }
   layout.obstacles = layout.blocked.flatMap((blocked, index) => (blocked ? [cellRect(layout, index, config.obstacleInset)] : []));
   return layout;
+}
+
+/** Tire un plan pondéré, en évitant le précédent si plusieurs plans existent. */
+export function selectArenaTemplate(
+  templates: readonly ArenaTemplateDef[],
+  excludedTemplateId?: string,
+  rng: () => number = Math.random,
+): ArenaTemplateDef | undefined {
+  const alternatives = templates.filter((template) => template.id !== excludedTemplateId);
+  const candidates = alternatives.length > 0 ? alternatives : templates;
+  if (candidates.length === 0) return undefined;
+  const total = candidates.reduce((sum, template) => sum + template.weight, 0);
+  let roll = rng() * total;
+  for (const template of candidates) {
+    roll -= template.weight;
+    if (roll < 0) return template;
+  }
+  return candidates[candidates.length - 1];
 }
 
 /**
@@ -132,19 +167,42 @@ function paintPatches(layout: ArenaLayout, kind: ArenaTileKind, chance: number, 
   }
 }
 
+/** Applique les plaques larges d'un plan : elles rendent chaque salle immédiatement reconnaissable. */
+function paintTemplateTiles(layout: ArenaLayout, tiles: readonly (ArenaTemplateRect & { kind: Exclude<ArenaTileKind, 'grass'> })[]): void {
+  for (const tile of tiles) {
+    for (let row = tile.row; row < tile.row + tile.height; row++) {
+      for (let col = tile.col; col < tile.col + tile.width; col++) {
+        if (col < 0 || row < 0 || col >= layout.cols || row >= layout.rows) continue;
+        layout.tiles[row * layout.cols + col] = tile.kind;
+      }
+    }
+  }
+}
+
+/** Pose les blocs d'un plan en conservant toujours une route vers la sortie. */
+function placeTemplateObstacles(
+  layout: ArenaLayout,
+  config: ArenaDecorConfig,
+  blocks: readonly ArenaTemplateRect[],
+): void {
+  const { door, home } = protectedAreas(layout, config);
+  const doorPoint = { x: layout.width / 2, y: 0 };
+  for (const block of blocks) {
+    for (let row = block.row; row < block.row + block.height; row++) {
+      for (let col = block.col; col < block.col + block.width; col++) {
+        if (col < 0 || row < 0 || col >= layout.cols || row >= layout.rows) continue;
+        const index = row * layout.cols + col;
+        const rect = cellRect(layout, index, 0);
+        if (layout.blocked[index] || intersects(rect, door) || intersects(rect, home)) continue;
+        layout.blocked[index] = true;
+        if (!connected(layout, layout.spawn, doorPoint)) layout.blocked[index] = false;
+      }
+    }
+  }
+}
+
 function placeObstacles(layout: ArenaLayout, config: ArenaDecorConfig, rng: () => number): void {
-  const door: ArenaRect = {
-    x: layout.width / 2 - config.doorClearance,
-    y: 0,
-    width: config.doorClearance * 2,
-    height: config.doorClearance,
-  };
-  const home: ArenaRect = {
-    x: layout.spawn.x - config.spawnClearance,
-    y: layout.spawn.y - config.spawnClearance,
-    width: config.spawnClearance * 2,
-    height: config.spawnClearance * 2,
-  };
+  const { door, home } = protectedAreas(layout, config);
   const candidates: number[] = [];
   const isCandidate = new Array<boolean>(layout.blocked.length).fill(false);
   for (let index = 0; index < layout.blocked.length; index++) {
@@ -175,6 +233,23 @@ function placeObstacles(layout: ArenaLayout, config: ArenaDecorConfig, rng: () =
       }
     }
   }
+}
+
+function protectedAreas(layout: ArenaLayout, config: ArenaDecorConfig): { door: ArenaRect; home: ArenaRect } {
+  return {
+    door: {
+      x: layout.width / 2 - config.doorClearance,
+      y: 0,
+      width: config.doorClearance * 2,
+      height: config.doorClearance,
+    },
+    home: {
+      x: layout.spawn.x - config.spawnClearance,
+      y: layout.spawn.y - config.spawnClearance,
+      width: config.spawnClearance * 2,
+      height: config.spawnClearance * 2,
+    },
+  };
 }
 
 function shuffled(values: number[], rng: () => number): number[] {

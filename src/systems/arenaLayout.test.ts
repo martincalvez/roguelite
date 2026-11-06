@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ARENA_DECOR } from '../data';
+import { ARENA_DECOR, ARENA_TEMPLATES } from '../data';
 import { seededRng } from '../test/rng';
 import { buildArenaLayout, connected, pickEnemySpawn, type ArenaLayout, type ArenaRect } from './arenaLayout';
 
@@ -9,7 +9,10 @@ const HEIGHT = 1140;
 const SPAWN = { x: WIDTH / 2, y: HEIGHT * 0.75 };
 const DOOR = { x: WIDTH / 2, y: 0 };
 
-const build = (seed = 7) => buildArenaLayout(ARENA_DECOR, WIDTH, HEIGHT, SPAWN, seededRng(seed));
+const build = (seed = 7) => buildArenaLayout(ARENA_DECOR, WIDTH, HEIGHT, SPAWN, {
+  rng: seededRng(seed),
+  templates: ARENA_TEMPLATES,
+});
 
 const spawnZone: ArenaRect = {
   x: SPAWN.x - ARENA_DECOR.spawnClearance,
@@ -82,6 +85,27 @@ describe('disposition du décor', () => {
     const b = build(11);
     expect(b.obstacles).toEqual(a.obstacles);
     expect(b.tiles).toEqual(a.tiles);
+  });
+
+  it('construit chaque plan de salle sans enfermer le héros ni la porte', () => {
+    for (const template of ARENA_TEMPLATES) {
+      const layout = buildArenaLayout(ARENA_DECOR, WIDTH, HEIGHT, SPAWN, {
+        rng: seededRng(4),
+        templates: [template],
+      });
+      expect(layout.templateId).toBe(template.id);
+      expect(layout.obstacles.length, template.id).toBeGreaterThan(0);
+      expect(connected(layout, SPAWN, DOOR), template.id).toBe(true);
+    }
+  });
+
+  it('ne répète pas le plan exclu quand une autre salle est disponible', () => {
+    const layout = buildArenaLayout(ARENA_DECOR, WIDTH, HEIGHT, SPAWN, {
+      rng: seededRng(1),
+      templates: ARENA_TEMPLATES,
+      excludedTemplateId: ARENA_TEMPLATES[0].id,
+    });
+    expect(layout.templateId).not.toBe(ARENA_TEMPLATES[0].id);
   });
 
   it('choisit des apparitions réparties dans l’arène, hors des blocs et accessibles', () => {

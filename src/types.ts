@@ -252,6 +252,25 @@ export interface LuckyWheelConfig {
   rewards: LuckyWheelReward[];
 }
 
+/** Types de sol visibles dans une salle de combat. */
+export type ArenaTileKind = 'grass' | 'stone' | 'water';
+
+/** Rectangle exprimé en cases de la grille logique d'une salle. */
+export interface ArenaTemplateRect {
+  col: number;
+  row: number;
+  width: number;
+  height: number;
+}
+
+/** Un plan de salle original : décor au sol et blocs solides. */
+export interface ArenaTemplateDef {
+  id: string;
+  weight: number;
+  tiles: Array<ArenaTemplateRect & { kind: Exclude<ArenaTileKind, 'grass'> }>;
+  blocks: ArenaTemplateRect[];
+}
+
 /** Décor de l'arène (tuiles, plaques et blocs de pierre) : rendu, pas d'équilibrage. */
 export interface ArenaDecorConfig {
   cell: number; // côté d'une case en px logiques

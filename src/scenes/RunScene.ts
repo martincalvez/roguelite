@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, PLAYER_SPAWN, POOLS, SCENES } from '../config';
-import { ARENA_DECOR, getChapter, LUCKY_WHEEL, SURVIVAL } from '../data';
+import { ARENA_DECOR, ARENA_TEMPLATES, getChapter, LUCKY_WHEEL, SURVIVAL } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { LobbedProjectile } from '../entities/LobbedProjectile';
@@ -54,6 +54,7 @@ export class RunScene extends Phaser.Scene {
   private startBonusLocked = false;
   private enemyRoutes = new WeakMap<Enemy, EnemyRoute>();
   private arena!: ArenaLayout;
+  private lastArenaTemplateId?: string;
   private blocks!: Phaser.Physics.Arcade.StaticGroup;
   private readonly arenaVisuals: Phaser.GameObjects.GameObject[] = [];
   private readonly lobbedProjectiles: LobbedProjectile[] = [];
@@ -71,13 +72,8 @@ export class RunScene extends Phaser.Scene {
     this.physics.resume();
     this.arenaVisuals.length = 0;
     this.lobbedProjectiles.length = 0;
-    this.arena = buildArenaLayout(
-      ARENA_DECOR,
-      ARENA.width,
-      ARENA.height,
-      { x: PLAYER_SPAWN.x - ARENA.x, y: PLAYER_SPAWN.y - ARENA.y },
-      Math.random,
-    );
+    this.lastArenaTemplateId = undefined;
+    this.arena = this.createArenaLayout();
     this.blocks = this.physics.add.staticGroup();
     this.buildArena(this.arena);
     this.physics.world.setBounds(ARENA.x, ARENA.y, ARENA.width, ARENA.height);
@@ -244,16 +240,27 @@ export class RunScene extends Phaser.Scene {
   private refreshArena(): void {
     for (const visual of this.arenaVisuals.splice(0)) visual.destroy();
     this.blocks.clear(true, true);
-    this.arena = buildArenaLayout(
+    this.arena = this.createArenaLayout();
+    this.buildArena(this.arena);
+    this.ctx.arena = this.arena;
+    this.enemyRoutes = new WeakMap<Enemy, EnemyRoute>();
+  }
+
+  /** Chaque salle reçoit l'un des plans originaux et ne répète pas immédiatement le précédent. */
+  private createArenaLayout(): ArenaLayout {
+    const arena = buildArenaLayout(
       ARENA_DECOR,
       ARENA.width,
       ARENA.height,
       { x: PLAYER_SPAWN.x - ARENA.x, y: PLAYER_SPAWN.y - ARENA.y },
-      Math.random,
+      {
+        rng: Math.random,
+        templates: ARENA_TEMPLATES,
+        excludedTemplateId: this.lastArenaTemplateId,
+      },
     );
-    this.buildArena(this.arena);
-    this.ctx.arena = this.arena;
-    this.enemyRoutes = new WeakMap<Enemy, EnemyRoute>();
+    this.lastArenaTemplateId = arena.templateId;
+    return arena;
   }
 
   private onPlayerDied(): void {

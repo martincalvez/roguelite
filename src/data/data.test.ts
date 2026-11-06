@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { RARITY_ORDER } from '../config';
-import { ARENA_DECOR, CHAPTERS, CHESTS, COMBAT, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, TALENTS, UPGRADE } from './index';
+import { ARENA, RARITY_ORDER } from '../config';
+import { ARENA_DECOR, ARENA_TEMPLATES, CHAPTERS, CHESTS, COMBAT, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, TALENTS, UPGRADE } from './index';
 
 const ids = <T extends { id: string }>(list: T[]) => list.map((x) => x.id);
 
@@ -14,6 +14,7 @@ describe('identifiants', () => {
     ['passifs', PASSIVES],
     ['talents', TALENTS],
     ['coffres', CHESTS],
+    ['plans de salle', ARENA_TEMPLATES],
   ])('%s : pas d\'identifiant en double', (_name, list) => {
     const all = ids(list as { id: string }[]);
     expect(new Set(all).size).toBe(all.length);
@@ -108,6 +109,25 @@ describe('cohérence des valeurs', () => {
     for (const chance of [ARENA_DECOR.stonePatchChance, ARENA_DECOR.waterPatchChance]) {
       expect(chance).toBeGreaterThanOrEqual(0);
       expect(chance).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('plans de salle : poids, zones et blocs sont valides', () => {
+    const columns = Math.ceil(ARENA.width / ARENA_DECOR.cell);
+    const rows = Math.ceil(ARENA.height / ARENA_DECOR.cell);
+    expect(ARENA_TEMPLATES.length).toBeGreaterThanOrEqual(8);
+    expect(ARENA_TEMPLATES.length).toBeLessThanOrEqual(12);
+    for (const template of ARENA_TEMPLATES) {
+      expect(template.weight, template.id).toBeGreaterThan(0);
+      for (const zone of [...template.tiles, ...template.blocks]) {
+        expect(zone.col, template.id).toBeGreaterThanOrEqual(0);
+        expect(zone.row, template.id).toBeGreaterThanOrEqual(0);
+        expect(zone.width, template.id).toBeGreaterThan(0);
+        expect(zone.height, template.id).toBeGreaterThan(0);
+        expect(zone.col + zone.width, template.id).toBeLessThanOrEqual(columns);
+        expect(zone.row + zone.height, template.id).toBeLessThanOrEqual(rows);
+      }
+      for (const tile of template.tiles) expect(['stone', 'water'], template.id).toContain(tile.kind);
     }
   });
 

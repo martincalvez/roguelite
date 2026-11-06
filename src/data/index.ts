@@ -1,5 +1,5 @@
 // Point d'entrée unique des données : le code n'importe jamais un JSON directement.
-import type { ArenaDecorConfig, ChapterDef, ChestDef, CombatConfig, LootConfig, ProgressionConfig, SurvivalConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, LuckyWheelConfig, PassiveDef, SkillDef, TalentDef } from '../types';
+import type { ArenaDecorConfig, ArenaTemplateDef, ChapterDef, ChestDef, CombatConfig, LootConfig, ProgressionConfig, SurvivalConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, LuckyWheelConfig, PassiveDef, SkillDef, TalentDef } from '../types';
 import itemsJson from './items.json';
 import skillsJson from './skills.json';
 import enemiesJson from './enemies.json';
@@ -13,6 +13,7 @@ import lootJson from './loot.json';
 import upgradeJson from './upgrade.json';
 import chestsJson from './chests.json';
 import arenaJson from './arena.json';
+import arenaTemplatesJson from './arenaTemplates.json';
 import survivalJson from './survival.json';
 import luckyWheelJson from './luckyWheel.json';
 
@@ -29,6 +30,7 @@ export const LOOT = lootJson as LootConfig;
 export const UPGRADE = upgradeJson as UpgradeConfig;
 export const CHESTS = chestsJson as ChestDef[];
 export const ARENA_DECOR = arenaJson as ArenaDecorConfig;
+export const ARENA_TEMPLATES = arenaTemplatesJson as ArenaTemplateDef[];
 export const SURVIVAL = survivalJson as SurvivalConfig;
 export const LUCKY_WHEEL = luckyWheelJson as LuckyWheelConfig;
 
