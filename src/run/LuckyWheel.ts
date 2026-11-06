@@ -87,6 +87,7 @@ export class LuckyWheel {
     this.spinning = true;
     button.disableInteractive().setAlpha(0.7);
     label.setText('...');
+    this.ctx.scene.events.emit('wheel-spin');
     const reward = pickLuckyWheelReward(LUCKY_WHEEL.rewards, Math.random);
     const segment = LuckyWheel.rewardSegments[reward.id] ?? 0;
     // Le centre du segment 0 démarre à -67.5°. L'aiguille est à -90° :
@@ -110,6 +111,7 @@ export class LuckyWheel {
     }).setOrigin(0.5).setScale(0).setDepth(1202);
     this.ctx.scene.tweens.add({ targets: rewardText, scale: 1, duration: 250, ease: 'Back.Out' });
     this.ctx.scene.cameras.main.flash(140, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, false);
+    this.ctx.scene.events.emit('wheel-reward');
     this.onReward(reward);
     this.ctx.scene.time.delayedCall(820, () => {
       rewardText.destroy();

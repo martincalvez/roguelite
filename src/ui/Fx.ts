@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { POOLS } from '../config';
 import { COMBAT, ENEMIES } from '../data';
 import type { EnemyDef } from '../types';
+import { ArcadeFeedback } from './ArcadeFeedback';
 
 const FLOAT_MS = 700; // durée d'un texte flottant
 const RISE_PX = 70; // hauteur dont il monte
@@ -23,6 +24,7 @@ export class Fx {
   private readonly lootStartX: number[] = [];
   private readonly lootStartY: number[] = [];
   private nextLootReuse = 0;
+  private readonly feedback = new ArcadeFeedback();
 
   constructor(private readonly scene: Phaser.Scene) {
     // Un émetteur par type d'ennemi, teinté à sa couleur.
@@ -54,11 +56,19 @@ export class Fx {
     scene.events.on('enemy-died', this.onEnemyDied, this);
     scene.events.on('player-dodged', this.onPlayerDodged, this);
     scene.events.on('player-hp-changed', this.onPlayerHurt, this);
+    scene.events.on('level-up', this.onLevelUp, this);
+    scene.events.on('wheel-spin', this.onWheelSpin, this);
+    scene.events.on('wheel-reward', this.onWheelReward, this);
+    scene.input.once('pointerdown', () => this.feedback.unlock());
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       scene.events.off('enemy-hit', this.onEnemyHit, this);
       scene.events.off('enemy-died', this.onEnemyDied, this);
       scene.events.off('player-dodged', this.onPlayerDodged, this);
       scene.events.off('player-hp-changed', this.onPlayerHurt, this);
+      scene.events.off('level-up', this.onLevelUp, this);
+      scene.events.off('wheel-spin', this.onWheelSpin, this);
+      scene.events.off('wheel-reward', this.onWheelReward, this);
+      this.feedback.dispose();
     });
   }
 
@@ -92,12 +102,14 @@ export class Fx {
 
   private onEnemyHit(x: number, y: number, amount: number, isCrit: boolean): void {
     this.showText(x, y, String(amount), '#ffe14a', isCrit ? 52 : 32);
+    this.feedback.hit(isCrit);
   }
 
   private onEnemyDied(def: EnemyDef, x: number, y: number): void {
     this.emitters.get(def.id)?.explode(COMBAT.deathParticles, x, y);
     this.showCoinBurst(x, y, def.boss ? 7 : def.gold >= 12 ? 3 : 2);
     if (def.gold >= 12 || def.boss) this.showText(x, y - def.radius - 18, `+${def.gold}`, '#ffe14a', def.boss ? 34 : 24);
+    this.feedback.enemyDown(Boolean(def.boss));
   }
 
   private onPlayerDodged(x: number, y: number): void {
@@ -106,6 +118,19 @@ export class Fx {
 
   private onPlayerHurt(): void {
     this.scene.cameras.main.shake(COMBAT.shakeMs, COMBAT.shakeIntensity);
+    this.feedback.playerHurt();
+  }
+
+  private onLevelUp(): void {
+    this.feedback.levelUp();
+  }
+
+  private onWheelSpin(): void {
+    this.feedback.wheelSpin();
+  }
+
+  private onWheelReward(): void {
+    this.feedback.wheelReward();
   }
 
   /** Prend un texte libre du pool (ou en crée un, ou recycle le plus ancien). */
