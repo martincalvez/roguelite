@@ -278,12 +278,12 @@ Tâche 5.5. Priorité avant le mode Survie. Applique les références visuelles 
 ```
 Validation : sur téléphone, comparer accueil/équipement aux captures et une salle de combat à la vidéo ; confirmer lisibilité, échelle du héros, animation du familier, pièges, projectiles et ramassage des récompenses.
 
-- [ ] 5.4 Mode Survie (progression 50 étapes à confirmer)
+- [ ] 5.4 Mode Survie (implémenté, test téléphone à faire)
 
 ```
-Tâche 5.4. Après 5.5, ajoute un mode Survie distinct de la campagne de 20 salles. Prends pour référence la vidéo : run portrait, progression affichée comme 5/50, salles ouvertes et couloirs, obstacles et pièges (tourelles, tirs horizontaux, feu), ennemis de mêlée et à distance, attaques automatiques pendant le déplacement, XP qui déclenche un choix d'une capacité parmi trois, pièces et objets ramassables, mini-boss/boss avec barre de vie, record de progression sauvegardé. Réutilise Player, RoomFlow, SkillFlow, les pools, les données et la sauvegarde existants dès que possible ; ne casse ni la campagne ni la synchro. Le clip s'arrête à 5/50 et ne montre pas la fin : Martin doit confirmer si le mode s'arrête à 50 ou continue ensuite avant de figer cette règle. Aucun équilibrage chiffré en dur dans le code ; pas de nouvelle dépendance.
+Tâche 5.4. Mode Survie ajouté à l'accueil, distinct de la campagne. 50 étapes ; le compteur s'affiche dans le HUD, des haltes de l'ange sont prévues à 5/15/25/35/45, des zones de feu animées dans certaines salles et un boss à chaque dizaine, jusqu'au boss final à 50. Les ennemis changent par palier, la difficulté croît jusqu'à une limite, les choix de capacités, salles, portes, tirs, XP et récompenses réutilisent la boucle de run ; le record est enregistré dans `bestWave` existant et synchronisé avec la sauvegarde. Les règles sont dans `src/data/survival.json`, la génération pure dans `src/systems/survival.ts`. Fin à 50 choisie comme règle de cette première version, puisque la vidéo ne montre rien après. La roue de fortune de la vidéo n'est pas encore dans le jeu. Vérifier les choix, tirs, transitions, difficulté et record sur téléphone. Aucun équilibrage chiffré en dur dans le code ; pas de nouvelle dépendance.
 ```
-Validation : lancer une partie sur téléphone, choisir une capacité, esquiver plusieurs types de tirs et pièges, ramasser XP/butin, vérifier les transitions et la progression/record, puis confirmer le comportement à l'étape 50.
+Validation : lancer une partie sur téléphone, choisir une capacité, esquiver les tirs, ramasser l'XP/butin, vérifier les transitions, le record et le boss final à l'étape 50.
 
 ## Pistes après la phase 5 (à arbitrer, pas encore planifiées)
 

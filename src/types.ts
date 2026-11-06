@@ -215,6 +215,22 @@ export interface CombatConfig {
   angelRareMaxWeight: number; // salle de l'ange : une compétence "rare" a un poids d'apparition ≤ à cette valeur
 }
 
+/** Règles du mode Survie : 50 salles, haltes de l'ange et boss de palier. */
+export interface SurvivalConfig {
+  roomCount: number;
+  angelEvery: number;
+  angelOffset: number;
+  difficultyStart: number;
+  difficultyPerRoom: number;
+  difficultyCap: number;
+  fireEveryRooms: number;
+  fireRadius: number;
+  fireDamage: number;
+  fireTickMs: number;
+  enemyPools: { fromRoom: number; enemies: string[] }[];
+  bosses: { room: number; enemyId: string }[];
+}
+
 /** Décor de l'arène (tuiles, plaques et blocs de pierre) : rendu, pas d'équilibrage. */
 export interface ArenaDecorConfig {
   cell: number; // côté d'une case en px logiques
@@ -277,4 +293,5 @@ export interface RunRewards {
   scrolls: Record<ItemSlotType, number>;
   gems: number;
   clearedChapter: number | null; // numéro du chapitre terminé (1 = ch1), null si défaite
+  bestWave?: number; // record du mode Survie
 }

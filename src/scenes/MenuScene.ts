@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { COLORS, GAME_WIDTH, SCENES } from '../config';
 import { cloudEnabled } from '../cloud/client';
 import { Sync } from '../cloud/syncManager';
-import { getHero } from '../data';
+import { getHero, SURVIVAL } from '../data';
 import { accountXpToNext } from '../systems/progression';
 import { syncLabel } from '../ui/syncLabel';
 import { GameState } from '../state/GameState';
@@ -70,15 +70,17 @@ export class MenuScene extends Phaser.Scene {
       offReplaced();
     });
 
-    this.menuButton(cx, 750, 'JOUER', 45, () => this.scene.start(SCENES.chapters), '#ffc928', 450, 104);
+    this.menuButton(cx, 740, 'JOUER', 45, () => this.scene.start(SCENES.chapters), '#ffc928', 450, 98);
+    this.menuButton(cx, 846, 'SURVIE', 36, () => this.scene.start(SCENES.run, { mode: 'survival', chapterId: 'ch1' }), '#b33fe3', 450, 88);
+    this.add.text(cx, 900, `RECORD ${d.bestWave}/${SURVIVAL.roomCount}`, { fontSize: '19px', color: '#ffffff', fontStyle: 'bold', stroke: '#14213d', strokeThickness: 4 }).setOrigin(0.5);
     const left = 180;
     const right = GAME_WIDTH - left;
-    this.menuButton(left, 875, 'HÉROS', 29, () => this.scene.start(SCENES.heroes), '#ed4db7', 310, 88);
-    this.menuButton(right, 875, 'ÉQUIPEMENT', 27, () => this.scene.start(SCENES.equipment), '#258fe4', 310, 88);
-    this.menuButton(left, 980, 'FAMILIERS', 27, () => this.scene.start(SCENES.pets), '#31c8d8', 310, 88);
-    this.menuButton(right, 980, 'COFFRES', 29, () => this.scene.start(SCENES.chests), '#a846e3', 310, 88);
-    this.menuButton(left, 1085, 'TALENTS', 29, () => this.scene.start(SCENES.talents), '#e99e20', 310, 88);
-    this.menuButton(right, 1085, 'COMPTE', 29, () => this.scene.start(SCENES.account), cloudEnabled ? '#288edb' : '#69788d', 310, 88);
+    this.menuButton(left, 962, 'HÉROS', 29, () => this.scene.start(SCENES.heroes), '#ed4db7', 310, 82);
+    this.menuButton(right, 962, 'ÉQUIPEMENT', 27, () => this.scene.start(SCENES.equipment), '#258fe4', 310, 82);
+    this.menuButton(left, 1050, 'FAMILIERS', 27, () => this.scene.start(SCENES.pets), '#31c8d8', 310, 82);
+    this.menuButton(right, 1050, 'COFFRES', 29, () => this.scene.start(SCENES.chests), '#a846e3', 310, 82);
+    this.menuButton(left, 1138, 'TALENTS', 29, () => this.scene.start(SCENES.talents), '#e99e20', 310, 82);
+    this.menuButton(right, 1138, 'COMPTE', 29, () => this.scene.start(SCENES.account), cloudEnabled ? '#288edb' : '#69788d', 310, 82);
   }
 
   private drawBackdrop(): void {

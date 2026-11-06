@@ -1,0 +1,26 @@
+{
+  "roomCount": 50,
+  "angelEvery": 10,
+  "angelOffset": 5,
+  "difficultyStart": 1,
+  "difficultyPerRoom": 0.055,
+  "difficultyCap": 3.8,
+  "fireEveryRooms": 4,
+  "fireRadius": 44,
+  "fireDamage": 5,
+  "fireTickMs": 900,
+  "enemyPools": [
+    { "fromRoom": 1, "enemies": ["gobelin", "archer_squelette", "shaman"] },
+    { "fromRoom": 11, "enemies": ["chauve_souris_braise", "mage_ombre", "elementaire_lave"] },
+    { "fromRoom": 21, "enemies": ["scarabee_dore", "sentinelle_azur", "esprit_saphir"] },
+    { "fromRoom": 31, "enemies": ["golem_floral", "gardien_racines", "mage_ombre"] },
+    { "fromRoom": 41, "enemies": ["chauve_souris_braise", "elementaire_lave", "golem_floral", "shaman"] }
+  ],
+  "bosses": [
+    { "room": 10, "enemyId": "ogre" },
+    { "room": 20, "enemyId": "gardien_racines" },
+    { "room": 30, "enemyId": "liche" },
+    { "room": 40, "enemyId": "golem_cendre" },
+    { "room": 50, "enemyId": "dragon_cendre" }
+  ]
+}

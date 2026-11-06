@@ -20,11 +20,12 @@ export class Hud {
   private readonly xpFill: Phaser.GameObjects.Rectangle;
   private readonly xpLabel: Phaser.GameObjects.Text;
   private readonly roomLabel: Phaser.GameObjects.Text;
+  private readonly roomPrefix: string;
   private readonly bossParts: Phaser.GameObjects.Components.Visible[];
   private readonly bossFill: Phaser.GameObjects.Rectangle;
   private readonly bossName: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, hp: number, maxHp: number, level: number, xp: number, xpNeeded: number, room: number, roomCount: number) {
+  constructor(scene: Phaser.Scene, hp: number, maxHp: number, level: number, xp: number, xpNeeded: number, room: number, roomCount: number, mode: 'campaign' | 'survival' = 'campaign') {
     const hpY = HUD_HEIGHT / 2 - 16;
     const xpY = HUD_HEIGHT / 2 + 26;
     const textStyle = { color: '#ffffff', fontStyle: 'bold', stroke: '#1a1020', strokeThickness: 5 };
@@ -38,6 +39,7 @@ export class Hud {
     this.xpLabel = scene.add.text(BAR_X + BAR_WIDTH / 2, xpY, '', { ...textStyle, fontSize: '18px', strokeThickness: 4 }).setOrigin(0.5);
 
     this.roomLabel = scene.add.text(24, 14, '', { ...textStyle, fontSize: '22px', strokeThickness: 4 });
+    this.roomPrefix = mode === 'survival' ? 'SURVIE' : 'Salle';
     // Barre de vie du boss, sous le bandeau : cachée tant qu'aucun boss n'est là.
     const bossX = (GAME_WIDTH - BOSS_BAR_WIDTH) / 2;
     const bossBg = scene.add.rectangle(bossX, BOSS_BAR_Y, BOSS_BAR_WIDTH, BOSS_BAR_HEIGHT, 0x000000, 0.6).setOrigin(0, 0.5).setStrokeStyle(4, 0x1a1020);
@@ -91,7 +93,7 @@ export class Hud {
   }
 
   private setRoom(room: number, roomCount: number): void {
-    this.roomLabel.setText(`Salle ${room}/${roomCount}`);
+    this.roomLabel.setText(this.roomPrefix === 'SURVIE' ? `SURVIE ${room}/${roomCount}` : `Salle ${room}/${roomCount}`);
   }
 
   private setXp(level: number, xp: number, xpNeeded: number): void {

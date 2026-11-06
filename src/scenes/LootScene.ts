@@ -1,12 +1,14 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH, RARITY_COLOR, RARITY_LABEL, SCENES, SCROLL_TYPES, SLOT_TYPE_LABEL } from '../config';
-import { getItem } from '../data';
+import { getItem, SURVIVAL } from '../data';
 import type { ItemInstance, ItemSlotType } from '../types';
 
 export interface LootData {
   victory: boolean;
+  mode?: 'campaign' | 'survival';
   roomReached: number;
   roomCount: number;
+  bestWave?: number;
   gold: number;
   accountXp: number;
   levelBefore: number;
@@ -37,10 +39,11 @@ export class LootScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const lines = [
-      `Salle atteinte : ${data.roomReached}/${data.roomCount}`,
+      data.mode === 'survival' ? `Étape : ${data.roomReached}/${data.roomCount}` : `Salle atteinte : ${data.roomReached}/${data.roomCount}`,
       `Or gagné : +${Math.round(data.gold)}`,
       `XP de compte : +${data.accountXp}`,
     ];
+    if (data.mode === 'survival') lines.push(`Record : ${data.bestWave ?? data.roomReached}/${SURVIVAL.roomCount}`);
     if (data.gems > 0) lines.push(`Gemmes : +${data.gems}`);
     const scrollText = SCROLL_TYPES.filter((t) => data.scrolls[t] > 0)
       .map((t) => `${SLOT_TYPE_LABEL[t]} x${data.scrolls[t]}`)

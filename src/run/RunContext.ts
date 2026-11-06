@@ -8,6 +8,7 @@ import type { VirtualJoystick } from '../ui/VirtualJoystick';
 export interface RunContext {
   scene: Phaser.Scene;
   chapterId: string;
+  mode: 'campaign' | 'survival';
   player: Player;
   /** Décor de la salle : grille de tuiles et blocs solides (voir src/systems/arenaLayout.ts). */
   arena: ArenaLayout;

@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, GAME_WIDTH, PLAYER_SPAWN, POOLS } from '../config';
-import { COMBAT, getChapter, getEnemy, HEROES, PROGRESSION } from '../data';
+import { COMBAT, getChapter, getEnemy, HEROES, PROGRESSION, SURVIVAL } from '../data';
 import type { Enemy } from '../entities/Enemy';
 import type { EnemyProjectile } from '../entities/EnemyProjectile';
 import type { Projectile } from '../entities/Projectile';
 import { XpOrb } from '../entities/XpOrb';
 import { GameState } from '../state/GameState';
 import { pickEnemySpawn } from '../systems/arenaLayout';
+import { survivalRoom } from '../systems/survival';
 import type { EnemyDef } from '../types';
 import type { RunContext } from './RunContext';
 import type { SkillFlow } from './SkillFlow';
@@ -51,6 +52,7 @@ export class RoomFlow {
   load(index: number): void {
     const { scene, player, runState, enemyProjectiles, playerProjectiles } = this.ctx;
     const chapter = getChapter(this.ctx.chapterId);
+    const room = this.ctx.mode === 'survival' ? survivalRoom(index + 1) : chapter.rooms[index];
     runState.room = index;
     this.enemiesAlive = 0;
     this.setDoor(false);
@@ -59,16 +61,16 @@ export class RoomFlow {
     }
     (player.body as Phaser.Physics.Arcade.Body).reset(PLAYER_SPAWN.x, PLAYER_SPAWN.y);
     this.spawnRoom(index);
-    scene.events.emit('room-changed', index + 1, chapter.rooms.length);
+    scene.events.emit('room-changed', index + 1, this.roomCount());
     scene.cameras.main.resetFX();
     scene.cameras.main.fadeIn(250);
     // Le choix de l'ange attend la fin du fondu, pour qu'on voie la salle derrière.
-    if (chapter.rooms[index].type === 'angel') scene.time.delayedCall(300, () => this.skills.openAngelChoice());
+    if (room.type === 'angel') scene.time.delayedCall(300, () => this.skills.openAngelChoice());
   }
 
   /** Salle vidée (ennemis morts, orbes ramassés, choix faits) : porte ouverte, ou victoire s'il n'y a plus de salle. */
   finishRoom(): void {
-    const roomCount = getChapter(this.ctx.chapterId).rooms.length;
+    const roomCount = this.roomCount();
     if (this.ctx.runState.room >= roomCount - 1) this.endRun(true);
     else this.setDoor(true);
   }
@@ -77,7 +79,7 @@ export class RoomFlow {
   private spawnRoom(roomIndex: number): void {
     const { scene, enemies, arena, player } = this.ctx;
     const chapter = getChapter(this.ctx.chapterId);
-    const room = chapter.rooms[roomIndex];
+    const room = this.ctx.mode === 'survival' ? survivalRoom(roomIndex + 1) : chapter.rooms[roomIndex];
     const margin = 60;
     // Les PV suivent le multiplicateur de la salle ; les dégâts n'en suivent qu'une partie.
     const roomScale = room.difficulty ?? 1;
@@ -85,8 +87,9 @@ export class RoomFlow {
     const offenseRatio = Math.sqrt((player.stats.attack / (base.attack + COMBAT.baselineWeaponAttack)) * (player.stats.attackSpeed / base.attackSpeed));
     const powerRatio = Math.max(offenseRatio, player.stats.maxHp / base.maxHp);
     const excessPower = Phaser.Math.Clamp(powerRatio - 1, 0, COMBAT.gearScalingCap);
-    const hpScale = chapter.difficulty * roomScale * (1 + excessPower * COMBAT.gearHpScalePerPower);
-    const damageScale = chapter.difficulty * (1 + (roomScale - 1) * COMBAT.roomDamageShare)
+    const chapterDifficulty = this.ctx.mode === 'survival' ? 1 : chapter.difficulty;
+    const hpScale = chapterDifficulty * roomScale * (1 + excessPower * COMBAT.gearHpScalePerPower);
+    const damageScale = chapterDifficulty * (1 + (roomScale - 1) * COMBAT.roomDamageShare)
       * (1 + excessPower * COMBAT.gearDamageScalePerPower);
     for (const group of room.enemies ?? []) {
       const def = getEnemy(group.id);
@@ -101,6 +104,10 @@ export class RoomFlow {
         this.enemiesAlive++;
       }
     }
+  }
+
+  private roomCount(): number {
+    return this.ctx.mode === 'survival' ? SURVIVAL.roomCount : getChapter(this.ctx.chapterId).rooms.length;
   }
 
   private setDoor(open: boolean): void {

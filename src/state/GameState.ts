@@ -132,6 +132,7 @@ class GameStateImpl {
     d.inventory.push(...rewards.items);
     for (const type of Object.keys(rewards.scrolls) as (keyof typeof rewards.scrolls)[]) d.scrolls[type] += rewards.scrolls[type];
     if (rewards.clearedChapter !== null) d.bestChapter = Math.max(d.bestChapter, rewards.clearedChapter);
+    if (rewards.bestWave !== undefined) d.bestWave = Math.max(d.bestWave, rewards.bestWave);
     this.persist();
     return { levelBefore, levelAfter: d.accountLevel };
   }

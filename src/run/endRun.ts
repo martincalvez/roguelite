@@ -1,5 +1,5 @@
 import { SCENES } from '../config';
-import { CHAPTERS, getChapter, ITEMS, LOOT } from '../data';
+import { CHAPTERS, getChapter, ITEMS, LOOT, SURVIVAL } from '../data';
 import { Sync } from '../cloud/syncManager';
 import type { LootData } from '../scenes/LootScene';
 import { GameState } from '../state/GameState';
@@ -22,22 +22,25 @@ export function endRun(ctx: RunContext, victory: boolean): void {
   player.setAlpha(1);
 
   const chapter = getChapter(ctx.chapterId);
-  const roomCount = chapter.rooms.length;
-  const roomsCleared = victory ? roomCount : runState.room;
+  const roomCount = ctx.mode === 'survival' ? SURVIVAL.roomCount : chapter.rooms.length;
+  const roomsCleared = victory ? roomCount : ctx.mode === 'survival' ? runState.room + 1 : runState.room;
   const rewards: RunRewards = {
     gold: runState.gold,
     accountXp: accountXpForRun(roomsCleared, victory),
     items: rollLoot(LOOT, ITEMS, victory),
     scrolls: rollScrolls(LOOT, victory),
     gems: gemsForRun(LOOT, runState.bossesKilled, victory),
-    clearedChapter: victory ? CHAPTERS.findIndex((c) => c.id === chapter.id) + 1 : null,
+    clearedChapter: ctx.mode === 'campaign' && victory ? CHAPTERS.findIndex((c) => c.id === chapter.id) + 1 : null,
+    ...(ctx.mode === 'survival' ? { bestWave: Math.max(GameState.data.bestWave, runState.room + 1) } : {}),
   };
   const { levelBefore, levelAfter } = GameState.applyRunRewards(rewards);
   void Sync.syncNow(true); // envoie la progression au cloud (silencieux en cas d'échec)
   const data: LootData = {
     victory,
+    mode: ctx.mode,
     roomReached: runState.room + 1,
     roomCount,
+    bestWave: GameState.data.bestWave,
     gold: rewards.gold,
     accountXp: rewards.accountXp,
     levelBefore,

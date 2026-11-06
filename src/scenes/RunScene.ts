@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, PLAYER_SPAWN, POOLS, SCENES } from '../config';
-import { ARENA_DECOR, getChapter } from '../data';
+import { ARENA_DECOR, getChapter, SURVIVAL } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { PetFollower } from '../entities/PetFollower';
@@ -8,6 +8,7 @@ import { Player } from '../entities/Player';
 import { Projectile } from '../entities/Projectile';
 import { endRun } from '../run/endRun';
 import { RoomFlow } from '../run/RoomFlow';
+import { SurvivalHazards } from '../run/SurvivalHazards';
 import type { RunContext } from '../run/RunContext';
 import { ShotController } from '../run/ShotController';
 import { SkillFlow } from '../run/SkillFlow';
@@ -20,7 +21,8 @@ import { Hud } from '../ui/Hud';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
 
 interface RunData {
-  chapterId: string;
+  chapterId?: string;
+  mode?: 'campaign' | 'survival';
 }
 
 interface EnemyRoute {
@@ -40,10 +42,12 @@ interface EnemyRoute {
  */
 export class RunScene extends Phaser.Scene {
   private chapterId = 'ch1';
+  private mode: 'campaign' | 'survival' = 'campaign';
   private ctx!: RunContext;
   private fx!: Fx;
   private shots!: ShotController;
   private rooms!: RoomFlow;
+  private hazards?: SurvivalHazards;
   private pet?: PetFollower;
   private enemyRoutes = new WeakMap<Enemy, EnemyRoute>();
 
@@ -53,6 +57,7 @@ export class RunScene extends Phaser.Scene {
 
   init(data: RunData): void {
     this.chapterId = data?.chapterId ?? 'ch1';
+    this.mode = data?.mode ?? 'campaign';
   }
 
   create(): void {
@@ -76,18 +81,20 @@ export class RunScene extends Phaser.Scene {
     player.setJoystick(joystick);
     const runState = new RunState();
     runState.passives = GameState.startingPassives();
-    new Hud(this, player.hp, player.maxHp, runState.level, runState.xp, runState.xpNeeded, 1, getChapter(this.chapterId).rooms.length);
+    new Hud(this, player.hp, player.maxHp, runState.level, runState.xp, runState.xpNeeded, 1,
+      this.mode === 'survival' ? SURVIVAL.roomCount : getChapter(this.chapterId).rooms.length, this.mode);
     this.fx = new Fx(this);
 
     const enemies = this.physics.add.group({ classType: Enemy, maxSize: POOLS.enemies });
     const enemyProjectiles = this.physics.add.group({ classType: EnemyProjectile, maxSize: POOLS.enemyProjectiles });
     const playerProjectiles = this.physics.add.group({ classType: Projectile, maxSize: POOLS.playerProjectiles });
-    this.ctx = { scene: this, chapterId: this.chapterId, player, arena, runState, joystick, enemies, enemyProjectiles, playerProjectiles };
+    this.ctx = { scene: this, chapterId: this.chapterId, mode: this.mode, player, arena, runState, joystick, enemies, enemyProjectiles, playerProjectiles };
 
     // Contrôleurs. SkillFlow prévient RoomFlow quand le choix de l'ange est fait (la salle est alors terminée).
     this.shots = new ShotController(this.ctx);
     const skills = new SkillFlow(this.ctx, this.shots, () => this.rooms.finishRoom());
     this.rooms = new RoomFlow(this.ctx, skills, (victory) => endRun(this.ctx, victory));
+    if (this.mode === 'survival') this.hazards = new SurvivalHazards(this.ctx);
 
     this.physics.add.collider(enemies, enemies);
     // Blocs de pierre : ils arrêtent le héros et les ennemis, et absorbent les projectiles.
@@ -135,6 +142,7 @@ export class RunScene extends Phaser.Scene {
     const { player, runState, enemies, arena } = this.ctx;
     if (runState.ended) return;
     player.updateMovement(time);
+    this.hazards?.update(time);
     this.pet?.update(time, delta, player.x, player.y);
     this.shots.updateOrbs(time);
     const list = enemies.getChildren() as Enemy[];
