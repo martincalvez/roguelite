@@ -44,6 +44,12 @@ export class SkillFlow {
     this.launch('Ange', 'Choisis une bénédiction', choices);
   }
 
+  /** Premier geste du run : une capacité utile tout de suite, avant que les ennemis ne bougent. */
+  openStartingChoice(onDone: () => void): void {
+    const choices = drawSkills(SKILLS, this.ctx.runState.skills, 3);
+    this.launch('PREMIER POUVOIR', 'Choisis ton départ', choices, onDone);
+  }
+
   private onLevelUp(level: number): void {
     this.pendingLevels.push(level);
     if (!this.picking) this.openLevelChoice();
@@ -61,7 +67,7 @@ export class SkillFlow {
     this.launch(`Niveau ${level} !`, 'Choisis une compétence', choices);
   }
 
-  private launch(title: string, subtitle: string, choices: SkillDef[]): void {
+  private launch(title: string, subtitle: string, choices: SkillDef[], onDone?: () => void): void {
     const { scene, runState } = this.ctx;
     this.picking = true;
     scene.scene.pause();
@@ -70,13 +76,13 @@ export class SkillFlow {
       subtitle,
       choices,
       stacks: runState.skills,
-      onPick: (skill) => this.applySkill(skill),
+      onPick: (skill) => this.applySkill(skill, onDone),
     };
     scene.scene.launch(SCENES.skillPick, data);
   }
 
   /** Enregistre la compétence choisie. Les effets de tir et d'orbe passent par ShotController ; 'stat' et 'heal' sont appliqués ici. */
-  private applySkill(skill: SkillDef): void {
+  private applySkill(skill: SkillDef, onDone?: () => void): void {
     const { runState, player, scene } = this.ctx;
     runState.addSkill(skill.id);
     this.shots.refresh();
@@ -87,6 +93,7 @@ export class SkillFlow {
     }
     this.picking = false;
     scene.scene.resume();
+    onDone?.();
     if (this.angelPending) {
       this.angelPending = false;
       this.onAngelDone();

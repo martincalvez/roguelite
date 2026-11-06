@@ -97,6 +97,7 @@ export const SCENES = {
   menu: 'Menu',
   chapters: 'Chapters',
   run: 'Run',
+  pause: 'Pause',
   skillPick: 'SkillPick',
   loot: 'Loot',
   equipment: 'Equipment',

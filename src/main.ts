@@ -13,6 +13,7 @@ import { PetScene } from './scenes/PetScene';
 import { LootScene } from './scenes/LootScene';
 import { MenuScene } from './scenes/MenuScene';
 import { RunScene } from './scenes/RunScene';
+import { PauseScene } from './scenes/PauseScene';
 import { TalentScene } from './scenes/TalentScene';
 import { SkillPickScene } from './scenes/SkillPickScene';
 import { installGameTextTheme, loadGameFont } from './ui/gameTextTheme';
@@ -42,7 +43,7 @@ async function startGame(): Promise<void> {
     input: { activePointers: 3 },
     // Champs de saisie HTML (adresse e-mail, code) : Phaser n'a pas de champ texte natif.
     dom: { createContainer: true },
-    scene: [BootScene, MenuScene, RunScene, ChapterScene, SkillPickScene, LootScene, EquipmentScene, HeroScene, PetScene, ChestScene, TalentScene, AccountScene, ConflictScene],
+    scene: [BootScene, MenuScene, RunScene, PauseScene, ChapterScene, SkillPickScene, LootScene, EquipmentScene, HeroScene, PetScene, ChestScene, TalentScene, AccountScene, ConflictScene],
   });
 
   // Synchro cloud (sans effet si le cloud n'est pas configuré ou si personne n'est connecté) :

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { ARENA, COLORS, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, PLAYER_SPAWN, POOLS, SCENES } from '../config';
+import { ARENA, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, PLAYER_SPAWN, POOLS, SCENES } from '../config';
 import { ARENA_DECOR, getChapter, LUCKY_WHEEL, SURVIVAL } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
@@ -126,18 +126,19 @@ export class RunScene extends Phaser.Scene {
     this.events.on('room-changed', () => { this.enemyRoutes = new WeakMap<Enemy, EnemyRoute>(); });
 
     this.rooms.load(0);
-    this.openStartWheel();
+    // La référence ouvre par un pouvoir, puis une récompense très brève avant le premier combat.
+    this.openStartingChoice(skills);
 
-    // Bandeau HUD : retour au menu.
-    this.add
-      .text(24, HUD_HEIGHT / 2, '← Menu', {
-        fontSize: '28px',
-        color: COLORS.textMuted,
-        padding: { x: 16, y: 30 },
-      })
-      .setOrigin(0, 0.5)
-      .setInteractive({ useHandCursor: true })
-      .on('pointerup', () => this.scene.start(SCENES.menu));
+    // Pause compacte, comme dans la référence ; le menu reste accessible depuis le panneau.
+    const pause = this.add.rectangle(66, HUD_HEIGHT / 2, 84, 72, 0x102a43, 0.92).setStrokeStyle(5, 0x315b78).setInteractive({ useHandCursor: true });
+    this.add.text(66, HUD_HEIGHT / 2 - 2, 'Ⅱ', {
+      fontFamily: 'Arial', fontSize: '48px', color: '#ffffff', fontStyle: 'bold', stroke: '#10243a', strokeThickness: 4,
+    }).setOrigin(0.5);
+    pause.on('pointerup', () => {
+      if (this.startBonusLocked || this.runStateIsOver()) return;
+      this.scene.launch(SCENES.pause);
+      this.scene.pause();
+    });
   }
 
   update(time: number, delta: number): void {
@@ -172,10 +173,23 @@ export class RunScene extends Phaser.Scene {
     endRun(this.ctx, false);
   }
 
+  private runStateIsOver(): boolean {
+    return this.ctx.runState.ended;
+  }
+
+  private openStartingChoice(skills: SkillFlow): void {
+    this.startBonusLocked = true;
+    this.physics.pause();
+    skills.openStartingChoice(() => this.openStartWheel());
+  }
+
   /** Une courte récompense au lancement, comme dans la référence, puis combat immédiatement. */
   private openStartWheel(): void {
-    if (LUCKY_WHEEL.rewards.length === 0) return;
-    this.startBonusLocked = true;
+    if (LUCKY_WHEEL.rewards.length === 0) {
+      this.startBonusLocked = false;
+      this.physics.resume();
+      return;
+    }
     this.physics.pause();
     new LuckyWheel(this.ctx, (reward) => {
       if (reward.kind === 'gold') this.ctx.runState.gold += reward.value;
