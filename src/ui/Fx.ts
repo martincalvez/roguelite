@@ -61,6 +61,7 @@ export class Fx {
     scene.events.on('wheel-spin', this.onWheelSpin, this);
     scene.events.on('wheel-reward', this.onWheelReward, this);
     scene.events.on('enemy-explosion', this.onEnemyExplosion, this);
+    scene.events.on('enemy-dash', this.onEnemyDash, this);
     scene.input.once('pointerdown', () => this.feedback.unlock());
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       scene.events.off('enemy-hit', this.onEnemyHit, this);
@@ -72,6 +73,7 @@ export class Fx {
       scene.events.off('wheel-spin', this.onWheelSpin, this);
       scene.events.off('wheel-reward', this.onWheelReward, this);
       scene.events.off('enemy-explosion', this.onEnemyExplosion, this);
+      scene.events.off('enemy-dash', this.onEnemyDash, this);
       this.feedback.dispose();
     });
   }
@@ -153,6 +155,11 @@ export class Fx {
     burst.explode();
     this.scene.time.delayedCall(420, () => burst.destroy());
     this.scene.cameras.main.shake(80, 0.0018);
+  }
+
+  /** Éclat très bref au départ d'une charge, sans nouvel émetteur ni surcharge mobile. */
+  private onEnemyDash(def: EnemyDef, x: number, y: number): void {
+    this.emitters.get(def.id)?.explode(Math.max(5, Math.round(COMBAT.deathParticles * 0.45)), x, y);
   }
 
   /** Prend un texte libre du pool (ou en crée un, ou recycle le plus ancien). */

@@ -87,7 +87,7 @@ export interface SkillDef {
   effect: SkillEffect;
 }
 
-export type EnemyBehavior = 'melee' | 'shooter' | 'spreader' | 'fireball' | 'lobber' | 'boss';
+export type EnemyBehavior = 'melee' | 'dasher' | 'shooter' | 'spreader' | 'fireball' | 'lobber' | 'boss';
 export type BossAttackPattern = 'charge' | 'radial' | 'volley' | 'fireRing' | 'lobBarrage';
 
 /** Réglages d'un boss : sa boucle d'attaques est entièrement décrite dans les données. */
@@ -125,6 +125,11 @@ export interface EnemyDef {
   explosionRadius?: number;
   /** Durée du vol d'un projectile en cloche : il passe au-dessus des blocs. */
   lobDurationMs?: number;
+  /** Charge télégraphiée : paramètres obligatoires pour le comportement `dasher`. */
+  dashCooldownMs?: number;
+  dashWarnMs?: number;
+  dashSpeed?: number;
+  dashDurationMs?: number;
   boss?: BossConfig; // obligatoire si behavior === 'boss'
 }
 

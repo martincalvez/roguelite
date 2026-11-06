@@ -52,6 +52,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private chargeUntil = 0;
   private volleyLeft = 0;
   private nextVolleyAt = 0;
+  private nextDashAt = 0;
+  private dashWarnUntil = 0;
+  private dashUntil = 0;
+  private dashAngle = 0;
+  private dashPending = false;
   private tintState = 0; // 0 aucun, 1 brûlure, 2 givre, 3 flash blanc
   private stationary = false;
   /** Prochain instant où un orbe protecteur peut le toucher. */
@@ -95,6 +100,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.warnUntil = 0;
     this.chargeUntil = 0;
     this.volleyLeft = 0;
+    this.dashWarnUntil = 0;
+    this.dashUntil = 0;
+    this.dashPending = false;
+    this.nextDashAt = time + (def.dashCooldownMs ?? 0) * 0.55;
     if (def.boss) {
       this.nextPatternAt = time + def.boss.cycleMs / 2;
       this.scene.events.emit('boss-spawned', def.name, this.hp, this.maxHp);
@@ -116,6 +125,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     if (def.behavior === 'boss') {
       this.updateBoss(time, angle, speed, moveAngle, targetX, targetY);
+    } else if (def.behavior === 'dasher') {
+      this.updateDasher(time, speed, moveAngle);
     } else if (def.behavior === 'shooter' || def.behavior === 'spreader' || def.behavior === 'fireball' || def.behavior === 'lobber') {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
       const keep = def.keepDistance ?? 0;
@@ -149,6 +160,38 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // 'melee' : fonce sur le joueur.
       this.moveAlong(moveAngle, speed);
     }
+  }
+
+  /**
+   * Percuteur : il annonce clairement sa charge, puis file vers la dernière direction du joueur.
+   * La vélocité est soumise au collider Arcade : les murs l'arrêtent comme tout autre ennemi.
+   */
+  private updateDasher(time: number, speed: number, moveAngle: number): void {
+    const def = this.def;
+    if (time < this.dashUntil) {
+      this.moveAlong(this.dashAngle, def.dashSpeed ?? speed);
+      return;
+    }
+    if (this.dashPending && time < this.dashWarnUntil) {
+      this.setVelocity(0, 0);
+      return;
+    }
+    if (this.dashPending) {
+      this.dashPending = false;
+      this.dashUntil = time + (def.dashDurationMs ?? 0);
+      this.scene.events.emit('enemy-dash', def, this.x, this.y);
+      this.moveAlong(this.dashAngle, def.dashSpeed ?? speed);
+      return;
+    }
+    if (time >= this.nextDashAt) {
+      this.dashAngle = moveAngle;
+      this.dashWarnUntil = time + (def.dashWarnMs ?? 0);
+      this.nextDashAt = time + (def.dashCooldownMs ?? 0);
+      this.dashPending = true;
+      this.setVelocity(0, 0);
+      return;
+    }
+    this.moveAlong(moveAngle, speed);
   }
 
   /**
@@ -243,7 +286,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.nextBurnTick = time + COMBAT.statusTickMs;
       if (this.takeDotDamage((this.burnDps * COMBAT.statusTickMs) / 1000)) return true;
     }
-    const warning = this.warnUntil > time && Math.floor(time / 90) % 2 === 0; // clignote avant une attaque de boss
+    const warning = (this.warnUntil > time || (this.dashPending && this.dashWarnUntil > time)) && Math.floor(time / 90) % 2 === 0;
     const state = warning || this.flashUntil > time ? 3 : this.freezeUntil > time ? 2 : this.burnUntil > time ? 1 : 0;
     if (state !== this.tintState) {
       this.tintState = state;

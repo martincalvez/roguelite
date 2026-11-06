@@ -174,11 +174,13 @@ describe('cohérence des valeurs', () => {
 
   it('ennemis : PV, vitesse et rayon positifs ; tireurs avec distance ; boss avec configuration', () => {
     const bossPatterns = ['charge', 'radial', 'volley', 'fireRing', 'lobBarrage'];
+    const enemyBehaviors = ['melee', 'dasher', 'shooter', 'spreader', 'fireball', 'lobber', 'boss'];
     for (const e of ENEMIES) {
       expect(e.hp, e.id).toBeGreaterThan(0);
       expect(e.damage, e.id).toBeGreaterThan(0);
       expect(e.radius, e.id).toBeGreaterThan(0);
       expect(e.color, e.id).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(enemyBehaviors, e.id).toContain(e.behavior);
       if (e.behavior === 'shooter' || e.behavior === 'spreader') {
         expect(e.keepDistance, e.id).toBeGreaterThan(0);
         expect(e.fireRate, e.id).toBeGreaterThan(0);
@@ -209,6 +211,12 @@ describe('cohérence des valeurs', () => {
           expect(boss.lobSpreadAngle, e.id).toBeGreaterThan(0);
           expect(boss.lobTargetSpread, e.id).toBeGreaterThan(0);
         }
+      }
+      if (e.behavior === 'dasher') {
+        expect(e.dashCooldownMs, e.id).toBeGreaterThan(0);
+        expect(e.dashWarnMs, e.id).toBeGreaterThan(0);
+        expect(e.dashSpeed, e.id).toBeGreaterThan(e.speed);
+        expect(e.dashDurationMs, e.id).toBeGreaterThan(0);
       }
     }
   });

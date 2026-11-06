@@ -13,6 +13,7 @@ Roguelite d'action 2D façon Archero, jouable sur navigateur PC et téléphone (
 - **Renforts télégraphiés** : toute vague différée affiche d'abord des marqueurs colorés au sol, puis les ennemis apparaissent exactement à ces emplacements. Les arrivées arrière et latérales restent rapides, mais deviennent anticipables au doigt.
 - **Runes explosives** : certaines salles de Survie ajoutent des sceaux d'énergie qui se chargent, annoncent leur rayon puis explosent. Leur position respecte les zones sûres, les blocs, les braises et les tourelles.
 - **Ambiances d’arène** : les dix plans de salle utilisent désormais quatre palettes et signatures visuelles distinctes (prairie, lagune, braises, cristaux). Le plan et l’ambiance précédents sont exclus lorsque c’est possible ; les murs solides sont composés de pierres colorées plutôt que de pavés plats, sans modifier les collisions.
+- **Ennemis percuteurs** : le Scarabée percuteur et la Chauve-souris braise s’immobilisent et clignotent avant une charge rapide. Leur trajectoire reste bloquée par les murs ; un éclat de particules marque le départ de la charge.
 - Martin confirme que le problème de porte de sortie est réglé. Restent à confirmer sur téléphone : contraste des textes, proportion du héros, lisibilité des nouveaux obstacles et feux, cadence des projectiles en cloche et action « Tout fusionner ».
 - Martin n'a pas encore tout joué : les cases ne se cochent qu'après sa confirmation.
 
