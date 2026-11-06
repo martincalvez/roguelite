@@ -58,6 +58,8 @@ export class RunScene extends Phaser.Scene {
   private lastArenaThemeId?: string;
   private blocks!: Phaser.Physics.Arcade.StaticGroup;
   private readonly arenaVisuals: Phaser.GameObjects.GameObject[] = [];
+  /** Canaux animés séparément : l'eau reste vivante sans recréer de décor à chaque frame. */
+  private readonly animatedWater: Phaser.GameObjects.TileSprite[] = [];
   private readonly lobbedProjectiles: LobbedProjectile[] = [];
 
   constructor() {
@@ -72,6 +74,7 @@ export class RunScene extends Phaser.Scene {
   create(): void {
     this.physics.resume();
     this.arenaVisuals.length = 0;
+    this.animatedWater.length = 0;
     this.lobbedProjectiles.length = 0;
     this.lastArenaTemplateId = undefined;
     this.lastArenaThemeId = undefined;
@@ -171,6 +174,7 @@ export class RunScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     this.fx.update(time);
+    this.updateArenaMotion(delta);
     const { player, runState, enemies, arena } = this.ctx;
     if (runState.ended || this.startBonusLocked) return;
     this.updateLobbedProjectiles(time);
@@ -241,6 +245,7 @@ export class RunScene extends Phaser.Scene {
   /** Recompose uniquement le décor et les colliders statiques : joueur, HUD et pools restent intacts. */
   private refreshArena(): void {
     for (const visual of this.arenaVisuals.splice(0)) visual.destroy();
+    this.animatedWater.length = 0;
     this.blocks.clear(true, true);
     this.arena = this.createArenaLayout();
     this.buildArena(this.arena);
@@ -273,6 +278,15 @@ export class RunScene extends Phaser.Scene {
 
   private runStateIsOver(): boolean {
     return this.ctx.runState.ended;
+  }
+
+  /** Fait glisser la texture des canaux : le décor gagne du mouvement sans coût de particules. */
+  private updateArenaMotion(delta: number): void {
+    const movement = delta * 0.014;
+    for (const water of this.animatedWater) {
+      water.tilePositionX += movement;
+      water.tilePositionY -= movement * 0.38;
+    }
   }
 
   private openStartingChoice(skills: SkillFlow): void {
@@ -437,11 +451,12 @@ export class RunScene extends Phaser.Scene {
           stonePath.fillStyle(0xffffff, 0.18).fillRoundedRect(x + inset + 8, y + inset + 7, Math.max(7, width * 0.42), 5, 3);
           continue;
         }
-        track(this.add
+        const canal = track(this.add
           .tileSprite(x + width / 2, y + height / 2, width, height, 'water-texture')
           .setTint(water)
           .setAlpha(0.92)
           .setDepth(-19));
+        this.animatedWater.push(canal);
         if (kind === 'water') {
           // Quelques reflets posés sur la texture pour que les canaux restent lisibles.
           detail.fillStyle(0xffffff, 0.3);

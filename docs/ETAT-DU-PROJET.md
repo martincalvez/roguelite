@@ -19,6 +19,7 @@ Roguelite d'action 2D façon Archero, jouable sur navigateur PC et téléphone (
 - **Pression croisée** : dans les salles avancées, Pyromancien braise et Lanceur d’orage rejoignent aussi la campagne. Le premier laisse une explosion à contourner ; le second vise au-delà des blocs. Ils remplacent une partie des groupes identiques, sans augmenter leur effectif total.
 - **Volumes et braises** : les obstacles solides utilisent maintenant des piles de rochers illustrés, teintées par l’ambiance, au lieu d’un quadrillage uniforme. Les braises de Survie ont gagné un cœur lumineux, des charbons et un halo animé, tout en gardant exactement leur zone de dégâts.
 - **Choix de compétences** : les titres, descriptions et badges des trois cartes ont été agrandis et contrastés pour rester lisibles au pouce, sans alourdir les textes.
+- **Eau vivante** : les canaux font désormais glisser leur texture en continu ; le mouvement donne du relief aux salles sans créer de particules ni peser sur les téléphones.
 - Martin confirme que le problème de porte de sortie est réglé. Restent à confirmer sur téléphone : contraste des textes, proportion du héros, lisibilité des nouveaux obstacles et feux, cadence des projectiles en cloche et action « Tout fusionner ».
 - Martin n'a pas encore tout joué : les cases ne se cochent qu'après sa confirmation.
 
