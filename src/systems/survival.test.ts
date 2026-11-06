@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getEnemy, SURVIVAL } from '../data';
-import { hasSurvivalFire, hasSurvivalTurrets, survivalRoom } from './survival';
+import { hasSurvivalFire, hasSurvivalRunes, hasSurvivalTurrets, survivalRoom } from './survival';
 
 describe('mode Survie', () => {
   it('fournit 50 étapes avec une halte à 5 et un boss à chaque dizaine', () => {
@@ -32,5 +32,12 @@ describe('mode Survie', () => {
     expect(hasSurvivalTurrets(7)).toBe(true);
     expect(hasSurvivalTurrets(5)).toBe(false);
     expect(hasSurvivalTurrets(10)).toBe(false);
+  });
+
+  it('charge des runes au sol hors des haltes et des boss', () => {
+    expect(hasSurvivalRunes(3)).toBe(true);
+    expect(hasSurvivalRunes(9)).toBe(true);
+    expect(hasSurvivalRunes(5)).toBe(false);
+    expect(hasSurvivalRunes(15)).toBe(false);
   });
 });

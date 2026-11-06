@@ -33,6 +33,13 @@ export function hasSurvivalFire(wave: number): boolean {
   return wave % SURVIVAL.fireEveryRooms === 0;
 }
 
+/** Les runes se chargent puis explosent : elles récompensent un déplacement attentif. */
+export function hasSurvivalRunes(wave: number): boolean {
+  if (isSurvivalRestRoom(wave)) return false;
+  return wave >= SURVIVAL.runeOffset
+    && (wave - SURVIVAL.runeOffset) % SURVIVAL.runeEveryRooms === 0;
+}
+
 /** Les tourelles sont des pièges à trajectoire : les murs peuvent absorber leurs tirs. */
 export function hasSurvivalTurrets(wave: number): boolean {
   if (isSurvivalRestRoom(wave)) return false;
