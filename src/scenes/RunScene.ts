@@ -417,10 +417,10 @@ export class RunScene extends Phaser.Scene {
       }
     }
 
-    // Plaques de pierre et canaux d'eau, plats, posés sur l'herbe : ce sont des décors de sol,
-    // pas des obstacles (seuls les blocs ci-dessous arrêtent le héros).
+    // Chemins de dalles et canaux d'eau : ils guident l'œil sans devenir des faux murs.
     const stone = color(visual.stoneColor);
     const water = color(visual.waterColor);
+    const stonePath = track(this.add.graphics().setDepth(-19));
     const detail = track(this.add.graphics().setDepth(-18));
     for (let row = 0; row < layout.rows; row++) {
       for (let col = 0; col < layout.cols; col++) {
@@ -430,10 +430,17 @@ export class RunScene extends Phaser.Scene {
         const y = ARENA.y + row * layout.cell;
         const width = Math.min(layout.cell, ARENA.width - col * layout.cell);
         const height = Math.min(layout.cell, ARENA.height - row * layout.cell);
+        if (kind === 'stone') {
+          const inset = Math.min(7, width * 0.14, height * 0.14);
+          stonePath.fillStyle(shade(stone, -22), 0.68).fillRoundedRect(x + inset, y + inset + 4, width - inset * 2, height - inset * 2, 12);
+          stonePath.fillStyle(stone, 0.94).fillRoundedRect(x + inset + 1, y + inset, width - inset * 2 - 2, height - inset * 2 - 2, 10);
+          stonePath.fillStyle(0xffffff, 0.18).fillRoundedRect(x + inset + 8, y + inset + 7, Math.max(7, width * 0.42), 5, 3);
+          continue;
+        }
         track(this.add
-          .tileSprite(x + width / 2, y + height / 2, width, height, kind === 'stone' ? 'stone-wall-texture' : 'water-texture')
-          .setTint(kind === 'stone' ? stone : water)
-          .setAlpha(kind === 'stone' ? 0.88 : 0.92)
+          .tileSprite(x + width / 2, y + height / 2, width, height, 'water-texture')
+          .setTint(water)
+          .setAlpha(0.92)
           .setDepth(-19));
         if (kind === 'water') {
           // Quelques reflets posés sur la texture pour que les canaux restent lisibles.
@@ -444,32 +451,31 @@ export class RunScene extends Phaser.Scene {
       }
     }
 
-    // Blocs bas composés de plusieurs pierres : plus organiques que les anciens rectangles plats,
-    // tout en suivant exactement leur collider.
+    // Rochers colorés et superposés : le collider reste rectangulaire, mais la silhouette ne l'est plus.
     const blocks = this.blocks;
     const blockArt = track(this.add.graphics().setDepth(-5));
     for (const block of layout.obstacles) {
       const x = ARENA.x + block.x + block.width / 2;
       const y = ARENA.y + block.y + block.height / 2;
       blockArt.fillStyle(0x081729, 0.25).fillEllipse(x + 5, y + block.height * 0.34, block.width * 1.04, block.height * 0.58);
-      blockArt.fillStyle(color(visual.stoneEdgeColor), 1).fillRoundedRect(x - block.width / 2, y - block.height / 2, block.width, block.height, 16);
-      const rows = block.height > 50 ? 2 : 1;
-      const cols = block.width > 110 ? 2 : 1;
-      const brickWidth = (block.width - 12) / cols;
-      const brickHeight = (block.height - 10) / rows;
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          const offset = row % 2 === 0 ? 0 : 4;
-          const brickX = x - block.width / 2 + 6 + col * brickWidth + offset;
-          const brickY = y - block.height / 2 + 4 + row * brickHeight;
-          const brickW = Math.max(12, brickWidth - 5 - offset);
-          const brickH = Math.max(12, brickHeight - 4);
-          blockArt.fillStyle(shade(stone, -18), 1).fillRoundedRect(brickX, brickY + 3, brickW, brickH, 10);
-          blockArt.fillStyle(stone, 1).fillRoundedRect(brickX + 2, brickY, brickW - 3, brickH - 3, 9);
-          blockArt.fillStyle(0xffffff, 0.23).fillRoundedRect(brickX + 8, brickY + 6, Math.max(9, brickW * 0.55), 5, 3);
-        }
+      blockArt.fillStyle(color(visual.stoneEdgeColor), 1).fillRoundedRect(x - block.width / 2, y - block.height / 2, block.width, block.height, 22);
+      blockArt.fillStyle(shade(stone, -20), 1).fillRoundedRect(x - block.width / 2 + 5, y - block.height / 2 + 5, block.width - 10, block.height - 10, 18);
+      const horizontal = block.width >= block.height;
+      const shortSide = horizontal ? block.height : block.width;
+      const longSide = horizontal ? block.width : block.height;
+      const rockCount = Math.max(1, Math.ceil(longSide / Math.max(52, shortSide * 0.7)));
+      const rockSize = Math.max(66, shortSide * 1.16);
+      for (let index = 0; index < rockCount; index++) {
+        const offset = ((index + 0.5) / rockCount - 0.5) * longSide * 0.78;
+        const rockX = x + (horizontal ? offset : (index % 2 === 0 ? -shortSide * 0.08 : shortSide * 0.08));
+        const rockY = y + (horizontal ? (index % 2 === 0 ? -shortSide * 0.08 : shortSide * 0.08) : offset);
+        track(this.add.image(rockX, rockY, 'stone-pillar')
+          .setDisplaySize(rockSize, rockSize)
+          .setTint(color(visual.stoneColor))
+          .setAlpha(0.9)
+          .setDepth(-4));
       }
-      blockArt.lineStyle(3, color(visual.accentColor), 0.22).lineBetween(x - block.width * 0.24, y + 2, x + block.width * 0.2, y + 2);
+      blockArt.lineStyle(3, color(visual.accentColor), 0.32).strokeRoundedRect(x - block.width / 2 + 4, y - block.height / 2 + 4, block.width - 8, block.height - 8, 18);
       blocks.add(this.add.rectangle(x, y, block.width, block.height, 0xffffff, 0).setVisible(false));
     }
 

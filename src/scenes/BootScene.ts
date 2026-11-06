@@ -20,7 +20,6 @@ export class BootScene extends Phaser.Scene {
     this.load.image('tile-grass', 'assets/tiles/grass-tile.png');
     this.load.image('xp-orb', 'assets/generated/gemini-transparent/xp-gem.png');
     this.load.image('coin-gold', 'assets/generated/gemini-transparent/gold-coin.png');
-    this.load.image('stone-wall-texture', 'assets/generated/gemini-transparent/stone-wall-texture.png');
     this.load.image('stone-pillar', 'assets/generated/gemini-transparent/stone-pillar.png');
     this.load.image('water-texture', 'assets/generated/gemini-transparent/water-texture.png');
     this.load.image('enemy-art-turret', 'assets/generated/gemini-transparent/red-turret.png');
