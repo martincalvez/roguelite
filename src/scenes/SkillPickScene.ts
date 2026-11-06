@@ -56,7 +56,13 @@ export class SkillPickScene extends Phaser.Scene {
         strokeThickness: 7,
       })
       .setOrigin(0.5);
-    this.add.text(cx, 352, data.subtitle, { fontSize: '25px', color: '#fff8e8' }).setOrigin(0.5);
+    this.add.text(cx, 352, data.subtitle, {
+      fontSize: '28px',
+      color: '#fff8e8',
+      fontStyle: 'bold',
+      stroke: '#1d1524',
+      strokeThickness: 4,
+    }).setOrigin(0.5);
 
     const totalWidth = data.choices.length * CARD_WIDTH + Math.max(0, data.choices.length - 1) * CARD_GAP;
     const firstCenter = (GAME_WIDTH - totalWidth) / 2 + CARD_WIDTH / 2;
@@ -78,9 +84,8 @@ export class SkillPickScene extends Phaser.Scene {
 
       this.add
         .text(x, CARD_TOP + 39, skill.name, {
-          // Trois cartes restent lisibles sur un téléphone : le bénéfice est plus important que
-          // de remplir la carte avec du texte géant.
-          fontSize: skill.name.length > 14 ? '23px' : '27px',
+          // Trois cartes à l'écran, mais un intitulé doit se lire sans zoom sur téléphone.
+          fontSize: skill.name.length > 14 ? '26px' : '30px',
           color: '#ffffff',
           fontStyle: 'bold',
           align: 'center',
@@ -94,24 +99,24 @@ export class SkillPickScene extends Phaser.Scene {
       this.add.rectangle(x, CARD_TOP + 323, CARD_WIDTH - 26, 3, 0xcda56e, 0.8);
       this.add
         .text(x, CARD_TOP + 408, skill.description, {
-          fontSize: '22px',
-          color: '#55351f',
+          fontSize: '25px',
+          color: '#3c2412',
           fontStyle: 'bold',
           align: 'center',
           wordWrap: { width: CARD_WIDTH - 34 },
           lineSpacing: 5,
           stroke: '#fff6e6',
-          strokeThickness: 2,
+          strokeThickness: 3,
         })
         .setOrigin(0.5);
 
       this.add
         .text(x, CARD_TOP + CARD_HEIGHT - 45, stackText, {
-          fontSize: '22px',
+          fontSize: '24px',
           color: owned > 0 ? '#087e3c' : '#fff5dc',
           fontStyle: 'bold',
           backgroundColor: owned > 0 ? '#c9f1b5' : '#9b4f17',
-          padding: { x: 10, y: 7 },
+          padding: { x: 12, y: 8 },
           stroke: owned > 0 ? '#f4ffe9' : '#542508',
           strokeThickness: 3,
         })

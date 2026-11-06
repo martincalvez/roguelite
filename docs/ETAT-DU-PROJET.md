@@ -18,6 +18,7 @@ Roguelite d'action 2D façon Archero, jouable sur navigateur PC et téléphone (
 - **Champions** : certaines salles avancées des chapitres 2 et 3 accueillent un ennemi doré plus imposant. Il a davantage de PV, de dégâts, d’XP et d’or, sans transformer son groupe entier en mur de PV. Les champions restent uniques, ne sont jamais dupliqués par l’ajustement lié à l’équipement et leur collider suit leur nouvelle taille.
 - **Pression croisée** : dans les salles avancées, Pyromancien braise et Lanceur d’orage rejoignent aussi la campagne. Le premier laisse une explosion à contourner ; le second vise au-delà des blocs. Ils remplacent une partie des groupes identiques, sans augmenter leur effectif total.
 - **Volumes et braises** : les obstacles solides utilisent maintenant des piles de rochers illustrés, teintées par l’ambiance, au lieu d’un quadrillage uniforme. Les braises de Survie ont gagné un cœur lumineux, des charbons et un halo animé, tout en gardant exactement leur zone de dégâts.
+- **Choix de compétences** : les titres, descriptions et badges des trois cartes ont été agrandis et contrastés pour rester lisibles au pouce, sans alourdir les textes.
 - Martin confirme que le problème de porte de sortie est réglé. Restent à confirmer sur téléphone : contraste des textes, proportion du héros, lisibilité des nouveaux obstacles et feux, cadence des projectiles en cloche et action « Tout fusionner ».
 - Martin n'a pas encore tout joué : les cases ne se cochent qu'après sa confirmation.
 
