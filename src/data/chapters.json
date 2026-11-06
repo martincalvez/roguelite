@@ -319,7 +319,11 @@
         "enemies": [
           {
             "id": "sentinelle_azur",
-            "count": 5
+            "count": 3
+          },
+          {
+            "id": "pyromancien_braise",
+            "count": 2
           }
         ],
         "difficulty": 1.55
@@ -404,7 +408,11 @@
           },
           {
             "id": "esprit_saphir",
-            "count": 3
+            "count": 2
+          },
+          {
+            "id": "pyromancien_braise",
+            "count": 1
           }
         ],
         "difficulty": 2.35
@@ -471,7 +479,11 @@
           },
           {
             "id": "sentinelle_azur",
-            "count": 2
+            "count": 1
+          },
+          {
+            "id": "lanceur_orage",
+            "count": 1
           }
         ],
         "difficulty": 2.95
@@ -500,7 +512,7 @@
         "enemies": [
           {
             "id": "sentinelle_azur",
-            "count": 3
+            "count": 2
           },
           {
             "id": "golem_floral",
@@ -509,6 +521,10 @@
           {
             "id": "scarabee_dore",
             "count": 2
+          },
+          {
+            "id": "pyromancien_braise",
+            "count": 1
           }
         ],
         "difficulty": 3.2
@@ -599,7 +615,11 @@
         "enemies": [
           {
             "id": "mage_ombre",
-            "count": 5
+            "count": 3
+          },
+          {
+            "id": "lanceur_orage",
+            "count": 2
           }
         ],
         "difficulty": 1.6
@@ -679,7 +699,11 @@
           },
           {
             "id": "mage_ombre",
-            "count": 2
+            "count": 1
+          },
+          {
+            "id": "pyromancien_braise",
+            "count": 1
           }
         ],
         "difficulty": 2.5
@@ -737,7 +761,11 @@
           },
           {
             "id": "mage_ombre",
-            "count": 2
+            "count": 1
+          },
+          {
+            "id": "lanceur_orage",
+            "count": 1
           }
         ],
         "difficulty": 2.9
@@ -784,11 +812,19 @@
           },
           {
             "id": "mage_ombre",
-            "count": 3
+            "count": 2
+          },
+          {
+            "id": "pyromancien_braise",
+            "count": 1
           },
           {
             "id": "elementaire_lave",
-            "count": 3
+            "count": 2
+          },
+          {
+            "id": "lanceur_orage",
+            "count": 1
           }
         ],
         "difficulty": 3.35
