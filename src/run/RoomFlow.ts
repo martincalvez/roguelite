@@ -1,14 +1,15 @@
 import Phaser from 'phaser';
 import { ARENA, GAME_WIDTH, PLAYER_SPAWN, POOLS } from '../config';
-import { ARENA_DECOR, COMBAT, getChapter, getEnemy, HEROES, PROGRESSION, SURVIVAL } from '../data';
+import { ARENA_DECOR, COMBAT, ENCOUNTERS, getChapter, getEnemy, HEROES, PROGRESSION, SURVIVAL } from '../data';
 import type { Enemy } from '../entities/Enemy';
 import type { EnemyProjectile } from '../entities/EnemyProjectile';
 import type { Projectile } from '../entities/Projectile';
 import { XpOrb } from '../entities/XpOrb';
 import { GameState } from '../state/GameState';
 import { pickEnemySpawn } from '../systems/arenaLayout';
+import { planEncounter, type PlannedEncounterWave } from '../systems/encounters';
 import { survivalRoom } from '../systems/survival';
-import type { EnemyDef } from '../types';
+import type { EnemyDef, EnemyGroupDef, SpawnPattern } from '../types';
 import type { RunContext } from './RunContext';
 import type { SkillFlow } from './SkillFlow';
 
@@ -49,6 +50,8 @@ export class RoomFlow {
   private doorOpen = false;
   private enemiesAlive = 0;
   private collecting = false; // salle vidée : les orbes d'XP sont aspirés vers le héros
+  private pendingWaves = 0;
+  private readonly waveTimers: Phaser.Time.TimerEvent[] = [];
 
   constructor(
     private readonly ctx: RunContext,
@@ -101,6 +104,8 @@ export class RoomFlow {
     runState.room = index;
     this.enemiesAlive = 0;
     this.collecting = false;
+    this.pendingWaves = 0;
+    for (const timer of this.waveTimers.splice(0)) timer.remove(false);
     this.setDoor(false);
     for (const group of [enemyProjectiles, playerProjectiles]) {
       for (const shot of group.getChildren() as (EnemyProjectile | Projectile)[]) if (shot.active) shot.kill();
@@ -125,13 +130,11 @@ export class RoomFlow {
     else this.setDoor(true);
   }
 
-  /** Fait apparaître les ennemis autour du héros : flancs et dos compris, avec une zone de sécurité au départ. */
+  /** Lance une rencontre en vagues : le total d'ennemis est conservé, seules leurs arrivées changent. */
   private spawnRoom(roomIndex: number): void {
-    const { scene, enemies, arena, player } = this.ctx;
+    const { scene, player } = this.ctx;
     const chapter = getChapter(this.ctx.chapterId);
     const room = this.ctx.mode === 'survival' ? survivalRoom(roomIndex + 1) : chapter.rooms[roomIndex];
-    const occupied: { x: number; y: number }[] = [];
-    const playerPoint = { x: player.x - ARENA.x, y: player.y - ARENA.y };
     // Les PV suivent le multiplicateur de la salle ; les dégâts n'en suivent qu'une partie.
     const roomScale = room.difficulty ?? 1;
     const base = HEROES.find((hero) => hero.id === GameState.data.selectedHero)?.base ?? HEROES[0].base;
@@ -139,27 +142,65 @@ export class RoomFlow {
     const powerRatio = Math.max(offenseRatio, player.stats.maxHp / base.maxHp);
     const chapterDifficulty = this.ctx.mode === 'survival' ? 1 : chapter.difficulty;
     const threat = roomThreat(chapterDifficulty, roomScale, powerRatio, this.ctx.mode === 'survival');
-    for (const group of room.enemies ?? []) {
+    const groups = (room.enemies ?? []).map((group) => {
       const def = getEnemy(group.id);
       // Les boss restent seuls. Les chapitres 2 et 3 gagnent plutôt des menaces concurrentes
       // qu'un simple sac à PV quand le joueur les surclasse par son équipement.
-      const count = group.count + (def.boss ? 0 : threat.extraEnemiesPerGroup);
-      for (let i = 0; i < count; i++) {
-        const spot = pickEnemySpawn(arena, {
-          origin: playerPoint,
-          minDistance: ARENA_DECOR.enemySpawnMinDistance,
-          occupied,
-          minSeparation: ARENA_DECOR.enemySpawnSeparation,
-        });
-        if (!spot) continue;
-        const x = ARENA.x + spot.x;
-        const y = ARENA.y + spot.y;
-        const enemy = enemies.get(x, y) as Enemy | null;
-        if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
-        enemy.spawn(def, x, y, scene.time.now, threat.hpScale, threat.damageScale);
-        occupied.push(spot);
-        this.enemiesAlive++;
-      }
+      return { ...group, count: group.count + (def.boss ? 0 : threat.extraEnemiesPerGroup) };
+    });
+    const waves = planEncounter({ ...room, enemies: groups }, roomIndex, this.ctx.mode, ENCOUNTERS);
+    const delayed = waves.filter((wave) => wave.delayMs > 0);
+    for (const wave of waves) if (wave.delayMs === 0) this.spawnWave(wave, threat.hpScale, threat.damageScale);
+    this.pendingWaves = delayed.length;
+    for (const wave of delayed) {
+      const timer = scene.time.delayedCall(wave.delayMs, () => {
+        if (this.ctx.runState.ended || this.ctx.runState.room !== roomIndex) return;
+        this.pendingWaves--;
+        this.spawnWave(wave, threat.hpScale, threat.damageScale);
+        this.tryStartCollection();
+      });
+      this.waveTimers.push(timer);
+    }
+    // En cas de pool saturé ou de plan exceptionnellement trop serré, une salle ne reste jamais bloquée vide.
+    if (waves.length > 0) this.tryStartCollection();
+  }
+
+  /** Une vague choisit une entrée devant, derrière ou sur les flancs sans jamais tomber sur le héros. */
+  private spawnWave(wave: PlannedEncounterWave, hpScale: number, damageScale: number): void {
+    const { enemies, player } = this.ctx;
+    const occupied = (enemies.getChildren() as Enemy[])
+      .filter((enemy) => enemy.active)
+      .map((enemy) => ({ x: enemy.x - ARENA.x, y: enemy.y - ARENA.y }));
+    const playerPoint = { x: player.x - ARENA.x, y: player.y - ARENA.y };
+    for (const group of wave.enemies) this.spawnGroup(group, wave.spawnPattern, hpScale, damageScale, occupied, playerPoint);
+  }
+
+  private spawnGroup(
+    group: EnemyGroupDef,
+    spawnPattern: SpawnPattern,
+    hpScale: number,
+    damageScale: number,
+    occupied: { x: number; y: number }[],
+    playerPoint: { x: number; y: number },
+  ): void {
+    const { scene, enemies, arena } = this.ctx;
+    const def = getEnemy(group.id);
+    for (let i = 0; i < group.count; i++) {
+      const spot = pickEnemySpawn(arena, {
+        origin: playerPoint,
+        minDistance: ARENA_DECOR.enemySpawnMinDistance,
+        occupied,
+        minSeparation: ARENA_DECOR.enemySpawnSeparation,
+        spawnPattern,
+      });
+      if (!spot) continue;
+      const x = ARENA.x + spot.x;
+      const y = ARENA.y + spot.y;
+      const enemy = enemies.get(x, y) as Enemy | null;
+      if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
+      enemy.spawn(def, x, y, scene.time.now, hpScale, damageScale);
+      occupied.push(spot);
+      this.enemiesAlive++;
     }
   }
 
@@ -185,7 +226,11 @@ export class RoomFlow {
     if (def.boss) this.ctx.runState.bossesKilled++;
     (this.xpOrbs.get(x, y) as XpOrb | null)?.spawn(x, y, def.xp);
     this.enemiesAlive--;
-    if (this.enemiesAlive <= 0 && !this.ctx.runState.ended) this.collecting = true;
+    this.tryStartCollection();
+  }
+
+  private tryStartCollection(): void {
+    if (this.enemiesAlive <= 0 && this.pendingWaves === 0 && !this.ctx.runState.ended) this.collecting = true;
   }
 
   /** Aspire les orbes vers le héros ; quand ils sont tous ramassés (et les choix faits), la salle est terminée. */

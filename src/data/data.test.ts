@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ARENA, RARITY_ORDER } from '../config';
-import { ARENA_DECOR, ARENA_TEMPLATES, CHAPTERS, CHESTS, COMBAT, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, TALENTS, UPGRADE } from './index';
+import { ARENA_DECOR, ARENA_TEMPLATES, CHAPTERS, CHESTS, COMBAT, ENCOUNTERS, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, SURVIVAL, TALENTS, UPGRADE } from './index';
 
 const ids = <T extends { id: string }>(list: T[]) => list.map((x) => x.id);
 
@@ -24,6 +24,7 @@ describe('identifiants', () => {
 describe('références entre fichiers', () => {
   const passiveIds = new Set(ids(PASSIVES));
   const enemyIds = new Set(ids(ENEMIES));
+  const encounterIds = new Set(ids(ENCOUNTERS.profiles));
 
   it('les passifs de rareté des objets existent, à des raretés valides', () => {
     for (const item of ITEMS) {
@@ -62,6 +63,17 @@ describe('références entre fichiers', () => {
         }
       });
     }
+  });
+
+  it('chaque profil de rencontre et chaque référence de vague existent', () => {
+    expect(encounterIds.size).toBe(ENCOUNTERS.profiles.length);
+    for (const id of [...ENCOUNTERS.campaignProfiles, ...ENCOUNTERS.survivalProfiles, ENCOUNTERS.bossProfile]) {
+      expect(encounterIds.has(id), id).toBe(true);
+    }
+    for (const chapter of CHAPTERS) {
+      for (const room of chapter.rooms) if (room.encounter) expect(encounterIds.has(room.encounter), room.encounter).toBe(true);
+    }
+    for (const id of SURVIVAL.encounterProfiles) expect(encounterIds.has(id), id).toBe(true);
   });
 
   it('chaque chapitre a 20 salles, deux salles d’ange, un mini-boss et un boss final', () => {
@@ -128,6 +140,20 @@ describe('cohérence des valeurs', () => {
         expect(zone.row + zone.height, template.id).toBeLessThanOrEqual(rows);
       }
       for (const tile of template.tiles) expect(['stone', 'water'], template.id).toContain(tile.kind);
+    }
+  });
+
+  it('rencontres : chaque profil commence immédiatement et répartit tout le groupe', () => {
+    const patterns = ['ahead', 'flanks', 'behind', 'surround'];
+    for (const profile of ENCOUNTERS.profiles) {
+      expect(profile.waves.length, profile.id).toBeGreaterThan(0);
+      expect(profile.waves[0].delayMs, profile.id).toBe(0);
+      expect(profile.waves.reduce((sum, wave) => sum + wave.share, 0), profile.id).toBeCloseTo(1);
+      for (const wave of profile.waves) {
+        expect(wave.delayMs, profile.id).toBeGreaterThanOrEqual(0);
+        expect(wave.share, profile.id).toBeGreaterThan(0);
+        expect(patterns, profile.id).toContain(wave.spawnPattern);
+      }
     }
   });
 

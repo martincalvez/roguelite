@@ -22,5 +22,6 @@
     { "room": 30, "enemyId": "liche" },
     { "room": 40, "enemyId": "golem_cendre" },
     { "room": 50, "enemyId": "dragon_cendre" }
-  ]
+  ],
+  "encounterProfiles": ["tenaille", "tourbillon", "embuscade"]
 }

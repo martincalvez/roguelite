@@ -123,12 +123,41 @@ export interface EnemyDef {
 }
 
 export type RoomType = 'combat' | 'angel' | 'miniboss' | 'boss';
+export type SpawnPattern = 'ahead' | 'flanks' | 'behind' | 'surround';
+
+export interface EnemyGroupDef {
+  id: string;
+  count: number;
+}
+
+/** Une vague d'une rencontre : son délai part du début de la salle. */
+export interface EncounterWaveDef {
+  delayMs: number;
+  spawnPattern: SpawnPattern;
+  /** Part relative des ennemis de la salle attribuée à cette vague. */
+  share: number;
+}
+
+export interface EncounterProfile {
+  id: string;
+  waves: EncounterWaveDef[];
+}
+
+/** Rythme et répartition des rencontres, entièrement déclarés dans les données. */
+export interface EncounterConfig {
+  campaignProfiles: string[];
+  survivalProfiles: string[];
+  bossProfile: string;
+  profiles: EncounterProfile[];
+}
 
 export interface RoomDef {
   type: RoomType;
   /** Multiplicateur de PV des ennemis de la salle (en plus de celui du chapitre) ; les dégâts suivent en partie (COMBAT.roomDamageShare). */
   difficulty?: number;
-  enemies?: { id: string; count: number }[];
+  enemies?: EnemyGroupDef[];
+  /** Profil de vagues facultatif ; sinon le cycle du mode est utilisé. */
+  encounter?: string;
 }
 
 export interface ChapterDef {
@@ -235,6 +264,7 @@ export interface SurvivalConfig {
   fireTickMs: number;
   enemyPools: { fromRoom: number; enemies: string[] }[];
   bosses: { room: number; enemyId: string }[];
+  encounterProfiles: string[];
 }
 
 /** Bonus de démarrage : une roue courte, généreuse, sans monnaie premium. */

@@ -1,7 +1,7 @@
 // Disposition du décor de combat (pur, sans Phaser) : plans de salle, tuiles et blocs.
 // Le hasard est injecté pour pouvoir tester. Les données viennent de src/data/.
 
-import type { ArenaDecorConfig, ArenaTemplateDef, ArenaTemplateRect, ArenaTileKind } from '../types';
+import type { ArenaDecorConfig, ArenaTemplateDef, ArenaTemplateRect, ArenaTileKind, SpawnPattern } from '../types';
 
 export type { ArenaTileKind } from '../types';
 
@@ -49,6 +49,8 @@ export interface EnemySpawnOptions {
   /** Positions déjà attribuées dans cette vague, pour éviter une pile d'ennemis. */
   occupied?: readonly ArenaPoint[];
   minSeparation?: number;
+  /** Secteur privilégié autour du héros ; le système retombe sur toute case valide si besoin. */
+  spawnPattern?: SpawnPattern;
   rng?: () => number;
 }
 
@@ -131,6 +133,7 @@ export function pickEnemySpawn(
   const minDistance = config.minDistance ?? 0;
   const occupied = config.occupied ?? [];
   const minSeparation = config.minSeparation ?? 0;
+  const spawnPattern = config.spawnPattern ?? 'surround';
   const candidates: number[] = [];
   for (let index = 0; index < layout.blocked.length; index++) {
     if (!reachable[index] || layout.blocked[index]) continue;
@@ -140,7 +143,18 @@ export function pickEnemySpawn(
     candidates.push(index);
   }
   if (candidates.length === 0) return null;
-  return cellCenter(layout, candidates[Math.floor(rng() * candidates.length)]);
+  const preferred = candidates.filter((index) => matchesSpawnPattern(cellCenter(layout, index), origin, spawnPattern));
+  const pool = preferred.length > 0 ? preferred : candidates;
+  return cellCenter(layout, pool[Math.floor(rng() * pool.length)]);
+}
+
+function matchesSpawnPattern(point: ArenaPoint, origin: ArenaPoint, pattern: SpawnPattern): boolean {
+  if (pattern === 'surround') return true;
+  const dx = point.x - origin.x;
+  const dy = point.y - origin.y;
+  if (pattern === 'ahead') return dy < 0;
+  if (pattern === 'behind') return dy > 0;
+  return Math.abs(dx) >= Math.abs(dy);
 }
 
 /** Vrai si on peut aller d'un point à l'autre sans traverser de bloc. */

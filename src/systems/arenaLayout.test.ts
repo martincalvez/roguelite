@@ -108,6 +108,16 @@ describe('disposition du décor', () => {
     expect(layout.templateId).not.toBe(ARENA_TEMPLATES[0].id);
   });
 
+  it('privilégie une direction d’apparition quand le plan le permet', () => {
+    const empty = buildArenaLayout({ ...ARENA_DECOR, obstacleCoverage: 0 }, WIDTH, HEIGHT, SPAWN, seededRng(7));
+    const ahead = pickEnemySpawn(empty, { rng: seededRng(3), minDistance: ARENA_DECOR.enemySpawnMinDistance, spawnPattern: 'ahead' });
+    const behind = pickEnemySpawn(empty, { rng: seededRng(5), minDistance: ARENA_DECOR.enemySpawnMinDistance, spawnPattern: 'behind' });
+    const flank = pickEnemySpawn(empty, { rng: seededRng(9), minDistance: ARENA_DECOR.enemySpawnMinDistance, spawnPattern: 'flanks' });
+    expect(ahead!.y).toBeLessThan(SPAWN.y);
+    expect(behind!.y).toBeGreaterThan(SPAWN.y);
+    expect(Math.abs(flank!.x - SPAWN.x)).toBeGreaterThanOrEqual(Math.abs(flank!.y - SPAWN.y));
+  });
+
   it('choisit des apparitions réparties dans l’arène, hors des blocs et accessibles', () => {
     const layout = build(5);
     const rng = seededRng(99);

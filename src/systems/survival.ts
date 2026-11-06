@@ -1,4 +1,4 @@
-import { SURVIVAL } from '../data';
+import { ENCOUNTERS, SURVIVAL } from '../data';
 import type { RoomDef } from '../types';
 
 /** Construit la salle d'un numéro de survie (base 1), sans dépendre de Phaser. */
@@ -6,7 +6,7 @@ export function survivalRoom(wave: number): RoomDef {
   const room = Math.max(1, Math.min(SURVIVAL.roomCount, Math.floor(wave)));
   const difficulty = Math.min(SURVIVAL.difficultyCap, SURVIVAL.difficultyStart + (room - 1) * SURVIVAL.difficultyPerRoom);
   const boss = SURVIVAL.bosses.find((entry) => entry.room === room);
-  if (boss) return { type: 'boss', difficulty, enemies: [{ id: boss.enemyId, count: 1 }] };
+  if (boss) return { type: 'boss', difficulty, enemies: [{ id: boss.enemyId, count: 1 }], encounter: ENCOUNTERS.bossProfile };
   if (room % SURVIVAL.angelEvery === SURVIVAL.angelOffset) return { type: 'angel', difficulty };
 
   const pool = [...SURVIVAL.enemyPools].reverse().find((entry) => room >= entry.fromRoom)?.enemies ?? SURVIVAL.enemyPools[0].enemies;
@@ -19,6 +19,7 @@ export function survivalRoom(wave: number): RoomDef {
   return {
     type: 'combat',
     difficulty,
+    encounter: SURVIVAL.encounterProfiles[(room - 1) % SURVIVAL.encounterProfiles.length],
     enemies: [
       { id: pool[primary], count: primaryCount },
       { id: pool[secondary], count: secondaryCount },

@@ -1,0 +1,42 @@
+{
+  "campaignProfiles": ["frontale", "tenaille", "embuscade", "tourbillon"],
+  "survivalProfiles": ["tenaille", "tourbillon", "embuscade"],
+  "bossProfile": "duel",
+  "profiles": [
+    {
+      "id": "frontale",
+      "waves": [
+        { "delayMs": 0, "spawnPattern": "ahead", "share": 1 }
+      ]
+    },
+    {
+      "id": "tenaille",
+      "waves": [
+        { "delayMs": 0, "spawnPattern": "ahead", "share": 0.65 },
+        { "delayMs": 3600, "spawnPattern": "flanks", "share": 0.35 }
+      ]
+    },
+    {
+      "id": "embuscade",
+      "waves": [
+        { "delayMs": 0, "spawnPattern": "ahead", "share": 0.5 },
+        { "delayMs": 3100, "spawnPattern": "behind", "share": 0.2 },
+        { "delayMs": 5400, "spawnPattern": "flanks", "share": 0.3 }
+      ]
+    },
+    {
+      "id": "tourbillon",
+      "waves": [
+        { "delayMs": 0, "spawnPattern": "flanks", "share": 0.4 },
+        { "delayMs": 2700, "spawnPattern": "ahead", "share": 0.35 },
+        { "delayMs": 5100, "spawnPattern": "behind", "share": 0.25 }
+      ]
+    },
+    {
+      "id": "duel",
+      "waves": [
+        { "delayMs": 0, "spawnPattern": "ahead", "share": 1 }
+      ]
+    }
+  ]
+}
