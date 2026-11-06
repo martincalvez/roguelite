@@ -8,6 +8,7 @@ export class ArcadeFeedback {
   private context?: AudioContext;
   private nextHitAt = 0;
   private nextKillAt = 0;
+  private nextShotAt = 0;
 
   unlock(): void {
     if (!GameState.data.settings.sound || this.context) return;
@@ -26,6 +27,13 @@ export class ArcadeFeedback {
     if (now < this.nextHitAt) return;
     this.nextHitAt = now + (critical ? 44 : 76);
     this.tone(critical ? 690 : 430, critical ? 0.075 : 0.045, critical ? 'square' : 'triangle', critical ? 0.055 : 0.035, critical ? 1.32 : 0.84);
+  }
+
+  shot(critical: boolean): void {
+    const now = performance.now();
+    if (now < this.nextShotAt) return;
+    this.nextShotAt = now + 96;
+    this.tone(critical ? 560 : 330, 0.035, 'square', critical ? 0.036 : 0.022, critical ? 1.48 : 1.16);
   }
 
   enemyDown(boss: boolean): void {

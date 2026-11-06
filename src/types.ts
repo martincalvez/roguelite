@@ -169,7 +169,7 @@ export interface TalentDef {
 }
 
 export interface Settings {
-  alwaysShoot: boolean; // false = tir auto seulement à l'arrêt (façon Archero)
+  alwaysShoot: boolean; // true = tir automatique continu, même pendant le déplacement
   sound: boolean;
 }
 

@@ -25,7 +25,7 @@ export function defaultSave(): SaveData {
     selectedHero: 'aldric',
     bestChapter: 0,
     bestWave: 0,
-    settings: { alwaysShoot: false, sound: true },
+    settings: { alwaysShoot: true, sound: true },
   };
 }
 
@@ -41,6 +41,10 @@ export function migrate(raw: Record<string, unknown> | SaveData): SaveData {
     data.equipped = { ...(data.equipped ?? {}) };
     if (!data.equipped.pet) data.equipped.pet = STARTER_PET.uid;
   }
+  // Passe de sensations arcade : les anciennes sauvegardes reçoivent aussi le tir en mouvement.
+  // Le champ est conservé pour un futur réglage explicite, mais l'interface actuelle ne propose pas de mode arrêt.
+  const rawSettings = raw.settings && typeof raw.settings === 'object' ? raw.settings as Partial<SaveData['settings']> : {};
+  data.settings = { ...defaultSave().settings, ...rawSettings, alwaysShoot: true };
   data.version = SAVE_VERSION;
   return data;
 }

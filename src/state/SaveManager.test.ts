@@ -34,4 +34,10 @@ describe('migration de sauvegarde vers la version 3', () => {
     expect(fresh.equipped.pet).toBe('start-pet');
     expect(fresh.inventory.some((item) => item.uid === fresh.equipped.pet)).toBe(true);
   });
+
+  it('active le tir en mouvement pour une sauvegarde existante', () => {
+    const migrated = migrate({ ...defaultSave(), settings: { alwaysShoot: false, sound: true } });
+
+    expect(migrated.settings.alwaysShoot).toBe(true);
+  });
 });

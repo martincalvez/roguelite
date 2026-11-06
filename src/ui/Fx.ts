@@ -54,6 +54,7 @@ export class Fx {
 
     scene.events.on('enemy-hit', this.onEnemyHit, this);
     scene.events.on('enemy-died', this.onEnemyDied, this);
+    scene.events.on('player-shot', this.onPlayerShot, this);
     scene.events.on('player-dodged', this.onPlayerDodged, this);
     scene.events.on('player-hp-changed', this.onPlayerHurt, this);
     scene.events.on('level-up', this.onLevelUp, this);
@@ -63,6 +64,7 @@ export class Fx {
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       scene.events.off('enemy-hit', this.onEnemyHit, this);
       scene.events.off('enemy-died', this.onEnemyDied, this);
+      scene.events.off('player-shot', this.onPlayerShot, this);
       scene.events.off('player-dodged', this.onPlayerDodged, this);
       scene.events.off('player-hp-changed', this.onPlayerHurt, this);
       scene.events.off('level-up', this.onLevelUp, this);
@@ -103,6 +105,10 @@ export class Fx {
   private onEnemyHit(x: number, y: number, amount: number, isCrit: boolean): void {
     this.showText(x, y, String(amount), '#ffe14a', isCrit ? 52 : 32);
     this.feedback.hit(isCrit);
+  }
+
+  private onPlayerShot(isCrit: boolean): void {
+    this.feedback.shot(isCrit);
   }
 
   private onEnemyDied(def: EnemyDef, x: number, y: number): void {

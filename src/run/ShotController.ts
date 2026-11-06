@@ -43,7 +43,7 @@ export class ShotController {
     this.orbs.update(time, this.ctx.player.x, this.ctx.player.y);
   }
 
-  /** Tire sur l'ennemi le plus proche : à l'arrêt, ou en permanence si settings.alwaysShoot. */
+  /** Tire sur l'ennemi visible le plus proche, y compris pendant le déplacement en mode arcade. */
   updateAutoFire(time: number): void {
     const { player } = this.ctx;
     if (player.isMoving && !GameState.data.settings.alwaysShoot) return;
@@ -111,7 +111,8 @@ export class ShotController {
 
   private shoot(x: number, y: number, angle: number, damage: number, isCrit: boolean): void {
     const projectile = this.ctx.playerProjectiles.get(x, y) as Projectile | null;
-    projectile?.fire(
+    if (!projectile) return;
+    projectile.fire(
       x,
       y,
       angle,
@@ -122,6 +123,7 @@ export class ShotController {
       this.effects.ricochet,
       this.projectileTexture,
     );
+    this.ctx.scene.events.emit('player-shot', isCrit);
   }
 
   /** Un orbe touche un ennemi : dégâts, avec un délai avant de pouvoir le retoucher. */
