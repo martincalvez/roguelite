@@ -131,9 +131,8 @@ export class RunScene extends Phaser.Scene {
 
     // Pause compacte, comme dans la référence ; le menu reste accessible depuis le panneau.
     const pause = this.add.rectangle(66, HUD_HEIGHT / 2, 84, 72, 0x102a43, 0.92).setStrokeStyle(5, 0x315b78).setInteractive({ useHandCursor: true });
-    this.add.text(66, HUD_HEIGHT / 2 - 2, 'Ⅱ', {
-      fontFamily: 'Arial', fontSize: '48px', color: '#ffffff', fontStyle: 'bold', stroke: '#10243a', strokeThickness: 4,
-    }).setOrigin(0.5);
+    this.add.rectangle(53, HUD_HEIGHT / 2, 11, 34, 0xffffff).setStrokeStyle(2, 0x10243a);
+    this.add.rectangle(79, HUD_HEIGHT / 2, 11, 34, 0xffffff).setStrokeStyle(2, 0x10243a);
     pause.on('pointerup', () => {
       if (this.startBonusLocked || this.runStateIsOver()) return;
       this.scene.launch(SCENES.pause);
