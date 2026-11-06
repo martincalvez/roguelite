@@ -22,5 +22,11 @@
   "baselineWeaponAttack": 10,
   "gearHpScalePerPower": 0.38,
   "gearDamageScalePerPower": 0.24,
-  "gearScalingCap": 2.1
+  "gearScalingCap": 2.1,
+  "eliteHpScale": 2,
+  "eliteDamageScale": 1.16,
+  "eliteVisualScale": 1.1,
+  "eliteHitboxScale": 1.07,
+  "eliteXpScale": 1.5,
+  "eliteGoldScale": 1.8
 }

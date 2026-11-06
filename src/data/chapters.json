@@ -357,7 +357,12 @@
         "enemies": [
           {
             "id": "esprit_saphir",
-            "count": 3
+            "count": 2
+          },
+          {
+            "id": "esprit_saphir",
+            "count": 1,
+            "elite": true
           },
           {
             "id": "sentinelle_azur",
@@ -476,7 +481,12 @@
         "enemies": [
           {
             "id": "esprit_saphir",
-            "count": 3
+            "count": 2
+          },
+          {
+            "id": "esprit_saphir",
+            "count": 1,
+            "elite": true
           },
           {
             "id": "scarabee_dore",
@@ -697,7 +707,12 @@
           },
           {
             "id": "elementaire_lave",
-            "count": 3
+            "count": 2
+          },
+          {
+            "id": "elementaire_lave",
+            "count": 1,
+            "elite": true
           },
           {
             "id": "chauve_souris_braise",
@@ -746,7 +761,12 @@
         "enemies": [
           {
             "id": "mage_ombre",
-            "count": 3
+            "count": 2
+          },
+          {
+            "id": "mage_ombre",
+            "count": 1,
+            "elite": true
           },
           {
             "id": "elementaire_lave",

@@ -34,4 +34,9 @@ describe('rencontres par vagues', () => {
     expect(splitCount(1, [0.5, 0.2, 0.3])).toEqual([1, 0, 0]);
     expect(splitCount(7, [0.4, 0.35, 0.25]).reduce((sum, count) => sum + count, 0)).toBe(7);
   });
+
+  it('conserve le statut de champion lorsqu’un groupe est envoyé en renfort', () => {
+    const waves = planEncounter({ type: 'combat', encounter: 'embuscade', enemies: [{ id: 'esprit_saphir', count: 1, elite: true }] }, 0, 'campaign', ENCOUNTERS);
+    expect(waves.flatMap((wave) => wave.enemies)).toEqual([{ id: 'esprit_saphir', count: 1, elite: true }]);
+  });
 });

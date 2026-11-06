@@ -42,6 +42,7 @@ interface PreparedEnemySpawn {
   def: EnemyDef;
   x: number;
   y: number;
+  elite: boolean;
   warning?: Phaser.GameObjects.Container;
 }
 
@@ -155,7 +156,7 @@ export class RoomFlow {
       const def = getEnemy(group.id);
       // Les boss restent seuls. Les chapitres 2 et 3 gagnent plutôt des menaces concurrentes
       // qu'un simple sac à PV quand le joueur les surclasse par son équipement.
-      return { ...group, count: group.count + (def.boss ? 0 : threat.extraEnemiesPerGroup) };
+      return { ...group, count: group.count + (def.boss || group.elite ? 0 : threat.extraEnemiesPerGroup) };
     });
     const waves = planEncounter({ ...room, enemies: groups }, roomIndex, this.ctx.mode, ENCOUNTERS);
     const delayed = waves.filter((wave) => wave.delayMs > 0);
@@ -190,7 +191,7 @@ export class RoomFlow {
           spawnPattern: wave.spawnPattern,
       });
         if (!spot) continue;
-        spawns.push({ def, x: ARENA.x + spot.x, y: ARENA.y + spot.y });
+        spawns.push({ def, x: ARENA.x + spot.x, y: ARENA.y + spot.y, elite: group.elite === true });
         occupied.push(spot);
       }
     }
@@ -226,7 +227,7 @@ export class RoomFlow {
       this.destroySpawnWarning(spawn.warning);
       const enemy = enemies.get(spawn.x, spawn.y) as Enemy | null;
       if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
-      enemy.spawn(spawn.def, spawn.x, spawn.y, scene.time.now, hpScale, damageScale);
+      enemy.spawn(spawn.def, spawn.x, spawn.y, scene.time.now, hpScale, damageScale, spawn.elite);
       this.enemiesAlive++;
     }
   }
@@ -280,10 +281,12 @@ export class RoomFlow {
     this.load(this.ctx.runState.room + 1);
   }
 
-  private onEnemyDied(def: EnemyDef, x: number, y: number): void {
-    this.ctx.runState.gold += def.gold;
+  private onEnemyDied(def: EnemyDef, x: number, y: number, elite = false): void {
+    const rewardScale = elite ? COMBAT.eliteGoldScale : 1;
+    this.ctx.runState.gold += Math.round(def.gold * rewardScale);
     if (def.boss) this.ctx.runState.bossesKilled++;
-    (this.xpOrbs.get(x, y) as XpOrb | null)?.spawn(x, y, def.xp);
+    const xpScale = elite ? COMBAT.eliteXpScale : 1;
+    (this.xpOrbs.get(x, y) as XpOrb | null)?.spawn(x, y, Math.round(def.xp * xpScale));
     this.enemiesAlive--;
     this.tryStartCollection();
   }

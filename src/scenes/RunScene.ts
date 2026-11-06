@@ -184,7 +184,7 @@ export class RunScene extends Phaser.Scene {
       const enemy = list[i];
       const from = { x: enemy.x - ARENA.x, y: enemy.y - ARENA.y };
       const target = { x: player.x - ARENA.x, y: player.y - ARENA.y };
-      const visible = arenaLineOfSight(arena, from, target, enemy.def.radius * 1.1);
+      const visible = arenaLineOfSight(arena, from, target, enemy.collisionRadius * 1.1);
       let waypoint = target;
       if (!visible) waypoint = this.enemyWaypoint(enemy, from, target, time);
       enemy.updateAI(time, player.x, player.y, waypoint.x + ARENA.x, waypoint.y + ARENA.y, visible);
@@ -310,9 +310,9 @@ export class RunScene extends Phaser.Scene {
     let route = this.enemyRoutes.get(enemy);
     const movedEnough = route && (Math.hypot(route.playerX - target.x, route.playerY - target.y) > this.ctx.arena.cell * 0.7
       || Math.hypot(route.enemyX - from.x, route.enemyY - from.y) > this.ctx.arena.cell * 0.7);
-    const reachedWaypoint = route && Math.hypot(route.waypoint.x - from.x, route.waypoint.y - from.y) < enemy.def.radius + 18;
+    const reachedWaypoint = route && Math.hypot(route.waypoint.x - from.x, route.waypoint.y - from.y) < enemy.collisionRadius + 18;
     if (!route || time >= route.refreshAt || movedEnough || reachedWaypoint) {
-      const path = findArenaPath(this.ctx.arena, from, target, enemy.def.radius * 1.1 + 8);
+      const path = findArenaPath(this.ctx.arena, from, target, enemy.collisionRadius * 1.1 + 8);
       route = {
         refreshAt: time + 280,
         playerX: target.x,

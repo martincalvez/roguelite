@@ -141,11 +141,13 @@ export class Fx {
     this.feedback.shot(isCrit);
   }
 
-  private onEnemyDied(def: EnemyDef, x: number, y: number): void {
-    this.emitters.get(def.id)?.explode(COMBAT.deathParticles, x, y);
-    this.showCoinBurst(x, y, def.boss ? 7 : def.gold >= 12 ? 3 : 2);
-    if (def.gold >= 12 || def.boss) this.showText(x, y - def.radius - 18, `+${def.gold}`, '#ffe14a', def.boss ? 34 : 24);
-    this.feedback.enemyDown(Boolean(def.boss));
+  private onEnemyDied(def: EnemyDef, x: number, y: number, elite = false): void {
+    const rewardGold = Math.round(def.gold * (elite ? COMBAT.eliteGoldScale : 1));
+    const particles = Math.round(COMBAT.deathParticles * (elite ? 1.8 : 1));
+    this.emitters.get(def.id)?.explode(particles, x, y);
+    this.showCoinBurst(x, y, def.boss ? 7 : elite ? 5 : def.gold >= 12 ? 3 : 2);
+    if (elite || def.gold >= 12 || def.boss) this.showText(x, y - def.radius - 18, `+${rewardGold}`, '#ffe14a', def.boss ? 34 : elite ? 30 : 24);
+    this.feedback.enemyDown(Boolean(def.boss || elite));
   }
 
   private onPlayerDodged(x: number, y: number): void {

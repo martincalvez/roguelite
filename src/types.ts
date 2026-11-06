@@ -141,6 +141,8 @@ export type SpawnPattern = 'ahead' | 'flanks' | 'behind' | 'surround';
 export interface EnemyGroupDef {
   id: string;
   count: number;
+  /** Champion unique : plus résistant et mieux récompensé, sans gonfler tout le groupe. */
+  elite?: boolean;
 }
 
 /** Une vague d'une rencontre : son délai part du début de la salle. */
@@ -265,6 +267,12 @@ export interface CombatConfig {
   gearHpScalePerPower: number;
   gearDamageScalePerPower: number;
   gearScalingCap: number;
+  eliteHpScale: number;
+  eliteDamageScale: number;
+  eliteVisualScale: number;
+  eliteHitboxScale: number;
+  eliteXpScale: number;
+  eliteGoldScale: number;
   angelRareMaxWeight: number; // salle de l'ange : une compétence "rare" a un poids d'apparition ≤ à cette valeur
 }
 

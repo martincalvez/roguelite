@@ -41,7 +41,7 @@ function distributeGroups(groups: readonly EnemyGroupDef[], profile: EncounterPr
   const shares = profile.waves.map((wave) => wave.share);
   return groups.flatMap((group) => {
     const counts = splitCount(group.count, shares);
-    return counts[waveIndex] > 0 ? [{ id: group.id, count: counts[waveIndex] }] : [];
+    return counts[waveIndex] > 0 ? [{ ...group, count: counts[waveIndex] }] : [];
   });
 }
 

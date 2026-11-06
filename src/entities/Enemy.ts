@@ -8,6 +8,7 @@ const TOO_CLOSE_RATIO = 0.8;
 
 const BURN_TINT = 0xff5a1f;
 const FREEZE_TINT = 0x66ccff;
+const ELITE_TINT = 0xffd05a;
 
 /** Le chevalier bleu reste le portrait illustré du boss Liche ; les autres ennemis sont dessinés par BootScene. */
 const ENEMY_ART: Record<string, string> = {
@@ -34,6 +35,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   def!: EnemyDef;
   hp = 0;
   maxHp = 0;
+  /** Rayon réel du collider, utilisé aussi par la navigation autour des blocs. */
+  collisionRadius = 0;
   /** Dégâts de contact et de tir, après multiplication par la difficulté du chapitre et de la salle. */
   damage = 0;
   private nextFireAt = 0;
@@ -63,6 +66,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private dashAngle = 0;
   private dashPending = false;
   private tintState = 0; // 0 aucun, 1 brûlure, 2 givre, 3 flash blanc
+  private elite = false;
   private stationary = false;
   /** Prochain instant où un orbe protecteur peut le toucher. */
   nextOrbHitAt = 0;
@@ -72,23 +76,28 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /** `hpScale` et `damageScale` : multiplicateurs de PV et de dégâts (chapitre × salle). */
-  spawn(def: EnemyDef, x: number, y: number, time: number, hpScale: number, damageScale: number): void {
+  spawn(def: EnemyDef, x: number, y: number, time: number, hpScale: number, damageScale: number, elite = false): void {
     this.def = def;
-    this.hp = def.hp * hpScale;
+    this.elite = elite;
+    const eliteHpScale = elite ? COMBAT.eliteHpScale : 1;
+    const eliteDamageScale = elite ? COMBAT.eliteDamageScale : 1;
+    this.hp = def.hp * hpScale * eliteHpScale;
     this.maxHp = this.hp;
-    this.damage = def.damage * damageScale;
+    this.damage = def.damage * damageScale * eliteDamageScale;
     this.enableBody(true, x, y, true, true);
     const art = ENEMY_ART[def.id];
     this.setTexture(art && this.scene.textures.exists(art) ? art : `enemy-${def.id}`);
     // Les silhouettes font volontairement 3 à 5 fois le rayon de gameplay : elles restent lisibles au pouce.
-    const targetHeight = def.radius * (def.boss ? 4.9 : def.id === 'chauve_souris_braise' ? 3.9 : 4.25);
+    const targetHeight = def.radius * (def.boss ? 4.9 : def.id === 'chauve_souris_braise' ? 3.9 : 4.25)
+      * (elite ? COMBAT.eliteVisualScale : 1);
     this.setScale(targetHeight / Math.max(this.frame.width, this.frame.height));
     this.setOrigin(0.5, 0.57);
     // Centre le collider sur le torse, pas sur les ailes, la cape, l'ombre ou l'arme.
     const scaleX = Math.max(Math.abs(this.scaleX), 0.001);
     const scaleY = Math.max(Math.abs(this.scaleY), 0.001);
     const hitboxFactor = HITBOX_FACTORS[def.id] ?? (def.boss ? 0.92 : 0.9);
-    const radius = Math.min(def.radius * hitboxFactor / scaleX, def.radius * hitboxFactor / scaleY);
+    this.collisionRadius = def.radius * hitboxFactor * (elite ? COMBAT.eliteHitboxScale : 1);
+    const radius = Math.min(this.collisionRadius / scaleX, this.collisionRadius / scaleY);
     this.setCircle(radius, (this.frame.width - radius * 2) / 2, this.frame.height * 0.54 - radius);
     this.stationary = def.id === 'archer_squelette';
     this.setCollideWorldBounds(true);
@@ -329,12 +338,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       || (this.dashPending && this.dashWarnUntil > time)
       || (this.attackPending && this.attackWarnUntil > time)
     ) && Math.floor(time / 90) % 2 === 0;
-    const state = warning || this.flashUntil > time ? 3 : this.freezeUntil > time ? 2 : this.burnUntil > time ? 1 : 0;
+    const state = warning || this.flashUntil > time ? 3 : this.freezeUntil > time ? 2 : this.burnUntil > time ? 1 : this.elite ? 4 : 0;
     if (state !== this.tintState) {
       this.tintState = state;
       if (state === 3) this.setTintFill(0xffffff);
       else if (state === 2) this.setTintFill(FREEZE_TINT);
       else if (state === 1) this.setTintFill(BURN_TINT);
+      else if (state === 4) this.setTint(ELITE_TINT);
       else this.clearTint();
     }
     return false;
@@ -358,7 +368,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (this.def.boss) this.scene.events.emit('boss-hp', Math.max(0, this.hp), this.maxHp);
     if (this.hp > 0) return false;
     this.kill();
-    this.scene.events.emit('enemy-died', this.def, this.x, this.y);
+    this.scene.events.emit('enemy-died', this.def, this.x, this.y, this.elite);
     return true;
   }
 
@@ -391,7 +401,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (this.def.boss) this.scene.events.emit('boss-hp', Math.max(0, this.hp), this.maxHp);
     if (this.hp <= 0) {
       this.kill();
-      this.scene.events.emit('enemy-died', this.def, this.x, this.y);
+      this.scene.events.emit('enemy-died', this.def, this.x, this.y, this.elite);
       return;
     }
     this.flashUntil = time + COMBAT.flashMs;

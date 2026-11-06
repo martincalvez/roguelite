@@ -85,6 +85,13 @@ describe('références entre fichiers', () => {
       expect(chapter.rooms[14].type, chapter.id).toBe('angel');
       expect(chapter.rooms[19].type, chapter.id).toBe('boss');
       expect(chapter.visual, chapter.id).toBeDefined();
+      for (const room of chapter.rooms) {
+        for (const group of room.enemies ?? []) {
+          if (!group.elite) continue;
+          expect(group.count, `${chapter.id} champion ${group.id}`).toBe(1);
+          expect(room.type, `${chapter.id} champion ${group.id}`).toBe('combat');
+        }
+      }
       for (const color of Object.values(chapter.visual)) expect(color, chapter.id).toMatch(/^#[0-9a-f]{6}$/i);
     }
   });
@@ -277,6 +284,12 @@ describe('cohérence des valeurs', () => {
     for (const r of RARITY_ORDER) expect(UPGRADE.maxLevelByRarity[r]).toBeGreaterThan(1);
     expect(COMBAT.roomDamageShare).toBeGreaterThanOrEqual(0);
     expect(COMBAT.roomDamageShare).toBeLessThanOrEqual(1);
+    expect(COMBAT.eliteHpScale).toBeGreaterThan(1);
+    expect(COMBAT.eliteDamageScale).toBeGreaterThan(1);
+    expect(COMBAT.eliteVisualScale).toBeGreaterThanOrEqual(1);
+    expect(COMBAT.eliteHitboxScale).toBeGreaterThanOrEqual(1);
+    expect(COMBAT.eliteXpScale).toBeGreaterThan(1);
+    expect(COMBAT.eliteGoldScale).toBeGreaterThan(1);
     expect(SURVIVAL.fireCount).toBeGreaterThan(0);
     expect(SURVIVAL.fireSafeDistance).toBeGreaterThan(0);
     expect(SURVIVAL.fireSeparation).toBeGreaterThan(0);
