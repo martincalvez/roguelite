@@ -9,7 +9,7 @@ import { GameState } from '../state/GameState';
 import { pickEnemySpawn } from '../systems/arenaLayout';
 import { planEncounter, type PlannedEncounterWave } from '../systems/encounters';
 import { survivalRoom } from '../systems/survival';
-import type { EnemyDef, EnemyGroupDef, SpawnPattern } from '../types';
+import type { EnemyDef } from '../types';
 import type { RunContext } from './RunContext';
 import type { SkillFlow } from './SkillFlow';
 
@@ -38,6 +38,13 @@ function roomThreat(chapterDifficulty: number, roomScale: number, powerRatio: nu
   return { hpScale, damageScale, extraEnemiesPerGroup };
 }
 
+interface PreparedEnemySpawn {
+  def: EnemyDef;
+  x: number;
+  y: number;
+  warning?: Phaser.GameObjects.Container;
+}
+
 /**
  * Déroulement des salles : apparition des ennemis, orbes d'XP ramassés une fois la salle vidée,
  * porte de sortie, salle suivante (ou fin du chapitre).
@@ -52,6 +59,7 @@ export class RoomFlow {
   private collecting = false; // salle vidée : les orbes d'XP sont aspirés vers le héros
   private pendingWaves = 0;
   private readonly waveTimers: Phaser.Time.TimerEvent[] = [];
+  private readonly spawnWarnings: Phaser.GameObjects.Container[] = [];
 
   constructor(
     private readonly ctx: RunContext,
@@ -106,6 +114,7 @@ export class RoomFlow {
     this.collecting = false;
     this.pendingWaves = 0;
     for (const timer of this.waveTimers.splice(0)) timer.remove(false);
+    this.clearSpawnWarnings();
     this.setDoor(false);
     for (const group of [enemyProjectiles, playerProjectiles]) {
       for (const shot of group.getChildren() as (EnemyProjectile | Projectile)[]) if (shot.active) shot.kill();
@@ -132,7 +141,7 @@ export class RoomFlow {
 
   /** Lance une rencontre en vagues : le total d'ennemis est conservé, seules leurs arrivées changent. */
   private spawnRoom(roomIndex: number): void {
-    const { scene, player } = this.ctx;
+    const { player } = this.ctx;
     const chapter = getChapter(this.ctx.chapterId);
     const room = this.ctx.mode === 'survival' ? survivalRoom(roomIndex + 1) : chapter.rooms[roomIndex];
     // Les PV suivent le multiplicateur de la salle ; les dégâts n'en suivent qu'une partie.
@@ -152,56 +161,106 @@ export class RoomFlow {
     const delayed = waves.filter((wave) => wave.delayMs > 0);
     for (const wave of waves) if (wave.delayMs === 0) this.spawnWave(wave, threat.hpScale, threat.damageScale);
     this.pendingWaves = delayed.length;
-    for (const wave of delayed) {
-      const timer = scene.time.delayedCall(wave.delayMs, () => {
-        if (this.ctx.runState.ended || this.ctx.runState.room !== roomIndex) return;
-        this.pendingWaves--;
-        this.spawnWave(wave, threat.hpScale, threat.damageScale);
-        this.tryStartCollection();
-      });
-      this.waveTimers.push(timer);
-    }
+    for (const wave of delayed) this.scheduleDelayedWave(wave, roomIndex, threat.hpScale, threat.damageScale);
     // En cas de pool saturé ou de plan exceptionnellement trop serré, une salle ne reste jamais bloquée vide.
     if (waves.length > 0) this.tryStartCollection();
   }
 
   /** Une vague choisit une entrée devant, derrière ou sur les flancs sans jamais tomber sur le héros. */
   private spawnWave(wave: PlannedEncounterWave, hpScale: number, damageScale: number): void {
-    const { enemies, player } = this.ctx;
+    this.spawnPreparedWave(this.prepareWave(wave), hpScale, damageScale);
+  }
+
+  /** Prépare les emplacements une fraction de seconde avant les renforts afin de les télégraphier. */
+  private prepareWave(wave: PlannedEncounterWave): PreparedEnemySpawn[] {
+    const { enemies, player, arena } = this.ctx;
     const occupied = (enemies.getChildren() as Enemy[])
       .filter((enemy) => enemy.active)
       .map((enemy) => ({ x: enemy.x - ARENA.x, y: enemy.y - ARENA.y }));
     const playerPoint = { x: player.x - ARENA.x, y: player.y - ARENA.y };
-    for (const group of wave.enemies) this.spawnGroup(group, wave.spawnPattern, hpScale, damageScale, occupied, playerPoint);
-  }
-
-  private spawnGroup(
-    group: EnemyGroupDef,
-    spawnPattern: SpawnPattern,
-    hpScale: number,
-    damageScale: number,
-    occupied: { x: number; y: number }[],
-    playerPoint: { x: number; y: number },
-  ): void {
-    const { scene, enemies, arena } = this.ctx;
-    const def = getEnemy(group.id);
-    for (let i = 0; i < group.count; i++) {
-      const spot = pickEnemySpawn(arena, {
+    const spawns: PreparedEnemySpawn[] = [];
+    for (const group of wave.enemies) {
+      const def = getEnemy(group.id);
+      for (let i = 0; i < group.count; i++) {
+        const spot = pickEnemySpawn(arena, {
         origin: playerPoint,
         minDistance: ARENA_DECOR.enemySpawnMinDistance,
         occupied,
         minSeparation: ARENA_DECOR.enemySpawnSeparation,
-        spawnPattern,
+          spawnPattern: wave.spawnPattern,
       });
-      if (!spot) continue;
-      const x = ARENA.x + spot.x;
-      const y = ARENA.y + spot.y;
-      const enemy = enemies.get(x, y) as Enemy | null;
+        if (!spot) continue;
+        spawns.push({ def, x: ARENA.x + spot.x, y: ARENA.y + spot.y });
+        occupied.push(spot);
+      }
+    }
+    return spawns;
+  }
+
+  private scheduleDelayedWave(wave: PlannedEncounterWave, roomIndex: number, hpScale: number, damageScale: number): void {
+    const { scene } = this.ctx;
+    const warningTimer = scene.time.delayedCall(Math.max(0, wave.delayMs - wave.telegraphMs), () => {
+      if (this.ctx.runState.ended || this.ctx.runState.room !== roomIndex) return;
+      const spawns = this.prepareWave(wave);
+      if (wave.telegraphMs <= 0) {
+        this.pendingWaves--;
+        this.spawnPreparedWave(spawns, hpScale, damageScale);
+        this.tryStartCollection();
+        return;
+      }
+      this.showSpawnWarnings(spawns, wave.telegraphMs);
+      const spawnTimer = scene.time.delayedCall(wave.telegraphMs, () => {
+        if (this.ctx.runState.ended || this.ctx.runState.room !== roomIndex) return;
+        this.pendingWaves--;
+        this.spawnPreparedWave(spawns, hpScale, damageScale);
+        this.tryStartCollection();
+      });
+      this.waveTimers.push(spawnTimer);
+    });
+    this.waveTimers.push(warningTimer);
+  }
+
+  private spawnPreparedWave(spawns: PreparedEnemySpawn[], hpScale: number, damageScale: number): void {
+    const { scene, enemies } = this.ctx;
+    for (const spawn of spawns) {
+      this.destroySpawnWarning(spawn.warning);
+      const enemy = enemies.get(spawn.x, spawn.y) as Enemy | null;
       if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
-      enemy.spawn(def, x, y, scene.time.now, hpScale, damageScale);
-      occupied.push(spot);
+      enemy.spawn(spawn.def, spawn.x, spawn.y, scene.time.now, hpScale, damageScale);
       this.enemiesAlive++;
     }
+  }
+
+  /** Marqueurs brefs et colorés : les renforts ne popent jamais sans avertissement visuel. */
+  private showSpawnWarnings(spawns: PreparedEnemySpawn[], duration: number): void {
+    const { scene } = this.ctx;
+    const pulseDuration = Math.max(1, duration / 2);
+    for (const spawn of spawns) {
+      const warning = scene.add.container(spawn.x, spawn.y).setDepth(9).setScale(0.78);
+      const ring = scene.add.graphics();
+      ring.lineStyle(5, 0xffdf58, 0.95).strokeCircle(0, 0, 30);
+      ring.lineStyle(3, 0xff5c76, 0.95).strokeCircle(0, 0, 40);
+      const core = scene.add.graphics();
+      core.fillStyle(0xff4058, 0.42).fillCircle(0, 0, 25);
+      core.fillStyle(0xfff2ae, 0.9).fillTriangle(0, -20, 18, 17, -18, 17);
+      warning.add([core, ring]);
+      spawn.warning = warning;
+      this.spawnWarnings.push(warning);
+      scene.tweens.add({ targets: warning, scaleX: 1.12, scaleY: 1.12, alpha: 0.46, duration: pulseDuration, yoyo: true, repeat: -1 });
+    }
+  }
+
+  private destroySpawnWarning(warning?: Phaser.GameObjects.Container): void {
+    if (!warning) return;
+    const index = this.spawnWarnings.indexOf(warning);
+    if (index < 0) return;
+    this.spawnWarnings.splice(index, 1);
+    warning.destroy();
+  }
+
+  private clearSpawnWarnings(): void {
+    for (const warning of this.spawnWarnings) warning.destroy();
+    this.spawnWarnings.length = 0;
   }
 
   private roomCount(): number {

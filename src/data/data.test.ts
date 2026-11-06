@@ -151,6 +151,8 @@ describe('cohérence des valeurs', () => {
       expect(profile.waves.reduce((sum, wave) => sum + wave.share, 0), profile.id).toBeCloseTo(1);
       for (const wave of profile.waves) {
         expect(wave.delayMs, profile.id).toBeGreaterThanOrEqual(0);
+        expect(wave.telegraphMs, profile.id).toBeGreaterThanOrEqual(0);
+        expect(wave.telegraphMs, profile.id).toBeLessThanOrEqual(wave.delayMs);
         expect(wave.share, profile.id).toBeGreaterThan(0);
         expect(patterns, profile.id).toContain(wave.spawnPattern);
       }

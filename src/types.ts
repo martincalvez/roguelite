@@ -139,6 +139,8 @@ export interface EnemyGroupDef {
 /** Une vague d'une rencontre : son délai part du début de la salle. */
 export interface EncounterWaveDef {
   delayMs: number;
+  /** Durée du marqueur au sol avant l'arrivée des renforts. */
+  telegraphMs: number;
   spawnPattern: SpawnPattern;
   /** Part relative des ennemis de la salle attribuée à cette vague. */
   share: number;

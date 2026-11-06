@@ -2,6 +2,7 @@ import type { EncounterConfig, EncounterProfile, EnemyGroupDef, RoomDef, SpawnPa
 
 export interface PlannedEncounterWave {
   delayMs: number;
+  telegraphMs: number;
   spawnPattern: SpawnPattern;
   enemies: EnemyGroupDef[];
 }
@@ -22,6 +23,7 @@ export function planEncounter(
   if (!profile) throw new Error(`Profil de rencontre inconnu : ${profileId}`);
   return profile.waves.map((wave, index) => ({
     delayMs: wave.delayMs,
+    telegraphMs: wave.telegraphMs,
     spawnPattern: wave.spawnPattern,
     enemies: distributeGroups(room.enemies ?? [], profile, index),
   })).filter((wave) => wave.enemies.length > 0);

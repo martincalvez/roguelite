@@ -21,6 +21,7 @@ describe('rencontres par vagues', () => {
     const waves = planEncounter({ ...combatRoom, encounter: 'embuscade' }, 0, 'campaign', ENCOUNTERS);
     expect(waves[0].delayMs).toBe(0);
     expect(waves.some((wave) => wave.delayMs > 0 && wave.spawnPattern === 'behind')).toBe(true);
+    expect(waves.filter((wave) => wave.delayMs > 0).every((wave) => wave.telegraphMs > 0)).toBe(true);
   });
 
   it('utilise le duel pour les mini-boss et les boss', () => {
