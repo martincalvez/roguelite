@@ -20,6 +20,9 @@ interface TurretZone {
   recoilUntil: number;
   visual: Phaser.GameObjects.Container;
   cannon: Phaser.GameObjects.Image;
+  /** Échelle après le redimensionnement de l'image source, à conserver pendant le recul. */
+  baseScaleX: number;
+  baseScaleY: number;
 }
 
 interface RuneZone {
@@ -184,7 +187,9 @@ export class SurvivalHazards {
     warning.fillStyle(0xff5048, 0.16).fillCircle(0, 0, 54);
     warning.lineStyle(3, 0xffd04e, 0.9).strokeCircle(0, 0, 42);
     const base = this.ctx.scene.add.ellipse(0, 15, 76, 28, 0x351f4c, 0.56);
-    const cannon = this.ctx.scene.add.image(0, 0, 'enemy-art-turret').setDisplaySize(82, 82).setOrigin(0.5, 0.58);
+    const cannon = this.ctx.scene.add.image(0, 0, 'enemy-art-turret')
+      .setDisplaySize(SURVIVAL.turretVisualSize, SURVIVAL.turretVisualSize)
+      .setOrigin(0.5, 0.58);
     visual.add([warning, base, cannon]);
     this.ctx.scene.tweens.add({ targets: warning, scale: 1.16, alpha: 0.32, duration: 620, yoyo: true, repeat: -1 });
     this.turrets.push({
@@ -194,6 +199,8 @@ export class SurvivalHazards {
       recoilUntil: 0,
       visual,
       cannon,
+      baseScaleX: cannon.scaleX,
+      baseScaleY: cannon.scaleY,
     });
   }
 
@@ -261,9 +268,12 @@ export class SurvivalHazards {
       const angle = Phaser.Math.Angle.Between(turret.x, turret.y, player.x, player.y);
       turret.cannon.setRotation(angle);
       if (time < turret.recoilUntil) {
-        turret.cannon.setScale(0.9).setTint(0xffe378);
+        turret.cannon.setScale(
+          turret.baseScaleX * SURVIVAL.turretRecoilScale,
+          turret.baseScaleY * SURVIVAL.turretRecoilScale,
+        ).setTint(0xffe378);
       } else {
-        turret.cannon.setScale(1).clearTint();
+        turret.cannon.setScale(turret.baseScaleX, turret.baseScaleY).clearTint();
       }
       if (time < turret.nextFireAt) continue;
       turret.nextFireAt = time + 1000 / SURVIVAL.turretFireRate;

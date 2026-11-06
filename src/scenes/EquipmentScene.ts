@@ -238,8 +238,14 @@ export class EquipmentScene extends Phaser.Scene {
   }
 
   /** Illustrations originales : des silhouettes d'objets reconnaissables même sur un petit écran. */
-  private drawItemIcon(x: number, y: number, id: string, slot: string, color: number): Phaser.GameObjects.Graphics | Phaser.GameObjects.Image {
-    if (slot === 'pet' && this.textures.exists(`pet-${id}`)) return this.add.image(x, y, `pet-${id}`).setDisplaySize(48, 48);
+  private drawItemIcon(x: number, y: number, id: string, slot: string, color: number): Phaser.GameObjects.Graphics | Phaser.GameObjects.Container {
+    if (slot === 'pet' && this.textures.exists(`pet-${id}`)) {
+      // Les cartes appliquent une échelle au conteneur. Ainsi, elle ne peut plus remettre
+      // l'illustration PNG à sa taille native (plusieurs centaines de pixels).
+      const icon = this.add.container(x, y);
+      icon.add(this.add.image(0, 0, `pet-${id}`).setDisplaySize(48, 48));
+      return icon;
+    }
     const g = this.add.graphics().setPosition(x, y);
     const ink = INK;
     if (id.includes('arc')) {

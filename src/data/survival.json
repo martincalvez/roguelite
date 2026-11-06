@@ -30,6 +30,8 @@
   "turretFireRate": 0.82,
   "turretProjectileSpeed": 255,
   "turretDamage": 4.6,
+  "turretVisualSize": 70,
+  "turretRecoilScale": 0.9,
   "turretSafeDistance": 280,
   "turretSeparation": 230,
   "turretObstacleClearance": 80,

@@ -311,6 +311,9 @@ describe('cohérence des valeurs', () => {
     expect(SURVIVAL.turretFireRate).toBeGreaterThan(0);
     expect(SURVIVAL.turretProjectileSpeed).toBeGreaterThan(0);
     expect(SURVIVAL.turretDamage).toBeGreaterThan(0);
+    expect(SURVIVAL.turretVisualSize).toBeGreaterThan(0);
+    expect(SURVIVAL.turretRecoilScale).toBeGreaterThan(0);
+    expect(SURVIVAL.turretRecoilScale).toBeLessThanOrEqual(1);
     expect(SURVIVAL.turretSafeDistance).toBeGreaterThan(0);
     expect(SURVIVAL.turretSeparation).toBeGreaterThan(0);
     expect(SURVIVAL.turretObstacleClearance).toBeGreaterThan(0);

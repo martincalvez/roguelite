@@ -309,6 +309,10 @@ export interface SurvivalConfig {
   turretFireRate: number;
   turretProjectileSpeed: number;
   turretDamage: number;
+  /** Taille visuelle d'une tourelle, indépendante de sa zone de danger. */
+  turretVisualSize: number;
+  /** Réduction visuelle brève au départ du tir. */
+  turretRecoilScale: number;
   turretSafeDistance: number;
   turretSeparation: number;
   turretObstacleClearance: number;

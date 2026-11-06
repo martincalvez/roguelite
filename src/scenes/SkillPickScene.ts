@@ -95,7 +95,7 @@ export class SkillPickScene extends Phaser.Scene {
         })
         .setOrigin(0.5);
 
-      this.drawSkillIcon(x, CARD_TOP + 224, skill.effect.kind, color);
+      this.drawSkillIcon(x, CARD_TOP + 224, skill, color);
       this.add.rectangle(x, CARD_TOP + 323, CARD_WIDTH - 26, 3, 0xcda56e, 0.8);
       this.add
         .text(x, CARD_TOP + 408, skill.description, {
@@ -141,67 +141,102 @@ export class SkillPickScene extends Phaser.Scene {
     });
   }
 
-  /** Icônes vectorielles lisibles en petit format, sans emoji ni dépendance d'asset. */
-  private drawSkillIcon(x: number, y: number, kind: SkillEffect['kind'], color: number): void {
+  /** Icônes vectorielles : chaque pouvoir se reconnaît avant même de lire son nom. */
+  private drawSkillIcon(x: number, y: number, skill: SkillDef, color: number): void {
     const plate = this.add.circle(x, y, 70, color, 0.2).setStrokeStyle(5, color);
     this.add.circle(x, y, 58, 0xfff7e5).setStrokeStyle(5, 0x5b391c);
     const icon = this.add.graphics().setDepth(plate.depth + 1);
-    icon.lineStyle(12, 0x3a2a26, 1);
-    icon.fillStyle(kind === 'heal' ? 0xff4f62 : kind === 'burn' ? 0xff8b20 : kind === 'freeze' ? 0x25bde1 : color, 1);
+    const drawArrow = (angle: number, headColor = color, shaftColor = 0x35475b, length = 47): void => {
+      const tailX = x - Math.cos(angle) * 29;
+      const tailY = y - Math.sin(angle) * 29;
+      const tipX = x + Math.cos(angle) * length;
+      const tipY = y + Math.sin(angle) * length;
+      icon.lineStyle(10, 0x233147, 1).lineBetween(tailX, tailY, tipX, tipY);
+      icon.lineStyle(5, shaftColor, 1).lineBetween(tailX, tailY, tipX, tipY);
+      icon.fillStyle(headColor, 1).fillTriangle(
+        tipX,
+        tipY,
+        tipX + Math.cos(angle + 2.5) * 18,
+        tipY + Math.sin(angle + 2.5) * 18,
+        tipX + Math.cos(angle - 2.5) * 18,
+        tipY + Math.sin(angle - 2.5) * 18,
+      );
+    };
+    const drawTarget = (targetX: number, targetY: number, radius = 12, targetColor = 0xff5d62): void => {
+      icon.fillStyle(targetColor, 1).fillCircle(targetX, targetY, radius);
+      icon.lineStyle(4, 0x3a2a26, 1).strokeCircle(targetX, targetY, radius);
+      icon.fillStyle(0xffffff, 0.75).fillCircle(targetX - radius * 0.25, targetY - radius * 0.28, radius * 0.22);
+    };
 
-    if (kind === 'heal') {
-      icon.fillStyle(0xf34259, 1);
-      icon.fillRoundedRect(x - 12, y - 37, 24, 74, 8);
-      icon.fillRoundedRect(x - 37, y - 12, 74, 24, 8);
-    } else if (kind === 'burn') {
-      icon.fillPoints([new Phaser.Geom.Point(x, y - 42), new Phaser.Geom.Point(x + 32, y + 24), new Phaser.Geom.Point(x, y + 40), new Phaser.Geom.Point(x - 30, y + 22)], true);
-      icon.fillStyle(0xffdc4f, 1);
-      icon.fillPoints([new Phaser.Geom.Point(x + 2, y - 8), new Phaser.Geom.Point(x + 15, y + 19), new Phaser.Geom.Point(x, y + 29), new Phaser.Geom.Point(x - 12, y + 16)], true);
-    } else if (kind === 'freeze') {
-      icon.lineStyle(9, 0x168ec6, 1);
-      for (let angle = 0; angle < Math.PI; angle += Math.PI / 3) {
-        const dx = Math.cos(angle) * 38;
-        const dy = Math.sin(angle) * 38;
-        icon.lineBetween(x - dx, y - dy, x + dx, y + dy);
-      }
-    } else if (kind === 'orb') {
-      icon.lineStyle(8, color, 1);
-      icon.strokeCircle(x, y, 34);
-      icon.fillStyle(color, 1);
-      icon.fillCircle(x + 31, y - 16, 12);
-      icon.fillCircle(x - 28, y + 22, 9);
-      icon.fillCircle(x, y, 14);
-    } else if (kind === 'ricochet') {
-      icon.lineStyle(9, 0x59318f, 1);
-      icon.lineBetween(x - 34, y + 24, x - 5, y - 20);
-      icon.lineBetween(x - 5, y - 20, x + 33, y + 18);
-      icon.fillStyle(0xb754ec, 1);
-      icon.fillCircle(x - 34, y + 24, 11);
-      icon.fillCircle(x - 5, y - 20, 11);
-      icon.fillCircle(x + 33, y + 18, 11);
-    } else {
-      // Flèches, projectile perçant et force : une pointe et un fût épais.
-      const arrowCount = kind === 'multishot' ? 3 : kind === 'diagonal' ? 3 : kind === 'rear' ? 2 : 1;
-      const directions = arrowCount === 3 ? [-0.65, 0, 0.65] : kind === 'rear' ? [-Math.PI / 2, Math.PI / 2] : [0];
-      directions.forEach((angle) => {
-        const rotation = kind === 'rear' ? angle : angle - Math.PI / 2;
-        const tipX = x + Math.cos(rotation) * 42;
-        const tipY = y + Math.sin(rotation) * 42;
-        const tailX = x - Math.cos(rotation) * 30;
-        const tailY = y - Math.sin(rotation) * 30;
-        icon.lineStyle(kind === 'pierce' ? 12 : 9, kind === 'stat' ? 0xd49019 : 0x314459, 1);
-        icon.lineBetween(tailX, tailY, tipX, tipY);
-        const side = 17;
-        icon.fillStyle(kind === 'pierce' ? 0x6fd8ff : color, 1);
-        icon.fillTriangle(
-          tipX,
-          tipY,
-          tipX + Math.cos(rotation + 2.55) * side,
-          tipY + Math.sin(rotation + 2.55) * side,
-          tipX + Math.cos(rotation - 2.55) * side,
-          tipY + Math.sin(rotation - 2.55) * side,
-        );
-      });
+    switch (skill.id) {
+      case 'tir_multiple':
+        // Trois flèches partent clairement vers l'avant, plutôt qu'une forme abstraite.
+        drawArrow(-2.05, 0x5ccc43, 0x3f5672, 40);
+        drawArrow(-Math.PI / 2, 0x5ccc43, 0x3f5672, 48);
+        drawArrow(-1.09, 0x5ccc43, 0x3f5672, 40);
+        break;
+      case 'tir_diagonal':
+        drawArrow(-2.18, 0x5ccc43, 0x3f5672, 43);
+        drawArrow(-0.96, 0x5ccc43, 0x3f5672, 43);
+        break;
+      case 'tir_arriere':
+        // Le petit bouclier indique l'avant du héros ; la flèche part derrière, vers le bas.
+        icon.fillStyle(0x45a9d8, 1).fillCircle(x, y - 8, 16);
+        icon.lineStyle(4, 0x263653, 1).strokeCircle(x, y - 8, 16);
+        drawArrow(Math.PI / 2, 0x65c84c, 0x3f5672, 44);
+        break;
+      case 'ricochet':
+        drawTarget(x - 34, y + 24, 10, 0xaa55e8);
+        drawTarget(x - 3, y - 20, 10, 0xaa55e8);
+        drawTarget(x + 34, y + 20, 10, 0xaa55e8);
+        icon.lineStyle(5, 0x4a3872, 1).lineBetween(x - 25, y + 16, x - 9, y - 12).lineBetween(x + 3, y - 12, x + 25, y + 13);
+        drawArrow(-0.84, 0xd678ff, 0x6b4691, 37);
+        break;
+      case 'percant':
+        drawTarget(x, y - 27, 10, 0x83dfff);
+        drawTarget(x, y, 10, 0x83dfff);
+        drawTarget(x, y + 27, 10, 0x83dfff);
+        drawArrow(-Math.PI / 2, 0x4ecfff, 0x37516a, 48);
+        break;
+      case 'frenesie':
+        icon.fillStyle(0xffd34c, 1).fillTriangle(x - 6, y - 47, x + 29, y - 7, x + 6, y - 7);
+        icon.fillTriangle(x + 6, y - 7, x - 21, y + 43, x - 5, y + 8);
+        icon.lineStyle(6, 0x7b3f12, 1).lineBetween(x - 42, y - 23, x - 21, y - 23).lineBetween(x - 42, y - 2, x - 27, y - 2).lineBetween(x - 42, y + 20, x - 32, y + 20);
+        break;
+      case 'force':
+        icon.lineStyle(12, 0x26344a, 1).lineBetween(x - 24, y + 32, x + 22, y - 30);
+        icon.lineStyle(6, 0xeaf7ff, 1).lineBetween(x - 24, y + 32, x + 22, y - 30);
+        icon.fillStyle(0xffc73e, 1).fillTriangle(x + 22, y - 45, x + 37, y - 19, x + 8, y - 20);
+        icon.lineStyle(8, 0xd07b2c, 1).lineBetween(x - 39, y + 15, x - 7, y + 39);
+        break;
+      case 'vitalite':
+      case 'soin':
+        icon.fillStyle(0xf24f65, 1).fillCircle(x - 17, y - 10, 18).fillCircle(x + 17, y - 10, 18).fillTriangle(x - 35, y - 2, x + 35, y - 2, x, y + 43);
+        icon.lineStyle(5, 0x71304a, 1).strokeCircle(x - 17, y - 10, 18).strokeCircle(x + 17, y - 10, 18).strokeTriangle(x - 35, y - 2, x + 35, y - 2, x, y + 43);
+        if (skill.id === 'soin') {
+          icon.fillStyle(0xffffff, 1).fillRoundedRect(x - 7, y - 28, 14, 37, 5).fillRoundedRect(x - 18, y - 17, 36, 14, 5);
+        }
+        break;
+      case 'flamme':
+        drawArrow(-Math.PI / 2, 0xffb12e, 0x603821, 39);
+        icon.fillStyle(0xff672f, 1).fillTriangle(x - 25, y + 31, x - 4, y - 47, x + 18, y + 28);
+        icon.fillStyle(0xffdd4a, 1).fillTriangle(x - 13, y + 25, x - 2, y - 24, x + 9, y + 24);
+        break;
+      case 'givre':
+        drawArrow(-Math.PI / 2, 0x5ae9ff, 0x315a7a, 41);
+        icon.lineStyle(5, 0x218ec7, 1);
+        for (let angle = 0; angle < Math.PI; angle += Math.PI / 3) {
+          const dx = Math.cos(angle) * 19;
+          const dy = Math.sin(angle) * 19;
+          icon.lineBetween(x + 22 - dx, y + 20 - dy, x + 22 + dx, y + 20 + dy);
+        }
+        break;
+      case 'orbe':
+        icon.lineStyle(8, color, 1).strokeCircle(x, y, 34);
+        icon.fillStyle(color, 1).fillCircle(x + 31, y - 16, 12).fillCircle(x - 28, y + 22, 9).fillCircle(x, y, 14);
+        break;
+      default:
+        drawArrow(-Math.PI / 2);
     }
   }
 }
