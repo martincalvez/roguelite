@@ -249,5 +249,14 @@ describe('cohérence des valeurs', () => {
     for (const r of RARITY_ORDER) expect(UPGRADE.maxLevelByRarity[r]).toBeGreaterThan(1);
     expect(COMBAT.roomDamageShare).toBeGreaterThanOrEqual(0);
     expect(COMBAT.roomDamageShare).toBeLessThanOrEqual(1);
+    expect(SURVIVAL.turretEveryRooms).toBeGreaterThan(0);
+    expect(SURVIVAL.turretOffset).toBeGreaterThanOrEqual(1);
+    expect(SURVIVAL.turretCount).toBeGreaterThan(0);
+    expect(SURVIVAL.turretFireRate).toBeGreaterThan(0);
+    expect(SURVIVAL.turretProjectileSpeed).toBeGreaterThan(0);
+    expect(SURVIVAL.turretDamage).toBeGreaterThan(0);
+    expect(SURVIVAL.turretSafeDistance).toBeGreaterThan(0);
+    expect(SURVIVAL.turretSeparation).toBeGreaterThan(0);
+    expect(SURVIVAL.turretObstacleClearance).toBeGreaterThan(0);
   });
 });

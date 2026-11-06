@@ -29,9 +29,19 @@ export function survivalRoom(wave: number): RoomDef {
 
 /** Le feu rend certains combats plus mobiles ; les boss et haltes restent sans piège. */
 export function hasSurvivalFire(wave: number): boolean {
+  if (isSurvivalRestRoom(wave)) return false;
+  return wave % SURVIVAL.fireEveryRooms === 0;
+}
+
+/** Les tourelles sont des pièges à trajectoire : les murs peuvent absorber leurs tirs. */
+export function hasSurvivalTurrets(wave: number): boolean {
+  if (isSurvivalRestRoom(wave)) return false;
+  return wave >= SURVIVAL.turretOffset
+    && (wave - SURVIVAL.turretOffset) % SURVIVAL.turretEveryRooms === 0;
+}
+
+function isSurvivalRestRoom(wave: number): boolean {
   const bossRoom = SURVIVAL.bosses.some((boss) => boss.room === wave);
   const angelRoom = wave % SURVIVAL.angelEvery === SURVIVAL.angelOffset;
-  return wave % SURVIVAL.fireEveryRooms === 0
-    && !bossRoom
-    && !angelRoom;
+  return bossRoom || angelRoom;
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getEnemy, SURVIVAL } from '../data';
-import { hasSurvivalFire, survivalRoom } from './survival';
+import { hasSurvivalFire, hasSurvivalTurrets, survivalRoom } from './survival';
 
 describe('mode Survie', () => {
   it('fournit 50 étapes avec une halte à 5 et un boss à chaque dizaine', () => {
@@ -25,5 +25,12 @@ describe('mode Survie', () => {
     expect(hasSurvivalFire(4)).toBe(true);
     expect(hasSurvivalFire(5)).toBe(false);
     expect(hasSurvivalFire(10)).toBe(false);
+  });
+
+  it('ajoute des tourelles à cadence régulière, jamais dans une halte ou face à un boss', () => {
+    expect(hasSurvivalTurrets(2)).toBe(true);
+    expect(hasSurvivalTurrets(7)).toBe(true);
+    expect(hasSurvivalTurrets(5)).toBe(false);
+    expect(hasSurvivalTurrets(10)).toBe(false);
   });
 });

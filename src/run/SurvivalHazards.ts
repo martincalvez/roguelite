@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 import { ARENA } from '../config';
 import { SURVIVAL } from '../data';
+import { EnemyProjectile } from '../entities/EnemyProjectile';
 import type { ArenaPoint } from '../systems/arenaLayout';
-import { hasSurvivalFire } from '../systems/survival';
+import { hasSurvivalFire, hasSurvivalTurrets } from '../systems/survival';
 import type { RunContext } from './RunContext';
 
 interface FireZone {
@@ -12,9 +13,19 @@ interface FireZone {
   visual: Phaser.GameObjects.Container;
 }
 
+interface TurretZone {
+  x: number;
+  y: number;
+  nextFireAt: number;
+  recoilUntil: number;
+  visual: Phaser.GameObjects.Container;
+  cannon: Phaser.GameObjects.Image;
+}
+
 /** Petites flaques de feu télégraphiées dans certaines salles du mode Survie. */
 export class SurvivalHazards {
   private zones: FireZone[] = [];
+  private turrets: TurretZone[] = [];
 
   constructor(private readonly ctx: RunContext) {
     ctx.scene.events.on('room-changed', this.onRoomChanged, this);
@@ -34,11 +45,16 @@ export class SurvivalHazards {
       zone.nextDamageAt = time + SURVIVAL.fireTickMs;
       player.takeDamage(SURVIVAL.fireDamage, time);
     }
+    this.updateTurrets(time);
   }
 
   private onRoomChanged(room: number): void {
     this.clear();
-    if (!hasSurvivalFire(room)) return;
+    if (hasSurvivalFire(room)) this.addFireZones();
+    if (hasSurvivalTurrets(room)) this.addTurrets();
+  }
+
+  private addFireZones(): void {
     const layout = this.ctx.arena;
     const candidates: ArenaPoint[] = [];
     for (let row = 1; row < layout.rows - 2; row++) {
@@ -63,6 +79,31 @@ export class SurvivalHazards {
     for (const point of chosen) this.addZone(point);
   }
 
+  private addTurrets(): void {
+    const layout = this.ctx.arena;
+    const candidates: ArenaPoint[] = [];
+    for (let row = 1; row < layout.rows - 2; row++) {
+      for (let col = 1; col < layout.cols - 1; col++) {
+        const index = row * layout.cols + col;
+        if (layout.blocked[index]) continue;
+        const point = { x: (col + 0.5) * layout.cell, y: (row + 0.5) * layout.cell };
+        if (Phaser.Math.Distance.Between(point.x, point.y, layout.spawn.x, layout.spawn.y) < SURVIVAL.turretSafeDistance) continue;
+        if (layout.obstacles.some((obstacle) => distanceToRect(point, obstacle) < SURVIVAL.turretObstacleClearance)) continue;
+        if (this.zones.some((zone) => Phaser.Math.Distance.Between(ARENA.x + point.x, ARENA.y + point.y, zone.x, zone.y) < SURVIVAL.turretSeparation)) continue;
+        candidates.push(point);
+      }
+    }
+    Phaser.Utils.Array.Shuffle(candidates);
+    const chosen: ArenaPoint[] = [];
+    for (const point of candidates) {
+      if (chosen.every((other) => Phaser.Math.Distance.Between(point.x, point.y, other.x, other.y) >= SURVIVAL.turretSeparation)) {
+        chosen.push(point);
+      }
+      if (chosen.length >= SURVIVAL.turretCount) break;
+    }
+    for (const point of chosen) this.addTurret(point);
+  }
+
   private addZone(point: ArenaPoint): void {
     const x = ARENA.x + point.x;
     const y = ARENA.y + point.y;
@@ -85,9 +126,51 @@ export class SurvivalHazards {
     this.zones.push({ x, y, nextDamageAt: 0, visual });
   }
 
+  /** Tourelle statique : son tir peut être bloqué par les mêmes murs que ceux du héros. */
+  private addTurret(point: ArenaPoint): void {
+    const x = ARENA.x + point.x;
+    const y = ARENA.y + point.y;
+    const visual = this.ctx.scene.add.container(x, y).setDepth(5);
+    const warning = this.ctx.scene.add.graphics();
+    warning.fillStyle(0xff5048, 0.16).fillCircle(0, 0, 54);
+    warning.lineStyle(3, 0xffd04e, 0.9).strokeCircle(0, 0, 42);
+    const base = this.ctx.scene.add.ellipse(0, 15, 76, 28, 0x351f4c, 0.56);
+    const cannon = this.ctx.scene.add.image(0, 0, 'enemy-art-turret').setDisplaySize(82, 82).setOrigin(0.5, 0.58);
+    visual.add([warning, base, cannon]);
+    this.ctx.scene.tweens.add({ targets: warning, scale: 1.16, alpha: 0.32, duration: 620, yoyo: true, repeat: -1 });
+    this.turrets.push({
+      x,
+      y,
+      nextFireAt: this.ctx.scene.time.now + 1000 / SURVIVAL.turretFireRate,
+      recoilUntil: 0,
+      visual,
+      cannon,
+    });
+  }
+
+  private updateTurrets(time: number): void {
+    const { player, enemyProjectiles } = this.ctx;
+    for (const turret of this.turrets) {
+      const angle = Phaser.Math.Angle.Between(turret.x, turret.y, player.x, player.y);
+      turret.cannon.setRotation(angle);
+      if (time < turret.recoilUntil) {
+        turret.cannon.setScale(0.9).setTint(0xffe378);
+      } else {
+        turret.cannon.setScale(1).clearTint();
+      }
+      if (time < turret.nextFireAt) continue;
+      turret.nextFireAt = time + 1000 / SURVIVAL.turretFireRate;
+      turret.recoilUntil = time + 120;
+      const projectile = enemyProjectiles.get(turret.x, turret.y) as EnemyProjectile | null;
+      projectile?.fire(turret.x, turret.y, angle, SURVIVAL.turretProjectileSpeed, SURVIVAL.turretDamage);
+    }
+  }
+
   private clear(): void {
     for (const zone of this.zones) zone.visual.destroy();
     this.zones = [];
+    for (const turret of this.turrets) turret.visual.destroy();
+    this.turrets = [];
   }
 }
 

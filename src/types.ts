@@ -268,6 +268,15 @@ export interface SurvivalConfig {
   fireRadius: number;
   fireDamage: number;
   fireTickMs: number;
+  turretEveryRooms: number;
+  turretOffset: number;
+  turretCount: number;
+  turretFireRate: number;
+  turretProjectileSpeed: number;
+  turretDamage: number;
+  turretSafeDistance: number;
+  turretSeparation: number;
+  turretObstacleClearance: number;
   enemyPools: { fromRoom: number; enemies: string[] }[];
   bosses: { room: number; enemyId: string }[];
   encounterProfiles: string[];
