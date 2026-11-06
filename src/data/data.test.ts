@@ -158,6 +158,7 @@ describe('cohérence des valeurs', () => {
   });
 
   it('ennemis : PV, vitesse et rayon positifs ; tireurs avec distance ; boss avec configuration', () => {
+    const bossPatterns = ['charge', 'radial', 'volley', 'fireRing', 'lobBarrage'];
     for (const e of ENEMIES) {
       expect(e.hp, e.id).toBeGreaterThan(0);
       expect(e.damage, e.id).toBeGreaterThan(0);
@@ -168,7 +169,32 @@ describe('cohérence des valeurs', () => {
         expect(e.fireRate, e.id).toBeGreaterThan(0);
         expect(e.projectileSpeed, e.id).toBeGreaterThan(0);
       }
-      if (e.behavior === 'boss') expect(e.boss, e.id).toBeDefined();
+      if (e.behavior === 'boss') {
+        expect(e.boss, e.id).toBeDefined();
+        const boss = e.boss!;
+        expect(boss.patternCycle.length, e.id).toBeGreaterThan(0);
+        for (const pattern of boss.patternCycle) expect(bossPatterns, e.id).toContain(pattern);
+        if (boss.patternCycle.includes('charge')) {
+          expect(boss.chargeSpeed, e.id).toBeGreaterThan(0);
+          expect(boss.chargeMs, e.id).toBeGreaterThan(0);
+        }
+        if (boss.patternCycle.includes('radial')) expect(e.projectileCount, e.id).toBeGreaterThan(0);
+        if (boss.patternCycle.includes('volley')) {
+          expect(boss.volleyCount, e.id).toBeGreaterThan(0);
+          expect(boss.volleyIntervalMs, e.id).toBeGreaterThan(0);
+        }
+        if (boss.patternCycle.includes('fireRing')) {
+          expect(e.explosionRadius, e.id).toBeGreaterThan(0);
+          expect(boss.fireballCount, e.id).toBeGreaterThan(0);
+        }
+        if (boss.patternCycle.includes('lobBarrage')) {
+          expect(e.explosionRadius, e.id).toBeGreaterThan(0);
+          expect(e.lobDurationMs, e.id).toBeGreaterThan(0);
+          expect(boss.lobCount, e.id).toBeGreaterThan(0);
+          expect(boss.lobSpreadAngle, e.id).toBeGreaterThan(0);
+          expect(boss.lobTargetSpread, e.id).toBeGreaterThan(0);
+        }
+      }
     }
   });
 

@@ -88,15 +88,21 @@ export interface SkillDef {
 }
 
 export type EnemyBehavior = 'melee' | 'shooter' | 'spreader' | 'fireball' | 'lobber' | 'boss';
+export type BossAttackPattern = 'charge' | 'radial' | 'volley' | 'fireRing' | 'lobBarrage';
 
-/** Réglages d'un boss : il alterne ruée, cercle de projectiles et salve visée. */
+/** Réglages d'un boss : sa boucle d'attaques est entièrement décrite dans les données. */
 export interface BossConfig {
+  patternCycle: BossAttackPattern[];
   cycleMs: number; // délai entre deux attaques
   warnMs: number; // avertissement visuel avant chaque attaque
   chargeSpeed: number; // px/s pendant la ruée
   chargeMs: number; // durée de la ruée
   volleyCount: number; // tirs de la salve visée
   volleyIntervalMs: number; // délai entre deux tirs de la salve
+  fireballCount: number; // projectiles d'un anneau explosif
+  lobCount: number; // impacts d'une salve en cloche
+  lobSpreadAngle: number; // ouverture angulaire de cette salve
+  lobTargetSpread: number; // dispersion autour de la position visée
 }
 
 export interface EnemyDef {

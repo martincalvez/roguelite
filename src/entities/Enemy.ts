@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { COMBAT } from '../data';
-import type { EnemyDef } from '../types';
+import { bossPatternAt, ringAngles, spreadAngles } from '../systems/bossPatterns';
+import type { BossAttackPattern, EnemyDef } from '../types';
 
 /** Un tireur recule s'il est plus près que cette fraction de sa distance de garde. */
 const TOO_CLOSE_RATIO = 0.8;
@@ -43,8 +44,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private nextBurnTick = 0;
   private freezeUntil = 0;
   private freezeSlow = 0;
-  // Boss : attaque en préparation (-1 aucune), prochaine attaque, ruée, salve en cours.
-  private pattern = -1;
+  // Boss : attaque en préparation, prochaine attaque, ruée, salve en cours.
+  private pattern?: BossAttackPattern;
   private patternIndex = 0;
   private warnUntil = 0;
   private nextPatternAt = 0;
@@ -89,7 +90,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.freezeUntil = 0;
     this.tintState = 0;
     this.nextOrbHitAt = 0;
-    this.pattern = -1;
+    this.pattern = undefined;
     this.patternIndex = 0;
     this.warnUntil = 0;
     this.chargeUntil = 0;
@@ -114,7 +115,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setFlipX(Math.cos(targetVisible ? angle : moveAngle) < -0.12);
 
     if (def.behavior === 'boss') {
-      this.updateBoss(time, angle, speed, moveAngle);
+      this.updateBoss(time, angle, speed, moveAngle, targetX, targetY);
     } else if (def.behavior === 'shooter' || def.behavior === 'spreader' || def.behavior === 'fireball' || def.behavior === 'lobber') {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
       const keep = def.keepDistance ?? 0;
@@ -151,10 +152,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Boss : poursuit le joueur, puis toutes les cycleMs prépare une attaque (clignotement pendant
-   * warnMs, pour qu'on puisse l'esquiver) et enchaîne ruée → cercle → salve visée.
+   * Boss : poursuit le joueur, puis prépare l'attaque suivante de sa boucle (clignotement pendant
+   * warnMs, pour qu'on puisse l'esquiver) avant de la déclencher.
    */
-  private updateBoss(time: number, angleToTarget: number, speed: number, angleToRoute: number): void {
+  private updateBoss(
+    time: number,
+    angleToTarget: number,
+    speed: number,
+    angleToRoute: number,
+    targetX: number,
+    targetY: number,
+  ): void {
     const cfg = this.def.boss!;
     if (time < this.chargeUntil) return; // en pleine ruée : la vitesse est déjà réglée
 
@@ -168,17 +176,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    if (this.pattern !== -1) {
+    if (this.pattern !== undefined) {
       this.setVelocity(0, 0);
       if (time < this.warnUntil) return; // avertissement en cours
-      this.executePattern(time, angleToTarget);
-      this.pattern = -1;
+      this.executePattern(time, angleToTarget, targetX, targetY);
+      this.pattern = undefined;
       this.nextPatternAt = time + cfg.cycleMs;
       return;
     }
 
     if (time >= this.nextPatternAt) {
-      this.pattern = this.patternIndex++ % 3;
+      this.pattern = bossPatternAt(cfg.patternCycle, this.patternIndex++);
       this.warnUntil = time + cfg.warnMs;
       this.setVelocity(0, 0);
       return;
@@ -186,20 +194,46 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.moveAlong(angleToRoute, speed);
   }
 
-  private executePattern(time: number, angleToTarget: number): void {
+  private executePattern(time: number, angleToTarget: number, targetX: number, targetY: number): void {
     const cfg = this.def.boss!;
-    if (this.pattern === 0) {
+    if (this.pattern === 'charge') {
       this.moveAlong(angleToTarget, cfg.chargeSpeed); // ruée vers la position du joueur
       this.chargeUntil = time + cfg.chargeMs;
-    } else if (this.pattern === 1) {
-      const count = this.def.projectileCount ?? 1;
-      for (let i = 0; i < count; i++) {
-        const a = (i / count) * Math.PI * 2;
-        this.scene.events.emit('enemy-shoot', this.x, this.y, a, this.def.projectileSpeed ?? 0, this.damage);
+      return;
+    }
+    if (this.pattern === 'radial') {
+      for (const angle of ringAngles(this.def.projectileCount ?? 0)) {
+        this.scene.events.emit('enemy-shoot', this.x, this.y, angle, this.def.projectileSpeed ?? 0, this.damage);
       }
-    } else {
+      return;
+    }
+    if (this.pattern === 'volley') {
       this.volleyLeft = cfg.volleyCount;
       this.nextVolleyAt = time;
+      return;
+    }
+    if (this.pattern === 'fireRing') {
+      const radius = this.def.explosionRadius;
+      if (radius === undefined) return;
+      for (const angle of ringAngles(cfg.fireballCount)) {
+        this.scene.events.emit('enemy-fireball', this.x, this.y, angle, this.def.projectileSpeed ?? 0, this.damage, radius);
+      }
+      return;
+    }
+    const radius = this.def.explosionRadius;
+    const duration = this.def.lobDurationMs;
+    if (radius === undefined || duration === undefined) return;
+    for (const angle of spreadAngles(angleToTarget, cfg.lobCount, cfg.lobSpreadAngle)) {
+      this.scene.events.emit(
+        'enemy-lob',
+        this.x,
+        this.y,
+        targetX + Math.cos(angle) * cfg.lobTargetSpread,
+        targetY + Math.sin(angle) * cfg.lobTargetSpread,
+        this.damage,
+        radius,
+        duration,
+      );
     }
   }
 
