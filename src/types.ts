@@ -168,20 +168,23 @@ export interface RoomDef {
   encounter?: string;
 }
 
+/** Palette complète d'une arène, pensée pour rester très lisible sur un petit écran. */
+export interface ArenaVisual {
+  wallColor: string;
+  wallEdgeColor: string;
+  floorTint: string; // teinte appliquée à la tuile d'herbe (blanc = texture d'origine)
+  accentColor: string;
+  stoneColor: string; // tuiles de pierre claire, en plaques sur le sol
+  stoneEdgeColor: string;
+  waterColor: string; // canaux d'eau (décoratifs pour l'instant)
+}
+
 export interface ChapterDef {
   id: string;
   name: string;
   /** multiplicateur de PV/dégâts des ennemis */
   difficulty: number;
-  visual: {
-    wallColor: string;
-    wallEdgeColor: string;
-    floorTint: string; // teinte appliquée à la tuile d'herbe (blanc = texture d'origine)
-    accentColor: string;
-    stoneColor: string; // tuiles de pierre claire, en plaques sur le sol
-    stoneEdgeColor: string;
-    waterColor: string; // canaux d'eau (décoratifs pour l'instant)
-  };
+  visual: ArenaVisual;
   rooms: RoomDef[];
 }
 
@@ -329,8 +332,19 @@ export interface ArenaTemplateRect {
 export interface ArenaTemplateDef {
   id: string;
   weight: number;
+  /** Ambiance visuelle de cette salle, indépendante de son plan et de ses collisions. */
+  themeId: string;
   tiles: Array<ArenaTemplateRect & { kind: Exclude<ArenaTileKind, 'grass'> }>;
   blocks: ArenaTemplateRect[];
+}
+
+/** Petits motifs décoratifs qui distinguent immédiatement deux salles sans gêner le combat. */
+export type ArenaThemeFeature = 'meadow' | 'lagoon' | 'embers' | 'crystals';
+
+/** Une ambiance de salle complète : palette, sol et motifs de lecture rapide. */
+export interface ArenaThemeDef extends ArenaVisual {
+  id: string;
+  feature: ArenaThemeFeature;
 }
 
 /** Décor de l'arène (tuiles, plaques et blocs de pierre) : rendu, pas d'équilibrage. */

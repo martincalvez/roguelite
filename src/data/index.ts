@@ -1,5 +1,5 @@
 // Point d'entrée unique des données : le code n'importe jamais un JSON directement.
-import type { ArenaDecorConfig, ArenaTemplateDef, ChapterDef, ChestDef, CombatConfig, EncounterConfig, LootConfig, ProgressionConfig, SurvivalConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, LuckyWheelConfig, PassiveDef, SkillDef, TalentDef } from '../types';
+import type { ArenaDecorConfig, ArenaTemplateDef, ArenaThemeDef, ChapterDef, ChestDef, CombatConfig, EncounterConfig, LootConfig, ProgressionConfig, SurvivalConfig, UpgradeConfig, EnemyDef, HeroDef, ItemDef, LuckyWheelConfig, PassiveDef, SkillDef, TalentDef } from '../types';
 import itemsJson from './items.json';
 import skillsJson from './skills.json';
 import enemiesJson from './enemies.json';
@@ -14,6 +14,7 @@ import upgradeJson from './upgrade.json';
 import chestsJson from './chests.json';
 import arenaJson from './arena.json';
 import arenaTemplatesJson from './arenaTemplates.json';
+import arenaThemesJson from './arenaThemes.json';
 import survivalJson from './survival.json';
 import luckyWheelJson from './luckyWheel.json';
 import encountersJson from './encounters.json';
@@ -32,6 +33,7 @@ export const UPGRADE = upgradeJson as UpgradeConfig;
 export const CHESTS = chestsJson as ChestDef[];
 export const ARENA_DECOR = arenaJson as ArenaDecorConfig;
 export const ARENA_TEMPLATES = arenaTemplatesJson as ArenaTemplateDef[];
+export const ARENA_THEMES = arenaThemesJson as ArenaThemeDef[];
 export const SURVIVAL = survivalJson as SurvivalConfig;
 export const LUCKY_WHEEL = luckyWheelJson as LuckyWheelConfig;
 export const ENCOUNTERS = encountersJson as EncounterConfig;
@@ -53,3 +55,4 @@ export const getHero = byId(HEROES, 'Héros');
 export const getPassive = byId(PASSIVES, 'Passif');
 export const getTalent = byId(TALENTS, 'Talent');
 export const getChest = byId(CHESTS, 'Coffre');
+export const getArenaTheme = byId(ARENA_THEMES, 'Ambiance d’arène');

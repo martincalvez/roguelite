@@ -108,6 +108,16 @@ describe('disposition du décor', () => {
     expect(layout.templateId).not.toBe(ARENA_TEMPLATES[0].id);
   });
 
+  it('évite aussi de répéter immédiatement la même ambiance si une autre existe', () => {
+    const excludedThemeId = ARENA_TEMPLATES[0].themeId;
+    const layout = buildArenaLayout(ARENA_DECOR, WIDTH, HEIGHT, SPAWN, {
+      rng: seededRng(1),
+      templates: ARENA_TEMPLATES,
+      excludedThemeId,
+    });
+    expect(layout.themeId).not.toBe(excludedThemeId);
+  });
+
   it('privilégie une direction d’apparition quand le plan le permet', () => {
     const empty = buildArenaLayout({ ...ARENA_DECOR, obstacleCoverage: 0 }, WIDTH, HEIGHT, SPAWN, seededRng(7));
     const ahead = pickEnemySpawn(empty, { rng: seededRng(3), minDistance: ARENA_DECOR.enemySpawnMinDistance, spawnPattern: 'ahead' });

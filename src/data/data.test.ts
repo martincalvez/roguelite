@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ARENA, RARITY_ORDER } from '../config';
-import { ARENA_DECOR, ARENA_TEMPLATES, CHAPTERS, CHESTS, COMBAT, ENCOUNTERS, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, SURVIVAL, TALENTS, UPGRADE } from './index';
+import { ARENA_DECOR, ARENA_TEMPLATES, ARENA_THEMES, CHAPTERS, CHESTS, COMBAT, ENCOUNTERS, ENEMIES, HEROES, ITEMS, LOOT, PASSIVES, PROGRESSION, SKILLS, SURVIVAL, TALENTS, UPGRADE } from './index';
 
 const ids = <T extends { id: string }>(list: T[]) => list.map((x) => x.id);
 
@@ -15,6 +15,7 @@ describe('identifiants', () => {
     ['talents', TALENTS],
     ['coffres', CHESTS],
     ['plans de salle', ARENA_TEMPLATES],
+    ['ambiances de salle', ARENA_THEMES],
   ])('%s : pas d\'identifiant en double', (_name, list) => {
     const all = ids(list as { id: string }[]);
     expect(new Set(all).size).toBe(all.length);
@@ -129,8 +130,10 @@ describe('cohérence des valeurs', () => {
     const rows = Math.ceil(ARENA.height / ARENA_DECOR.cell);
     expect(ARENA_TEMPLATES.length).toBeGreaterThanOrEqual(8);
     expect(ARENA_TEMPLATES.length).toBeLessThanOrEqual(12);
+    const themeIds = new Set(ids(ARENA_THEMES));
     for (const template of ARENA_TEMPLATES) {
       expect(template.weight, template.id).toBeGreaterThan(0);
+      expect(themeIds.has(template.themeId), `${template.id} → ${template.themeId}`).toBe(true);
       for (const zone of [...template.tiles, ...template.blocks]) {
         expect(zone.col, template.id).toBeGreaterThanOrEqual(0);
         expect(zone.row, template.id).toBeGreaterThanOrEqual(0);
@@ -140,6 +143,16 @@ describe('cohérence des valeurs', () => {
         expect(zone.row + zone.height, template.id).toBeLessThanOrEqual(rows);
       }
       for (const tile of template.tiles) expect(['stone', 'water'], template.id).toContain(tile.kind);
+    }
+  });
+
+  it('ambiances de salle : palettes et motifs sont valides', () => {
+    expect(ARENA_THEMES.length).toBeGreaterThanOrEqual(4);
+    for (const theme of ARENA_THEMES) {
+      expect(['meadow', 'lagoon', 'embers', 'crystals'], theme.id).toContain(theme.feature);
+      for (const color of [theme.wallColor, theme.wallEdgeColor, theme.floorTint, theme.accentColor, theme.stoneColor, theme.stoneEdgeColor, theme.waterColor]) {
+        expect(color, theme.id).toMatch(/^#[0-9a-f]{6}$/i);
+      }
     }
   });
 

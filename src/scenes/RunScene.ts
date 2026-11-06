@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, GAME_HEIGHT, GAME_WIDTH, HUD_HEIGHT, PLAYER_SPAWN, POOLS, SCENES } from '../config';
-import { ARENA_DECOR, ARENA_TEMPLATES, getChapter, LUCKY_WHEEL, SURVIVAL } from '../data';
+import { ARENA_DECOR, ARENA_TEMPLATES, getArenaTheme, getChapter, LUCKY_WHEEL, SURVIVAL } from '../data';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { LobbedProjectile } from '../entities/LobbedProjectile';
@@ -55,6 +55,7 @@ export class RunScene extends Phaser.Scene {
   private enemyRoutes = new WeakMap<Enemy, EnemyRoute>();
   private arena!: ArenaLayout;
   private lastArenaTemplateId?: string;
+  private lastArenaThemeId?: string;
   private blocks!: Phaser.Physics.Arcade.StaticGroup;
   private readonly arenaVisuals: Phaser.GameObjects.GameObject[] = [];
   private readonly lobbedProjectiles: LobbedProjectile[] = [];
@@ -73,6 +74,7 @@ export class RunScene extends Phaser.Scene {
     this.arenaVisuals.length = 0;
     this.lobbedProjectiles.length = 0;
     this.lastArenaTemplateId = undefined;
+    this.lastArenaThemeId = undefined;
     this.arena = this.createArenaLayout();
     this.blocks = this.physics.add.staticGroup();
     this.buildArena(this.arena);
@@ -257,9 +259,11 @@ export class RunScene extends Phaser.Scene {
         rng: Math.random,
         templates: ARENA_TEMPLATES,
         excludedTemplateId: this.lastArenaTemplateId,
+        excludedThemeId: this.lastArenaThemeId,
       },
     );
     this.lastArenaTemplateId = arena.templateId;
+    this.lastArenaThemeId = arena.themeId;
     return arena;
   }
 
@@ -327,8 +331,14 @@ export class RunScene extends Phaser.Scene {
    * puis blocs de pierre solides. Renvoie le groupe statique des blocs.
    */
   private buildArena(layout: ArenaLayout): void {
-    const visual = getChapter(this.chapterId).visual;
+    const theme = layout.themeId ? getArenaTheme(layout.themeId) : undefined;
+    const visual = theme ?? getChapter(this.chapterId).visual;
     const color = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
+    const shade = (source: number, delta: number): number => {
+      const swatch = Phaser.Display.Color.IntegerToColor(source);
+      const clamp = (channel: number) => Phaser.Math.Clamp(channel + delta, 0, 255);
+      return Phaser.Display.Color.GetColor(clamp(swatch.red), clamp(swatch.green), clamp(swatch.blue));
+    };
     const track = <T extends Phaser.GameObjects.GameObject>(object: T): T => {
       this.arenaVisuals.push(object);
       return object;
@@ -373,6 +383,40 @@ export class RunScene extends Phaser.Scene {
       }
     }
 
+    // Le plan reste le même, mais l'ambiance ne l'est pas : chaque thème a sa petite signature
+    // visuelle afin qu'une salle soit reconnaissable au premier coup d'œil sur téléphone.
+    const themeDetail = track(this.add.graphics().setDepth(-16));
+    const feature = theme?.feature ?? 'meadow';
+    for (let row = 0; row < layout.rows; row++) {
+      for (let col = 0; col < layout.cols; col++) {
+        const index = row * layout.cols + col;
+        const kind = layout.tiles[index];
+        const x = ARENA.x + (col + 0.5) * layout.cell;
+        const y = ARENA.y + (row + 0.5) * layout.cell;
+        const marker = row * 17 + col * 23;
+        if (feature === 'meadow' && kind === 'grass' && marker % 7 === 0) {
+          themeDetail.fillStyle(0xfff5c7, 0.86).fillCircle(x - 8, y, 5);
+          themeDetail.fillStyle(grassAccent, 0.92).fillCircle(x - 2, y - 5, 4);
+          themeDetail.fillStyle(0xffffff, 0.9).fillCircle(x + 3, y + 2, 3);
+        }
+        if (feature === 'lagoon' && kind === 'water' && marker % 3 === 0) {
+          themeDetail.fillStyle(0x3fae61, 0.92).fillCircle(x - 7, y + 4, 14);
+          themeDetail.fillStyle(color(visual.accentColor), 0.88).fillCircle(x - 10, y, 4);
+          themeDetail.fillStyle(0xffffff, 0.68).fillCircle(x + 14, y - 13, 3);
+        }
+        if (feature === 'embers' && kind !== 'water' && marker % 5 === 0) {
+          themeDetail.fillStyle(0xff8b36, 0.64).fillCircle(x - 9, y + 8, 6);
+          themeDetail.fillStyle(0xffe25c, 0.82).fillCircle(x - 9, y + 6, 3);
+          themeDetail.fillStyle(color(visual.accentColor), 0.72).fillCircle(x + 12, y - 9, 3);
+        }
+        if (feature === 'crystals' && kind === 'grass' && marker % 6 === 0) {
+          themeDetail.fillStyle(color(visual.accentColor), 0.72).fillTriangle(x, y - 17, x - 8, y + 10, x + 8, y + 10);
+          themeDetail.fillStyle(0xffffff, 0.6).fillTriangle(x, y - 14, x - 3, y + 4, x, y + 6);
+          themeDetail.fillStyle(0x8b67d9, 0.64).fillTriangle(x + 10, y - 4, x + 5, y + 13, x + 15, y + 13);
+        }
+      }
+    }
+
     // Plaques de pierre et canaux d'eau, plats, posés sur l'herbe : ce sont des décors de sol,
     // pas des obstacles (seuls les blocs ci-dessous arrêtent le héros).
     const stone = color(visual.stoneColor);
@@ -400,7 +444,8 @@ export class RunScene extends Phaser.Scene {
       }
     }
 
-    // Rochers bas, colorés et très lisibles : leur volume suit exactement leur collider.
+    // Blocs bas composés de plusieurs pierres : plus organiques que les anciens rectangles plats,
+    // tout en suivant exactement leur collider.
     const blocks = this.blocks;
     const blockArt = track(this.add.graphics().setDepth(-5));
     for (const block of layout.obstacles) {
@@ -408,9 +453,23 @@ export class RunScene extends Phaser.Scene {
       const y = ARENA.y + block.y + block.height / 2;
       blockArt.fillStyle(0x081729, 0.25).fillEllipse(x + 5, y + block.height * 0.34, block.width * 1.04, block.height * 0.58);
       blockArt.fillStyle(color(visual.stoneEdgeColor), 1).fillRoundedRect(x - block.width / 2, y - block.height / 2, block.width, block.height, 16);
-      blockArt.fillStyle(stone, 1).fillRoundedRect(x - block.width / 2 + 6, y - block.height / 2 + 4, block.width - 12, block.height - 10, 13);
-      blockArt.fillStyle(0xffffff, 0.26).fillRoundedRect(x - block.width / 2 + 13, y - block.height / 2 + 10, Math.max(16, block.width * 0.64), 7, 4);
-      blockArt.lineStyle(3, color(visual.accentColor), 0.22).lineBetween(x - block.width * 0.28, y + 2, x + block.width * 0.24, y + 2);
+      const rows = block.height > 50 ? 2 : 1;
+      const cols = block.width > 110 ? 2 : 1;
+      const brickWidth = (block.width - 12) / cols;
+      const brickHeight = (block.height - 10) / rows;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const offset = row % 2 === 0 ? 0 : 4;
+          const brickX = x - block.width / 2 + 6 + col * brickWidth + offset;
+          const brickY = y - block.height / 2 + 4 + row * brickHeight;
+          const brickW = Math.max(12, brickWidth - 5 - offset);
+          const brickH = Math.max(12, brickHeight - 4);
+          blockArt.fillStyle(shade(stone, -18), 1).fillRoundedRect(brickX, brickY + 3, brickW, brickH, 10);
+          blockArt.fillStyle(stone, 1).fillRoundedRect(brickX + 2, brickY, brickW - 3, brickH - 3, 9);
+          blockArt.fillStyle(0xffffff, 0.23).fillRoundedRect(brickX + 8, brickY + 6, Math.max(9, brickW * 0.55), 5, 3);
+        }
+      }
+      blockArt.lineStyle(3, color(visual.accentColor), 0.22).lineBetween(x - block.width * 0.24, y + 2, x + block.width * 0.2, y + 2);
       blocks.add(this.add.rectangle(x, y, block.width, block.height, 0xffffff, 0).setVisible(false));
     }
 

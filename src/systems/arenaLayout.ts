@@ -33,6 +33,8 @@ export interface ArenaLayout {
   spawn: ArenaPoint;
   /** Identifiant du plan de salle retenu, utile pour éviter une répétition immédiate. */
   templateId?: string;
+  /** Ambiance retenue pour la salle, indépendante de sa géométrie. */
+  themeId?: string;
 }
 
 export interface ArenaLayoutBuildOptions {
@@ -40,6 +42,8 @@ export interface ArenaLayoutBuildOptions {
   templates?: readonly ArenaTemplateDef[];
   /** Le plan de la salle précédente, écarté lorsqu'il existe une autre option. */
   excludedTemplateId?: string;
+  /** L'ambiance de la salle précédente, écartée dès qu'une autre option existe. */
+  excludedThemeId?: string;
 }
 
 export interface EnemySpawnOptions {
@@ -84,11 +88,12 @@ export function buildArenaLayout(
     spawn: { x: spawn.x, y: spawn.y },
   };
 
-  const template = selectArenaTemplate(buildOptions.templates ?? [], buildOptions.excludedTemplateId, rng);
+  const template = selectArenaTemplate(buildOptions.templates ?? [], buildOptions.excludedTemplateId, rng, buildOptions.excludedThemeId);
   paintPatches(layout, 'stone', config.stonePatchChance, rng);
   paintPatches(layout, 'water', config.waterPatchChance, rng);
   if (template) {
     layout.templateId = template.id;
+    layout.themeId = template.themeId;
     paintTemplateTiles(layout, template.tiles);
     if (config.obstacleCoverage > 0) placeTemplateObstacles(layout, config, template.blocks);
   } else {
@@ -103,9 +108,12 @@ export function selectArenaTemplate(
   templates: readonly ArenaTemplateDef[],
   excludedTemplateId?: string,
   rng: () => number = Math.random,
+  excludedThemeId?: string,
 ): ArenaTemplateDef | undefined {
-  const alternatives = templates.filter((template) => template.id !== excludedTemplateId);
-  const candidates = alternatives.length > 0 ? alternatives : templates;
+  const withoutPreviousPlan = templates.filter((template) => template.id !== excludedTemplateId);
+  const planCandidates = withoutPreviousPlan.length > 0 ? withoutPreviousPlan : templates;
+  const alternatives = planCandidates.filter((template) => template.themeId !== excludedThemeId);
+  const candidates = alternatives.length > 0 ? alternatives : planCandidates;
   if (candidates.length === 0) return undefined;
   const total = candidates.reduce((sum, template) => sum + template.weight, 0);
   let roll = rng() * total;

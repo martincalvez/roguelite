@@ -1,0 +1,46 @@
+[
+  {
+    "id": "prairie-ambre",
+    "feature": "meadow",
+    "wallColor": "#765033",
+    "wallEdgeColor": "#422917",
+    "accentColor": "#ffd34e",
+    "stoneColor": "#d9c99a",
+    "stoneEdgeColor": "#8f7b55",
+    "waterColor": "#32b7db",
+    "floorTint": "#ffffff"
+  },
+  {
+    "id": "lagune-azur",
+    "feature": "lagoon",
+    "wallColor": "#176c81",
+    "wallEdgeColor": "#07394f",
+    "accentColor": "#ffe15c",
+    "stoneColor": "#bee9e5",
+    "stoneEdgeColor": "#5a9797",
+    "waterColor": "#1dbeec",
+    "floorTint": "#adf5df"
+  },
+  {
+    "id": "braise-solaire",
+    "feature": "embers",
+    "wallColor": "#974321",
+    "wallEdgeColor": "#541f18",
+    "accentColor": "#ffd14c",
+    "stoneColor": "#e6ad72",
+    "stoneEdgeColor": "#9b5638",
+    "waterColor": "#43b5da",
+    "floorTint": "#ffe0a3"
+  },
+  {
+    "id": "cristal-lunaire",
+    "feature": "crystals",
+    "wallColor": "#55467f",
+    "wallEdgeColor": "#2b214d",
+    "accentColor": "#71efff",
+    "stoneColor": "#c5b6eb",
+    "stoneEdgeColor": "#7563aa",
+    "waterColor": "#6cbdfa",
+    "floorTint": "#dfd2ff"
+  }
+]
