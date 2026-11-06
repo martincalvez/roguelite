@@ -4,7 +4,7 @@ import { SaveManager } from './SaveManager';
 import { RARITY_ORDER } from '../config';
 import { getChest, getHero, getItem, getTalent, HEROES, ITEMS } from '../data';
 import { slotAccepts } from '../systems/equipment';
-import { fusionResult, pickFusionInputs } from '../systems/fusion';
+import { fusionResult, fusionTargets, pickFusionInputs } from '../systems/fusion';
 import { canAffordChest, openChest } from '../systems/chests';
 import { newUid } from '../systems/loot';
 import { talentState } from '../systems/talents';
@@ -180,6 +180,22 @@ class GameStateImpl {
     if (inheritedSlot) d.equipped[inheritedSlot] = result.uid;
     this.persist();
     return result;
+  }
+
+  /** Fusionne toutes les séries possibles, y compris les nouvelles séries créées au passage. */
+  fuseAllItems(): number {
+    let fused = 0;
+    while (true) {
+      const targets = fusionTargets(this.data.inventory, new Set(Object.values(this.data.equipped)));
+      const target = targets[0];
+      if (!target || !this.fuseItems(target.defId, target.rarity)) return fused;
+      fused++;
+    }
+  }
+
+  /** Vrai s'il existe au moins une série de trois objets fusionnables. */
+  canFuseAnyItems(): boolean {
+    return fusionTargets(this.data.inventory, new Set(Object.values(this.data.equipped))).length > 0;
   }
 
   /**

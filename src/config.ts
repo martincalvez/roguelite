@@ -87,6 +87,7 @@ export const FUSION_COUNT = 3;
 export const POOLS = {
   enemies: 40,
   enemyProjectiles: 120,
+  lobbedProjectiles: 18,
   playerProjectiles: 60,
   floatingTexts: 30,
   xpOrbs: 60,

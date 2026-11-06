@@ -115,7 +115,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     if (def.behavior === 'boss') {
       this.updateBoss(time, angle, speed, moveAngle);
-    } else if (def.behavior === 'shooter' || def.behavior === 'spreader') {
+    } else if (def.behavior === 'shooter' || def.behavior === 'spreader' || def.behavior === 'fireball' || def.behavior === 'lobber') {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
       const keep = def.keepDistance ?? 0;
       if (this.stationary) this.setVelocity(0, 0);
@@ -124,9 +124,25 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       else if (dist < keep * TOO_CLOSE_RATIO) this.moveAlong(angle, -speed);
       else this.setVelocity(0, 0);
 
-      if (targetVisible && time >= this.nextFireAt) {
+      // Le tir en cloche passe au-dessus des murs : il n'exige donc pas de ligne de vue.
+      if ((targetVisible || def.behavior === 'lobber') && time >= this.nextFireAt) {
         this.nextFireAt = time + this.fireDelay();
-        this.shoot(angle);
+        if (def.behavior === 'fireball') {
+          this.scene.events.emit('enemy-fireball', this.x, this.y, angle, def.projectileSpeed ?? 0, this.damage, def.explosionRadius ?? 64);
+        } else if (def.behavior === 'lobber') {
+          this.scene.events.emit(
+            'enemy-lob',
+            this.x,
+            this.y,
+            targetX,
+            targetY,
+            this.damage,
+            def.explosionRadius ?? 72,
+            def.lobDurationMs ?? 760,
+          );
+        } else {
+          this.shoot(angle);
+        }
       }
     } else {
       // 'melee' : fonce sur le joueur.

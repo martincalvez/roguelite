@@ -11,10 +11,10 @@
   "fireTickMs": 900,
   "enemyPools": [
     { "fromRoom": 1, "enemies": ["gobelin", "archer_squelette", "shaman"] },
-    { "fromRoom": 11, "enemies": ["chauve_souris_braise", "mage_ombre", "elementaire_lave"] },
-    { "fromRoom": 21, "enemies": ["scarabee_dore", "sentinelle_azur", "esprit_saphir"] },
-    { "fromRoom": 31, "enemies": ["golem_floral", "gardien_racines", "mage_ombre"] },
-    { "fromRoom": 41, "enemies": ["chauve_souris_braise", "elementaire_lave", "golem_floral", "shaman"] }
+    { "fromRoom": 11, "enemies": ["chauve_souris_braise", "mage_ombre", "pyromancien_braise", "elementaire_lave"] },
+    { "fromRoom": 21, "enemies": ["scarabee_dore", "sentinelle_azur", "lanceur_orage", "esprit_saphir"] },
+    { "fromRoom": 31, "enemies": ["golem_floral", "lanceur_orage", "mage_ombre", "pyromancien_braise"] },
+    { "fromRoom": 41, "enemies": ["chauve_souris_braise", "elementaire_lave", "lanceur_orage", "golem_floral", "shaman"] }
   ],
   "bosses": [
     { "room": 10, "enemyId": "ogre" },

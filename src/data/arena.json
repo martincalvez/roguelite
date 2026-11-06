@@ -5,6 +5,8 @@
   "obstacleMaxCells": 3,
   "obstacleInset": 7,
   "spawnClearance": 130,
+  "enemySpawnMinDistance": 215,
+  "enemySpawnSeparation": 90,
   "doorClearance": 130,
   "stonePatchChance": 0.025,
   "waterPatchChance": 0.012

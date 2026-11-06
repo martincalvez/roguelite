@@ -61,6 +61,9 @@ La vidéo de gameplay envoyée par Martin le 5 novembre 2026 devient la référe
 - Couleurs franches pour distinguer le héros, les ennemis, les projectiles, les pièges et les récompenses. Les effets doivent être visibles sans masquer la navigation.
 - Barre du niveau/progression en haut, pièces à droite, joystick en bas. Cartes de compétence en pause, textes très courts, grandes icônes.
 - Rythme vif : changements de direction fréquents, tirs sans immobiliser le héros, récompenses brèves et immédiatement lisibles.
+- **Variété de salle** : le plan, les points d'apparition et les zones de danger changent à chaque porte. Les attaques venant des côtés ou du bas valorisent les tirs arrière et latéraux ; aucune apparition ne doit tomber directement sur le héros.
+- **Télégraphie** : une boule de feu et un tir en cloche annoncent clairement leur zone d'impact par une marque lumineuse ; les murs arrêtent les tirs droits, tandis qu'un projectile en cloche les survole. Les effets restent compacts pour ne pas masquer le joystick ni les trajectoires.
+- **Volumes** : éviter les murs en pierre répétés et plats. Préférer un cadre épais coloré, des obstacles bas à ombres douces et reflets, et des feux à plusieurs couches (braises, cœur jaune, étincelles) pour garder la lecture à vitesse élevée.
 
 ### Assets à obtenir en priorité
 

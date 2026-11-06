@@ -45,7 +45,7 @@ export class Fx {
     // Pièces réutilisées : chaque élimination doit être satisfaisante, sans créer d'objets en boucle.
     if (scene.textures.exists('coin-gold')) {
       for (let i = 0; i < 24; i++) {
-        this.lootSprites.push(scene.add.image(0, 0, 'coin-gold').setDisplaySize(26, 26).setVisible(false).setDepth(430));
+        this.lootSprites.push(scene.add.image(0, 0, 'coin-gold').setDisplaySize(18, 18).setVisible(false).setDepth(430));
         this.lootBornAt.push(0);
         this.lootStartX.push(0);
         this.lootStartY.push(0);
@@ -60,6 +60,7 @@ export class Fx {
     scene.events.on('level-up', this.onLevelUp, this);
     scene.events.on('wheel-spin', this.onWheelSpin, this);
     scene.events.on('wheel-reward', this.onWheelReward, this);
+    scene.events.on('enemy-explosion', this.onEnemyExplosion, this);
     scene.input.once('pointerdown', () => this.feedback.unlock());
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       scene.events.off('enemy-hit', this.onEnemyHit, this);
@@ -70,6 +71,7 @@ export class Fx {
       scene.events.off('level-up', this.onLevelUp, this);
       scene.events.off('wheel-spin', this.onWheelSpin, this);
       scene.events.off('wheel-reward', this.onWheelReward, this);
+      scene.events.off('enemy-explosion', this.onEnemyExplosion, this);
       this.feedback.dispose();
     });
   }
@@ -96,8 +98,8 @@ export class Fx {
         continue;
       }
       const side = (i % 3) - 1;
-      loot.setPosition(this.lootStartX[i] + side * 34 * t, this.lootStartY[i] - 58 * t + 42 * t * t);
-      loot.setScale(0.82 + Math.sin(t * Math.PI) * 0.38);
+      loot.setPosition(this.lootStartX[i] + side * 24 * t, this.lootStartY[i] - 46 * t + 32 * t * t);
+      loot.setScale(0.72 + Math.sin(t * Math.PI) * 0.28);
       loot.setAngle(t * 300 + side * 22).setAlpha(1 - t * t);
     }
   }
@@ -139,6 +141,20 @@ export class Fx {
     this.feedback.wheelReward();
   }
 
+  private onEnemyExplosion(x: number, y: number, radius: number): void {
+    const burst = this.scene.add.particles(x, y, 'particle', {
+      speed: { min: 80, max: 260 },
+      lifespan: 360,
+      scale: { start: 1.45, end: 0 },
+      tint: [0xffe16b, 0xff643f, 0xa64cff],
+      quantity: Math.max(10, Math.round(radius / 5)),
+      emitting: false,
+    });
+    burst.explode();
+    this.scene.time.delayedCall(420, () => burst.destroy());
+    this.scene.cameras.main.shake(80, 0.0018);
+  }
+
   /** Prend un texte libre du pool (ou en crée un, ou recycle le plus ancien). */
   private showText(x: number, y: number, content: string, color: string, size: number): void {
     let index = -1;
@@ -176,9 +192,9 @@ export class Fx {
       const i = this.nextLootReuse++ % this.lootSprites.length;
       const loot = this.lootSprites[i];
       this.lootBornAt[i] = this.scene.time.now - j * 36;
-      this.lootStartX[i] = x + Phaser.Math.Between(-14, 14);
-      this.lootStartY[i] = y + Phaser.Math.Between(-8, 12);
-      loot.setPosition(this.lootStartX[i], this.lootStartY[i]).setScale(0.8).setAlpha(1).setVisible(true);
+      this.lootStartX[i] = x + Phaser.Math.Between(-10, 10);
+      this.lootStartY[i] = y + Phaser.Math.Between(-6, 9);
+      loot.setPosition(this.lootStartX[i], this.lootStartY[i]).setScale(0.72).setAlpha(1).setVisible(true);
     }
   }
 }

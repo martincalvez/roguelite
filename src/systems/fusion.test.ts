@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FUSION_COUNT } from '../config';
 import type { ItemInstance, Rarity } from '../types';
-import { fusionResult, nextRarity, pickFusionInputs } from './fusion';
+import { fusionResult, fusionTargets, nextRarity, pickFusionInputs } from './fusion';
 
 const item = (uid: string, level = 1, rarity: Rarity = 'common', defId = 'arc'): ItemInstance => ({ uid, defId, rarity, level });
 
@@ -50,5 +50,19 @@ describe('fusionResult', () => {
 
   it('lève une erreur à la rareté maximale', () => {
     expect(() => fusionResult([item('a', 1, 'mythic')], () => 'n')).toThrow();
+  });
+});
+
+describe('fusionTargets', () => {
+  it('liste uniquement les groupes réalisables, dans un ordre stable', () => {
+    const inventory = [
+      item('a1'), item('a2'), item('a3'),
+      item('b1', 1, 'rare', 'baton'), item('b2', 1, 'rare', 'baton'), item('b3', 1, 'rare', 'baton'),
+      item('c1', 1, 'mythic', 'arc'), item('c2', 1, 'mythic', 'arc'), item('c3', 1, 'mythic', 'arc'),
+    ];
+    expect(fusionTargets(inventory, new Set())).toEqual([
+      { defId: 'arc', rarity: 'common' },
+      { defId: 'baton', rarity: 'rare' },
+    ]);
   });
 });

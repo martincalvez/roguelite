@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { ARENA, GAME_WIDTH, PLAYER_SPAWN, POOLS } from '../config';
-import { COMBAT, getChapter, getEnemy, HEROES, PROGRESSION, SURVIVAL } from '../data';
+import { ARENA_DECOR, COMBAT, getChapter, getEnemy, HEROES, PROGRESSION, SURVIVAL } from '../data';
 import type { Enemy } from '../entities/Enemy';
 import type { EnemyProjectile } from '../entities/EnemyProjectile';
 import type { Projectile } from '../entities/Projectile';
@@ -107,6 +107,8 @@ export class RoomFlow {
     }
     // Une transition de salle ne doit jamais conserver de gemme visuelle ou de collider fantôme.
     for (const orb of this.xpOrbs.getChildren() as XpOrb[]) if (orb.active) orb.kill();
+    // Chaque salle reçoit un plan nouveau, mais tous les colliders du run sont conservés.
+    if (index > 0) this.ctx.refreshArena();
     (player.body as Phaser.Physics.Arcade.Body).reset(PLAYER_SPAWN.x, PLAYER_SPAWN.y);
     this.spawnRoom(index);
     scene.events.emit('room-changed', index + 1, this.roomCount());
@@ -123,12 +125,13 @@ export class RoomFlow {
     else this.setDoor(true);
   }
 
-  /** Fait apparaître les ennemis d'une salle du chapitre, dans la moitié haute de l'arène, hors des blocs. */
+  /** Fait apparaître les ennemis autour du héros : flancs et dos compris, avec une zone de sécurité au départ. */
   private spawnRoom(roomIndex: number): void {
     const { scene, enemies, arena, player } = this.ctx;
     const chapter = getChapter(this.ctx.chapterId);
     const room = this.ctx.mode === 'survival' ? survivalRoom(roomIndex + 1) : chapter.rooms[roomIndex];
-    const margin = 60;
+    const occupied: { x: number; y: number }[] = [];
+    const playerPoint = { x: player.x - ARENA.x, y: player.y - ARENA.y };
     // Les PV suivent le multiplicateur de la salle ; les dégâts n'en suivent qu'une partie.
     const roomScale = room.difficulty ?? 1;
     const base = HEROES.find((hero) => hero.id === GameState.data.selectedHero)?.base ?? HEROES[0].base;
@@ -142,13 +145,19 @@ export class RoomFlow {
       // qu'un simple sac à PV quand le joueur les surclasse par son équipement.
       const count = group.count + (def.boss ? 0 : threat.extraEnemiesPerGroup);
       for (let i = 0; i < count; i++) {
-        // Case libre de la moitié haute ; à défaut (arène très remplie), tirage au hasard historique.
-        const spot = pickEnemySpawn(arena);
-        const x = spot ? ARENA.x + spot.x : Phaser.Math.Between(ARENA.x + margin, ARENA.x + ARENA.width - margin);
-        const y = spot ? ARENA.y + spot.y : Phaser.Math.Between(ARENA.y + margin, ARENA.y + ARENA.height / 2 - margin);
+        const spot = pickEnemySpawn(arena, {
+          origin: playerPoint,
+          minDistance: ARENA_DECOR.enemySpawnMinDistance,
+          occupied,
+          minSeparation: ARENA_DECOR.enemySpawnSeparation,
+        });
+        if (!spot) continue;
+        const x = ARENA.x + spot.x;
+        const y = ARENA.y + spot.y;
         const enemy = enemies.get(x, y) as Enemy | null;
         if (!enemy) continue; // pool plein : on ne compte que les ennemis réellement créés
         enemy.spawn(def, x, y, scene.time.now, threat.hpScale, threat.damageScale);
+        occupied.push(spot);
         this.enemiesAlive++;
       }
     }

@@ -84,16 +84,26 @@ describe('disposition du décor', () => {
     expect(b.tiles).toEqual(a.tiles);
   });
 
-  it('choisit des apparitions d’ennemis dans la moitié haute, hors des blocs et accessibles', () => {
+  it('choisit des apparitions réparties dans l’arène, hors des blocs et accessibles', () => {
     const layout = build(5);
     const rng = seededRng(99);
-    for (let i = 0; i < 40; i++) {
-      const point = pickEnemySpawn(layout, rng);
+    const occupied: { x: number; y: number }[] = [];
+    let hasSpawnBehind = false;
+    for (let i = 0; i < 10; i++) {
+      const point = pickEnemySpawn(layout, {
+        rng,
+        minDistance: ARENA_DECOR.enemySpawnMinDistance,
+        minSeparation: ARENA_DECOR.enemySpawnSeparation,
+        occupied,
+      });
       expect(point).not.toBeNull();
       const { col, row } = cellOf(layout, point!);
-      expect(row).toBeLessThan(layout.rows / 2);
       expect(layout.blocked[row * layout.cols + col]).toBe(false);
       expect(connected(layout, SPAWN, point!)).toBe(true);
+      expect(Math.hypot(point!.x - SPAWN.x, point!.y - SPAWN.y)).toBeGreaterThanOrEqual(ARENA_DECOR.enemySpawnMinDistance);
+      hasSpawnBehind ||= point!.y > SPAWN.y;
+      occupied.push(point!);
     }
+    expect(hasSpawnBehind).toBe(true);
   });
 });

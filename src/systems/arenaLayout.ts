@@ -33,6 +33,16 @@ export interface ArenaLayout {
   spawn: ArenaPoint;
 }
 
+export interface EnemySpawnOptions {
+  /** Le héros (ou un autre point fragile) que l'apparition doit éviter. */
+  origin?: ArenaPoint;
+  minDistance?: number;
+  /** Positions déjà attribuées dans cette vague, pour éviter une pile d'ennemis. */
+  occupied?: readonly ArenaPoint[];
+  minSeparation?: number;
+  rng?: () => number;
+}
+
 const MIN_OBSTACLE_SIZE = 8;
 
 /**
@@ -69,22 +79,33 @@ export function buildArenaLayout(
   return layout;
 }
 
-/** Case libre la plus proche de la moitié haute, reliée au héros : position d'apparition d'un ennemi. */
-export function pickEnemySpawn(layout: ArenaLayout, rng: () => number = Math.random): ArenaPoint | null {
+/**
+ * Case libre et reliée au héros pour une apparition. Toute l'arène est admissible : les ennemis
+ * peuvent donc arriver sur les flancs ou derrière le joueur, sans apparaître sur lui ni se superposer.
+ */
+export function pickEnemySpawn(
+  layout: ArenaLayout,
+  options: EnemySpawnOptions | (() => number) = {},
+): ArenaPoint | null {
+  const config = typeof options === 'function' ? { rng: options } : options;
+  const rng = config.rng ?? Math.random;
   const start = cellIndex(layout, layout.spawn);
   if (start < 0) return null;
   const reachable = reachableCells(layout, start);
-  const maxRow = Math.max(0, Math.floor(layout.rows / 2) - 1);
-  const upper: number[] = [];
-  const fallback: number[] = [];
+  const origin = config.origin ?? layout.spawn;
+  const minDistance = config.minDistance ?? 0;
+  const occupied = config.occupied ?? [];
+  const minSeparation = config.minSeparation ?? 0;
+  const candidates: number[] = [];
   for (let index = 0; index < layout.blocked.length; index++) {
     if (!reachable[index] || layout.blocked[index]) continue;
-    fallback.push(index);
-    if (Math.floor(index / layout.cols) <= maxRow) upper.push(index);
+    const point = cellCenter(layout, index);
+    if (Math.hypot(point.x - origin.x, point.y - origin.y) < minDistance) continue;
+    if (occupied.some((other) => Math.hypot(point.x - other.x, point.y - other.y) < minSeparation)) continue;
+    candidates.push(index);
   }
-  const pool = upper.length > 0 ? upper : fallback;
-  if (pool.length === 0) return null;
-  return cellCenter(layout, pool[Math.floor(rng() * pool.length)]);
+  if (candidates.length === 0) return null;
+  return cellCenter(layout, candidates[Math.floor(rng() * candidates.length)]);
 }
 
 /** Vrai si on peut aller d'un point à l'autre sans traverser de bloc. */

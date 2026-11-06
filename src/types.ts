@@ -87,7 +87,7 @@ export interface SkillDef {
   effect: SkillEffect;
 }
 
-export type EnemyBehavior = 'melee' | 'shooter' | 'spreader' | 'boss';
+export type EnemyBehavior = 'melee' | 'shooter' | 'spreader' | 'fireball' | 'lobber' | 'boss';
 
 /** Réglages d'un boss : il alterne ruée, cercle de projectiles et salve visée. */
 export interface BossConfig {
@@ -115,6 +115,10 @@ export interface EnemyDef {
   projectileCount?: number;
   keepDistance?: number; // px : distance que garde un tireur par rapport au joueur
   spreadAngle?: number; // degrés : ouverture de l'éventail d'un 'spreader'
+  /** Rayon de l'explosion d'une boule de feu ou de l'impact d'un tir en cloche. */
+  explosionRadius?: number;
+  /** Durée du vol d'un projectile en cloche : il passe au-dessus des blocs. */
+  lobDurationMs?: number;
   boss?: BossConfig; // obligatoire si behavior === 'boss'
 }
 
@@ -256,6 +260,8 @@ export interface ArenaDecorConfig {
   obstacleMaxCells: number; // longueur maximale d'un bloc, en cases
   obstacleInset: number; // retrait visuel et de collision autour d'une case bloquée
   spawnClearance: number; // rayon libre autour du point de départ du héros
+  enemySpawnMinDistance: number; // distance minimale entre une apparition ennemie et le héros
+  enemySpawnSeparation: number; // distance minimale entre deux ennemis à l'apparition
   doorClearance: number; // demi-largeur libre autour de la porte de sortie
   stonePatchChance: number; // probabilité d'une plaque de pierre par case
   waterPatchChance: number; // probabilité d'un canal d'eau par case

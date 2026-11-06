@@ -12,6 +12,8 @@ export interface RunContext {
   player: Player;
   /** Décor de la salle : grille de tuiles et blocs solides (voir src/systems/arenaLayout.ts). */
   arena: ArenaLayout;
+  /** Reconstruit une arène nouvelle entre deux salles, sans perdre les colliders du run. */
+  refreshArena: () => void;
   runState: RunState;
   joystick: VirtualJoystick;
   enemies: Phaser.Physics.Arcade.Group;

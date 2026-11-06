@@ -38,6 +38,7 @@ export class BootScene extends Phaser.Scene {
     this.makeEnergyOrb('projectile-bolt', 0x36d8ff);
     this.makeShuriken('projectile-shuriken');
     this.makeEnergyOrb('enemy-projectile', 0xff3b6b);
+    this.makeEnergyOrb('enemy-fireball', 0xff6d32);
     this.makeCircle('particle', 5, 0xffffff);
     this.makeCircle('orbit-orb', 14, 0xb35cff);
     if (!this.textures.exists('xp-orb')) this.makeCircle('xp-orb', 6, 0x5cff7a);
@@ -210,6 +211,30 @@ export class BootScene extends Phaser.Scene {
         g.lineStyle(8, 0x724631, 1).lineBetween(122, 78, 132, 137);
         gem(121, 66, 13, 0xff48db);
         g.fillStyle(0xd960ff, 1).fillTriangle(53, 123, 80, 104, 107, 123);
+        break;
+      }
+      case 'pyromancien_braise': {
+        g.fillStyle(0x54213a, 1).fillTriangle(80, 28, 29, 139, 131, 139);
+        g.lineStyle(8, outline, 1).strokeTriangle(80, 28, 29, 139, 131, 139);
+        g.fillStyle(0xe4543a, 1).fillTriangle(80, 38, 46, 129, 114, 129);
+        ring(c, 78, 29, 0x3a1b32, 5);
+        eye(66, 79, 0xffdf5d, 7);
+        eye(94, 79, 0xffdf5d, 7);
+        g.fillStyle(0xffbd3a, 1).fillTriangle(80, 52, 94, 96, 80, 116).fillTriangle(80, 52, 66, 96, 80, 116);
+        g.fillStyle(0xff6b38, 1).fillCircle(121, 73, 18);
+        g.lineStyle(5, outline, 1).strokeCircle(121, 73, 16);
+        break;
+      }
+      case 'lanceur_orage': {
+        g.fillStyle(0x302566, 1).fillTriangle(80, 24, 31, 140, 129, 140);
+        g.lineStyle(8, outline, 1).strokeTriangle(80, 24, 31, 140, 129, 140);
+        g.fillStyle(0x7357db, 1).fillTriangle(80, 35, 48, 129, 112, 129);
+        ring(c, 80, 30, 0x201b4b, 5);
+        eye(66, 81, 0x78f5ff, 7);
+        eye(94, 81, 0x78f5ff, 7);
+        g.lineStyle(8, 0x7a4a34, 1).lineBetween(119, 54, 128, 136);
+        gem(120, 47, 14, 0x64eaff);
+        g.fillStyle(0xaa8dff, 1).fillTriangle(70, 112, 91, 112, 80, 129);
         break;
       }
       case 'ogre': {

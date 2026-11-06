@@ -67,18 +67,21 @@ export class SurvivalHazards {
     const x = ARENA.x + point.x;
     const y = ARENA.y + point.y;
     const visual = this.ctx.scene.add.container(x, y).setDepth(-2);
-    const art = this.ctx.scene.add.graphics();
-    art.fillStyle(0xa62321, 0.42).fillCircle(0, 0, SURVIVAL.fireRadius + 4);
-    art.fillStyle(0xf44a24, 0.66).fillCircle(0, 0, SURVIVAL.fireRadius - 5);
-    art.fillStyle(0xff9f22, 0.92).fillCircle(0, 0, SURVIVAL.fireRadius * 0.58);
-    art.fillStyle(0xffe67c, 0.96).fillCircle(0, 0, SURVIVAL.fireRadius * 0.24);
-    art.fillStyle(0xffca38, 0.95);
-    art.fillTriangle(-25, 4, -12, -26, -3, 10);
-    art.fillTriangle(-8, 0, 7, -36, 17, 8);
-    art.fillTriangle(10, 8, 27, -22, 30, 12);
-    art.lineStyle(3, 0xffe67c, 0.8).strokeCircle(0, 0, SURVIVAL.fireRadius - 2);
-    visual.add(art);
-    this.ctx.scene.tweens.add({ targets: visual, scale: 1.08, alpha: 0.76, duration: 420, yoyo: true, repeat: -1 });
+    const ring = this.ctx.scene.add.graphics();
+    ring.fillStyle(0x501430, 0.34).fillCircle(0, 0, SURVIVAL.fireRadius + 9);
+    ring.lineStyle(4, 0xff5d43, 0.94).strokeCircle(0, 0, SURVIVAL.fireRadius + 2);
+    ring.lineStyle(2, 0xffdc5a, 0.88).strokeCircle(0, 0, SURVIVAL.fireRadius - 9);
+    const embers = this.ctx.scene.add.graphics();
+    embers.fillStyle(0xff5c34, 0.82).fillEllipse(-17, 7, 29, 41).fillEllipse(16, 9, 32, 45);
+    embers.fillStyle(0xffa52e, 0.94).fillTriangle(-26, 14, -13, -36, 1, 15).fillTriangle(-3, 14, 8, -49, 22, 15).fillTriangle(14, 16, 30, -30, 37, 18);
+    embers.fillStyle(0xffdf59, 1).fillTriangle(-17, 12, -10, -19, 0, 12).fillTriangle(-2, 14, 8, -33, 17, 14).fillTriangle(14, 16, 23, -13, 29, 18);
+    embers.fillStyle(0xfff5bd, 0.92).fillTriangle(-4, 12, 8, -12, 17, 14);
+    const sparks = this.ctx.scene.add.graphics();
+    sparks.fillStyle(0xffdf6d, 0.92).fillCircle(-33, -25, 3).fillCircle(30, -16, 4).fillCircle(8, -58, 3);
+    visual.add([ring, embers, sparks]);
+    this.ctx.scene.tweens.add({ targets: embers, scaleX: 0.9, scaleY: 1.14, duration: 270, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.ctx.scene.tweens.add({ targets: sparks, y: -10, alpha: 0.22, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.easeOut' });
+    this.ctx.scene.tweens.add({ targets: ring, scale: 1.08, alpha: 0.68, duration: 560, yoyo: true, repeat: -1 });
     this.zones.push({ x, y, nextDamageAt: 0, visual });
   }
 

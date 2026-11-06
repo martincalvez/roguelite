@@ -177,8 +177,21 @@ export class EquipmentScene extends Phaser.Scene {
     const items = [...GameState.data.inventory].sort(
       (a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity) || getItem(a.defId).name.localeCompare(getItem(b.defId).name),
     );
-    this.add.rectangle(GAME_WIDTH / 2, 390, 690, 58, 0x052b59).setStrokeStyle(4, LIGHT_BLUE);
-    this.add.text(GAME_WIDTH / 2, 390, `COLLECTION  ·  ${items.length}`, { fontSize: '28px', color: '#fff4d2', fontStyle: 'bold', ...STROKE, strokeThickness: 5 }).setOrigin(0.5);
+    this.add.rectangle(GAME_WIDTH / 2, 390, 690, 94, 0x052b59).setStrokeStyle(4, LIGHT_BLUE);
+    this.add.text(204, 390, `COLLECTION  ·  ${items.length}`, { fontSize: '25px', color: '#fff4d2', fontStyle: 'bold', ...STROKE, strokeThickness: 5 }).setOrigin(0.5);
+    const canFuseAll = GameState.canFuseAnyItems();
+    const fuseAll = this.add.rectangle(540, 390, 270, 88, canFuseAll ? 0x32c45b : 0x496173, canFuseAll ? 1 : 0.72)
+      .setStrokeStyle(5, canFuseAll ? 0xc8ff81 : 0x182e47);
+    this.add.text(540, 390, 'TOUT FUSIONNER', {
+      fontSize: '21px', color: canFuseAll ? '#fffceb' : '#bed0db', fontStyle: 'bold', ...STROKE, strokeThickness: 4,
+    }).setOrigin(0.5);
+    if (canFuseAll) {
+      fuseAll.setInteractive({ useHandCursor: true });
+      fuseAll.on('pointerup', () => {
+        GameState.fuseAllItems();
+        this.build();
+      });
+    }
 
     const total = COLS * CARD_W + (COLS - 1) * CARD_GAP;
     const startX = (GAME_WIDTH - total) / 2 + CARD_W / 2;
@@ -226,7 +239,7 @@ export class EquipmentScene extends Phaser.Scene {
 
   /** Illustrations originales : des silhouettes d'objets reconnaissables même sur un petit écran. */
   private drawItemIcon(x: number, y: number, id: string, slot: string, color: number): Phaser.GameObjects.Graphics | Phaser.GameObjects.Image {
-    if (slot === 'pet' && this.textures.exists(`pet-${id}`)) return this.add.image(x, y, `pet-${id}`).setDisplaySize(66, 66);
+    if (slot === 'pet' && this.textures.exists(`pet-${id}`)) return this.add.image(x, y, `pet-${id}`).setDisplaySize(48, 48);
     const g = this.add.graphics().setPosition(x, y);
     const ink = INK;
     if (id.includes('arc')) {
