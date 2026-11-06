@@ -76,6 +76,20 @@ def clear_connected_checkerboard(image: Image.Image, chroma_tolerance: int) -> I
     return rgb
 
 
+def trim_transparent(image: Image.Image, padding: int = 3) -> Image.Image:
+    """Recadre une illustration détourée sans rogner son contour ni ses lueurs."""
+    bounds = image.getchannel("A").getbbox()
+    if not bounds:
+        return image
+    left, top, right, bottom = bounds
+    return image.crop((
+        max(0, left - padding),
+        max(0, top - padding),
+        min(image.width, right + padding),
+        min(image.height, bottom + padding),
+    ))
+
+
 def process_asset(
     item: dict[str, Any], source_dir: Path, output_dir: Path
 ) -> list[Path]:
@@ -97,7 +111,11 @@ def process_asset(
     grid = item.get("grid")
     tolerance = int(item.get("chroma_tolerance", 24))
     if not grid:
-        downscale(clear_connected_checkerboard(image, tolerance)).save(output, optimize=True)
+        trimmed = trim_transparent(
+            clear_connected_checkerboard(image, tolerance),
+            int(item.get("transparent_padding", 3)),
+        )
+        downscale(trimmed).save(output, optimize=True)
         return [output]
 
     rows, columns = map(int, grid)

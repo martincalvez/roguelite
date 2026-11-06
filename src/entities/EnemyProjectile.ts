@@ -18,12 +18,21 @@ export class EnemyProjectile extends Phaser.Physics.Arcade.Sprite {
     damage: number,
     kind: 'bolt' | 'fireball' = 'bolt',
     explosionRadius = 0,
+    artKey?: string,
   ): void {
     this.enableBody(true, x, y, true, true);
     this.kind = kind;
     this.explosionRadius = explosionRadius;
-    this.setTexture(kind === 'fireball' ? 'enemy-fireball' : 'enemy-projectile');
-    this.setDisplaySize(kind === 'fireball' ? 38 : 22, kind === 'fireball' ? 38 : 22).setRotation(angle);
+    const texture = artKey && this.scene.textures.exists(artKey)
+      ? artKey
+      : kind === 'fireball' ? 'enemy-fireball' : 'enemy-projectile';
+    const isArrow = artKey === 'vfx-arcane-arrow';
+    this.setTexture(texture);
+    // L'illustration reste décorative : la zone de contact est définie juste après et ne grossit pas avec elle.
+    this.setDisplaySize(
+      isArrow ? 44 : kind === 'fireball' ? 42 : artKey ? 30 : 22,
+      isArrow ? 24 : kind === 'fireball' ? 42 : artKey ? 30 : 22,
+    ).setRotation(angle);
     this.damage = damage;
     const radius = 8 / Math.max(Math.abs(this.scaleX), 0.001);
     this.setCircle(radius, (this.frame.width - radius * 2) / 2, (this.frame.height - radius * 2) / 2);

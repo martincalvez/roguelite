@@ -172,6 +172,20 @@ export class Fx {
   }
 
   private onEnemyExplosion(x: number, y: number, radius: number): void {
+    if (this.scene.textures.exists('vfx-fire-explosion')) {
+      const blast = this.scene.add.image(x, y, 'vfx-fire-explosion')
+        .setDisplaySize(Math.max(76, radius * 2.05), Math.max(76, radius * 2.05))
+        .setDepth(410);
+      this.scene.tweens.add({
+        targets: blast,
+        scaleX: 1.18,
+        scaleY: 1.18,
+        alpha: 0,
+        duration: 260,
+        ease: 'Cubic.Out',
+        onComplete: () => blast.destroy(),
+      });
+    }
     const burst = this.scene.add.particles(x, y, 'particle', {
       speed: { min: 80, max: 260 },
       lifespan: 360,

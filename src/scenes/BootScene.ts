@@ -22,10 +22,49 @@ export class BootScene extends Phaser.Scene {
     this.load.image('coin-gold', 'assets/generated/gemini-transparent/gold-coin.png');
     this.load.image('stone-pillar', 'assets/generated/gemini-transparent/stone-pillar.png');
     this.load.image('water-texture', 'assets/generated/gemini-transparent/water-texture.png');
-    this.load.image('enemy-art-turret', 'assets/generated/gemini-transparent/red-turret.png');
+    this.load.image('enemy-art-turret', 'assets/generated/gemini-transparent/hazard-turret.png');
     this.load.image('enemy-art-crystal-green', 'assets/generated/gemini-transparent/crystal-golem-green.png');
     this.load.image('enemy-art-crystal-pink', 'assets/generated/gemini-transparent/crystal-golem-pink.png');
     this.load.image('enemy-art-blue-knight', 'assets/generated/gemini-transparent/blue-knight-boss.png');
+
+    // Pack illustré validé : personnages, obstacles et effets gardent la même direction arcade.
+    this.load.image('enemy-art-goblin', 'assets/generated/gemini-transparent/enemy-goblin.png');
+    this.load.image('enemy-art-skeleton-archer', 'assets/generated/gemini-transparent/enemy-skeleton-archer.png');
+    this.load.image('enemy-art-shaman', 'assets/generated/gemini-transparent/enemy-shaman.png');
+    this.load.image('enemy-art-ember-pyromancer', 'assets/generated/gemini-transparent/enemy-ember-pyromancer.png');
+    this.load.image('enemy-art-storm-lobber', 'assets/generated/gemini-transparent/enemy-storm-lobber.png');
+    this.load.image('enemy-art-ogre', 'assets/generated/gemini-transparent/boss-ogre.png');
+    this.load.image('enemy-art-frost-knight', 'assets/generated/gemini-transparent/boss-frost-knight.png');
+    this.load.image('enemy-art-scarab', 'assets/generated/gemini-transparent/enemy-scarab.png');
+    this.load.image('enemy-art-azure-sentinel', 'assets/generated/gemini-transparent/enemy-azure-sentinel.png');
+    this.load.image('enemy-art-sapphire-spirit', 'assets/generated/gemini-transparent/enemy-sapphire-spirit.png');
+    this.load.image('enemy-art-floral-golem', 'assets/generated/gemini-transparent/enemy-floral-golem.png');
+    this.load.image('enemy-art-root-guardian', 'assets/generated/gemini-transparent/boss-root-guardian.png');
+    this.load.image('enemy-art-ember-bat', 'assets/generated/gemini-transparent/enemy-ember-bat.png');
+    this.load.image('enemy-art-shadow-mage', 'assets/generated/gemini-transparent/enemy-shadow-mage.png');
+    this.load.image('enemy-art-lava-elemental', 'assets/generated/gemini-transparent/enemy-lava-elemental.png');
+    this.load.image('obstacle-mossy-rocks', 'assets/generated/gemini-transparent/obstacle-mossy-rocks.png');
+
+    this.load.image('vfx-fire-explosion', 'assets/generated/gemini-transparent/vfx-fire-explosion.png');
+    this.load.image('vfx-poison-blob', 'assets/generated/gemini-transparent/vfx-poison-blob.png');
+    this.load.image('vfx-arcane-arrow', 'assets/generated/gemini-transparent/vfx-arcane-arrow.png');
+    this.load.image('vfx-lightning-impact', 'assets/generated/gemini-transparent/vfx-lightning-impact.png');
+    this.load.image('vfx-lightning-orb', 'assets/generated/gemini-transparent/vfx-lightning-orb.png');
+    this.load.image('vfx-fireball', 'assets/generated/gemini-transparent/vfx-fireball.png');
+    this.load.image('vfx-shadow-orb', 'assets/generated/gemini-transparent/vfx-shadow-orb.png');
+    this.load.image('vfx-ice-shard', 'assets/generated/gemini-transparent/vfx-ice-shard.png');
+
+    this.load.image('skill-multi-shot', 'assets/generated/gemini-transparent/skill-multi-shot.png');
+    this.load.image('skill-heal', 'assets/generated/gemini-transparent/skill-heal.png');
+    this.load.image('skill-protective-orb', 'assets/generated/gemini-transparent/skill-protective-orb.png');
+    this.load.image('skill-front-arrows', 'assets/generated/gemini-transparent/skill-front-arrows.png');
+    this.load.image('skill-piercing-arrow', 'assets/generated/gemini-transparent/skill-piercing-arrow.png');
+    this.load.image('skill-rear-shot', 'assets/generated/gemini-transparent/skill-rear-shot.png');
+
+    this.load.image('equipment-bow', 'assets/generated/gemini-transparent/equipment-bow.png');
+    this.load.image('equipment-armor', 'assets/generated/gemini-transparent/equipment-armor.png');
+    this.load.image('equipment-ring', 'assets/generated/gemini-transparent/equipment-ring.png');
+    this.load.image('equipment-grimoire', 'assets/generated/gemini-transparent/equipment-grimoire.png');
   }
 
   create(): void {

@@ -32,6 +32,19 @@ const KIND_COLOR: Partial<Record<SkillEffect['kind'], number>> = {
 const DEFAULT_COLOR = 0x42b83c;
 const DARK = 0x382114;
 const CREAM = 0xffead0;
+const SKILL_ART: Partial<Record<string, string>> = {
+  tir_multiple: 'skill-front-arrows',
+  tir_diagonal: 'skill-multi-shot',
+  tir_arriere: 'skill-rear-shot',
+  percant: 'skill-piercing-arrow',
+  frenesie: 'vfx-lightning-impact',
+  force: 'vfx-arcane-arrow',
+  vitalite: 'skill-heal',
+  soin: 'skill-heal',
+  flamme: 'vfx-fireball',
+  givre: 'vfx-ice-shard',
+  orbe: 'skill-protective-orb',
+};
 
 /** Overlay de choix tactile, inspiré des cartes parchemin à bordure dorée des références. */
 export class SkillPickScene extends Phaser.Scene {
@@ -145,6 +158,12 @@ export class SkillPickScene extends Phaser.Scene {
   private drawSkillIcon(x: number, y: number, skill: SkillDef, color: number): void {
     const plate = this.add.circle(x, y, 70, color, 0.2).setStrokeStyle(5, color);
     this.add.circle(x, y, 58, 0xfff7e5).setStrokeStyle(5, 0x5b391c);
+    const art = SKILL_ART[skill.id];
+    if (art && this.textures.exists(art)) {
+      const image = this.add.image(x, y, art).setDepth(plate.depth + 1);
+      image.setScale(104 / Math.max(image.width, image.height));
+      return;
+    }
     const icon = this.add.graphics().setDepth(plate.depth + 1);
     const drawArrow = (angle: number, headColor = color, shaftColor = 0x35475b, length = 47): void => {
       const tailX = x - Math.cos(angle) * 29;

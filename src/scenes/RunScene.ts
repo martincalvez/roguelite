@@ -36,6 +36,18 @@ interface EnemyRoute {
   waypoint: ArenaPoint;
 }
 
+/** Une attaque lisible par rôle : le collider du projectile ne dépend jamais de son illustration. */
+const ENEMY_PROJECTILE_ART: Partial<Record<string, string>> = {
+  archer_squelette: 'vfx-arcane-arrow',
+  shaman: 'vfx-lightning-orb',
+  pyromancien_braise: 'vfx-fireball',
+  lanceur_orage: 'vfx-lightning-orb',
+  sentinelle_azur: 'vfx-lightning-orb',
+  esprit_saphir: 'vfx-shadow-orb',
+  mage_ombre: 'vfx-shadow-orb',
+  elementaire_lave: 'vfx-fireball',
+};
+
 /**
  * Scène de combat : monte l'arène, le héros, les pools et le HUD, puis délègue à des contrôleurs
  * (src/run/) : ShotController (tir), SkillFlow (choix de compétence), RoomFlow (salles, porte, XP),
@@ -197,14 +209,14 @@ export class RunScene extends Phaser.Scene {
     this.rooms.update();
   }
 
-  private onEnemyShoot(x: number, y: number, angle: number, speed: number, damage: number): void {
+  private onEnemyShoot(x: number, y: number, angle: number, speed: number, damage: number, enemyId?: string): void {
     const projectile = this.ctx.enemyProjectiles.get(x, y) as EnemyProjectile | null;
-    projectile?.fire(x, y, angle, speed, damage);
+    projectile?.fire(x, y, angle, speed, damage, 'bolt', 0, enemyId ? ENEMY_PROJECTILE_ART[enemyId] : undefined);
   }
 
-  private onEnemyFireball(x: number, y: number, angle: number, speed: number, damage: number, radius: number): void {
+  private onEnemyFireball(x: number, y: number, angle: number, speed: number, damage: number, radius: number, enemyId?: string): void {
     const projectile = this.ctx.enemyProjectiles.get(x, y) as EnemyProjectile | null;
-    projectile?.fire(x, y, angle, speed, damage, 'fireball', radius);
+    projectile?.fire(x, y, angle, speed, damage, 'fireball', radius, ENEMY_PROJECTILE_ART[enemyId ?? ''] ?? 'vfx-fireball');
   }
 
   private onEnemyLob(
@@ -479,15 +491,14 @@ export class RunScene extends Phaser.Scene {
       const shortSide = horizontal ? block.height : block.width;
       const longSide = horizontal ? block.width : block.height;
       const rockCount = Math.max(1, Math.ceil(longSide / Math.max(52, shortSide * 0.7)));
-      const rockSize = Math.max(66, shortSide * 1.16);
+      const rockSize = Math.max(56, shortSide * 1.02);
       for (let index = 0; index < rockCount; index++) {
         const offset = ((index + 0.5) / rockCount - 0.5) * longSide * 0.78;
         const rockX = x + (horizontal ? offset : (index % 2 === 0 ? -shortSide * 0.08 : shortSide * 0.08));
         const rockY = y + (horizontal ? (index % 2 === 0 ? -shortSide * 0.08 : shortSide * 0.08) : offset);
-        track(this.add.image(rockX, rockY, 'stone-pillar')
+        track(this.add.image(rockX, rockY, 'obstacle-mossy-rocks')
           .setDisplaySize(rockSize, rockSize)
-          .setTint(color(visual.stoneColor))
-          .setAlpha(0.9)
+          .setAlpha(0.96)
           .setDepth(-4));
       }
       blockArt.lineStyle(3, color(visual.accentColor), 0.32).strokeRoundedRect(x - block.width / 2 + 4, y - block.height / 2 + 4, block.width - 8, block.height - 8, 18);

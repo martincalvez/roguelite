@@ -10,19 +10,42 @@ const BURN_TINT = 0xff5a1f;
 const FREEZE_TINT = 0x66ccff;
 const ELITE_TINT = 0xffd05a;
 
-/** Le chevalier bleu reste le portrait illustré du boss Liche ; les autres ennemis sont dessinés par BootScene. */
-const ENEMY_ART: Record<string, string> = {
-  liche: 'enemy-art-blue-knight',
+/** Illustrations détourées : le collider reste indépendant de la silhouette décorative. */
+const ENEMY_ART: Partial<Record<string, string>> = {
+  gobelin: 'enemy-art-goblin',
+  archer_squelette: 'enemy-art-skeleton-archer',
+  shaman: 'enemy-art-shaman',
+  pyromancien_braise: 'enemy-art-ember-pyromancer',
+  lanceur_orage: 'enemy-art-storm-lobber',
+  ogre: 'enemy-art-ogre',
+  liche: 'enemy-art-frost-knight',
+  scarabee_dore: 'enemy-art-scarab',
+  sentinelle_azur: 'enemy-art-azure-sentinel',
+  esprit_saphir: 'enemy-art-sapphire-spirit',
+  golem_floral: 'enemy-art-floral-golem',
+  gardien_racines: 'enemy-art-root-guardian',
+  chauve_souris_braise: 'enemy-art-ember-bat',
+  mage_ombre: 'enemy-art-shadow-mage',
+  elementaire_lave: 'enemy-art-lava-elemental',
 };
 
 /** Les ailes, capes et armes dépassent volontairement du collider : seule la masse du monstre touche le héros. */
 const HITBOX_FACTORS: Record<string, number> = {
-  archer_squelette: 0.82,
-  shaman: 0.8,
-  sentinelle_azur: 0.78,
-  esprit_saphir: 0.78,
-  chauve_souris_braise: 0.7,
-  mage_ombre: 0.8,
+  gobelin: 0.76,
+  archer_squelette: 0.74,
+  shaman: 0.76,
+  pyromancien_braise: 0.74,
+  lanceur_orage: 0.72,
+  ogre: 0.83,
+  liche: 0.84,
+  scarabee_dore: 0.7,
+  sentinelle_azur: 0.72,
+  esprit_saphir: 0.68,
+  golem_floral: 0.78,
+  gardien_racines: 0.86,
+  chauve_souris_braise: 0.64,
+  mage_ombre: 0.74,
+  elementaire_lave: 0.8,
   dragon_cendre: 0.9,
 };
 
@@ -224,7 +247,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private firePreparedAttack(): void {
     const def = this.def;
     if (def.behavior === 'fireball') {
-      this.scene.events.emit('enemy-fireball', this.x, this.y, this.attackAngle, def.projectileSpeed ?? 0, this.damage, def.explosionRadius ?? 64);
+      this.scene.events.emit('enemy-fireball', this.x, this.y, this.attackAngle, def.projectileSpeed ?? 0, this.damage, def.explosionRadius ?? 64, def.id);
     } else if (def.behavior === 'lobber') {
       this.scene.events.emit(
         'enemy-lob',
@@ -261,7 +284,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       if (time >= this.nextVolleyAt) {
         this.nextVolleyAt = time + cfg.volleyIntervalMs;
         this.volleyLeft--;
-        this.scene.events.emit('enemy-shoot', this.x, this.y, angleToTarget, this.def.projectileSpeed ?? 0, this.damage);
+        this.scene.events.emit('enemy-shoot', this.x, this.y, angleToTarget, this.def.projectileSpeed ?? 0, this.damage, this.def.id);
       }
       return;
     }
@@ -293,7 +316,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     if (this.pattern === 'radial') {
       for (const angle of ringAngles(this.def.projectileCount ?? 0)) {
-        this.scene.events.emit('enemy-shoot', this.x, this.y, angle, this.def.projectileSpeed ?? 0, this.damage);
+        this.scene.events.emit('enemy-shoot', this.x, this.y, angle, this.def.projectileSpeed ?? 0, this.damage, this.def.id);
       }
       return;
     }
@@ -306,7 +329,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       const radius = this.def.explosionRadius;
       if (radius === undefined) return;
       for (const angle of ringAngles(cfg.fireballCount)) {
-        this.scene.events.emit('enemy-fireball', this.x, this.y, angle, this.def.projectileSpeed ?? 0, this.damage, radius);
+        this.scene.events.emit('enemy-fireball', this.x, this.y, angle, this.def.projectileSpeed ?? 0, this.damage, radius, this.def.id);
       }
       return;
     }
@@ -387,7 +410,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const spread = Phaser.Math.DegToRad(def.spreadAngle ?? 0);
     for (let i = 0; i < count; i++) {
       const offset = count > 1 ? (i / (count - 1) - 0.5) * spread : 0;
-      this.scene.events.emit('enemy-shoot', this.x, this.y, angle + offset, speed, this.damage);
+      this.scene.events.emit('enemy-shoot', this.x, this.y, angle + offset, speed, this.damage, def.id);
     }
   }
 

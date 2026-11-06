@@ -44,6 +44,13 @@ const CARD_TINT: Record<ItemInstance['rarity'], number> = {
   legendary: 0xbb7a10,
   mythic: 0xbc3157,
 };
+const ITEM_ART: Partial<Record<string, string>> = {
+  arc_chasseur: 'equipment-bow',
+  baton_runique: 'equipment-grimoire',
+  cotte_mailles: 'equipment-armor',
+  anneau_loup: 'equipment-ring',
+  anneau_vent: 'equipment-ring',
+};
 
 /** Écran équipement : 6 slots, inventaire défilant, détail d'un objet avec différence de stats. */
 export class EquipmentScene extends Phaser.Scene {
@@ -244,6 +251,14 @@ export class EquipmentScene extends Phaser.Scene {
       // l'illustration PNG à sa taille native (plusieurs centaines de pixels).
       const icon = this.add.container(x, y);
       icon.add(this.add.image(0, 0, `pet-${id}`).setDisplaySize(48, 48));
+      return icon;
+    }
+    const art = ITEM_ART[id];
+    if (art && this.textures.exists(art)) {
+      const icon = this.add.container(x, y);
+      const image = this.add.image(0, 0, art);
+      image.setScale(80 / Math.max(image.width, image.height));
+      icon.add(image);
       return icon;
     }
     const g = this.add.graphics().setPosition(x, y);
